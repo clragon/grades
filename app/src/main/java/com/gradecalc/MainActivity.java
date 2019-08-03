@@ -1,5 +1,7 @@
 package com.gradecalc;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 table = Table.read(file.getPath());
             } catch (Exception ex) {
-                Toast.makeText(this, "can't read",
+                Toast.makeText(this, "can't read table",
                         Toast.LENGTH_LONG).show();
             }
         }

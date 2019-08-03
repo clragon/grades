@@ -124,7 +124,7 @@ public class SubjectEditor extends DialogFragment {
     private boolean checkFields() {
         boolean valid = true;
         if (valueTitle.getText().toString().replaceAll("\\s+", "").equals("")) {
-            valueTitle.setError("name kann nicht nicht leer sein.");
+            valueTitle.setError(getString(R.string.name_cannot_be_empty));
             valid = false;
         } else {
             valueTitle.setError(null);

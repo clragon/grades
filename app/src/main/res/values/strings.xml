@@ -6,4 +6,9 @@
     <string name="settings">Settings</string>
     <string name="open_drawer">open drawer</string>
     <string name="close_drawer">close drawer</string>
+    <string name="subject_name">subject name</string>
+    <string name="name_cannot_be_empty">name cannot be empty</string>
+    <string name="value_too_low">value too low</string>
+    <string name="value_too_high">value too high</string>
+    <string name="value_cannot_be_empty">value cannot be empty</string>
 </resources>

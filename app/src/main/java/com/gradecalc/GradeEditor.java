@@ -103,7 +103,7 @@ public class GradeEditor extends DialogFragment {
                     grade.weight = Double.parseDouble(valueWeight.getText().toString());
                     try {
                         grade.creation = dateFormat.parse(valueDate.getText().toString());
-                    } catch (ParseException e) {
+                    } catch (ParseException e) { // TODO: something went wrong :(
                     }
                     dismiss();
                 }
@@ -136,7 +136,7 @@ public class GradeEditor extends DialogFragment {
                     Date creation = new Date();
                     try {
                         creation = dateFormat.parse(valueDate.getText().toString());
-                    } catch (ParseException e) {
+                    } catch (ParseException e) { // TODO: something went wrong :(
                     }
                     subject.addGrade(Value, Weight, Name, creation);
                     dismiss();
@@ -150,13 +150,13 @@ public class GradeEditor extends DialogFragment {
     private boolean checkFields() {
         boolean valid = true;
         if (valueTitle.getText().toString().replaceAll("\\s+", "").equals("")) {
-            valueTitle.setError("name kann nicht nicht leer sein.");
+            valueTitle.setError(getString(R.string.name_cannot_be_empty));
             valid = false;
         } else {
             valueTitle.setError(null);
         }
         try {
-            Double value = Double.parseDouble(valueValue.getText().toString());
+            double value = Double.parseDouble(valueValue.getText().toString());
             if (!(value >= table.minGrade)) {
                 valid = false;
             } else {
@@ -171,21 +171,21 @@ public class GradeEditor extends DialogFragment {
             valid = false;
         }
         try {
-            Double weight = Double.parseDouble(valueWeight.getText().toString());
+            double weight = Double.parseDouble(valueWeight.getText().toString());
             if (!(weight >= 0)) {
-                valueWeight.setError("Eingegebener Wert ist unter Erlaubtem.");
+                valueWeight.setError(getString(R.string.value_too_low));
                 valid = false;
             } else {
                 valueWeight.setError(null);
             }
             if (!(weight <= 1)) {
-                valueValue.setError("Eingegebener Wert überschreitet maximal Erlaubter.");
+                valueValue.setError(getString(R.string.value_too_high));
                 valid = false;
             } else {
                 valueWeight.setError(null);
             }
         } catch (Exception e) {
-            valueWeight.setError("Wert kann nicht leer sein.");
+            valueWeight.setError(getString(R.string.value_cannot_be_empty));
             valid = false;
         }
         return valid;

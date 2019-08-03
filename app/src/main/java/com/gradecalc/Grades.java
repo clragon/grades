@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 
 public class Grades extends Fragment {
 
-    View view;
     Table.Subject subject;
     RecyclerView recycler;
     FloatingActionButton fab;
@@ -33,8 +32,7 @@ public class Grades extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.frag_grades, container, false);
-        return view;
+        return inflater.inflate(R.layout.frag_grades, container, false);
     }
 
     @Override
@@ -82,10 +80,10 @@ public class Grades extends Fragment {
     private void checkList() {
         if (!subject.getGrades().isEmpty()) {
             recycler.setVisibility(RecyclerView.VISIBLE);
-            view.findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
         } else {
             recycler.setVisibility(RecyclerView.GONE);
-            view.findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
         }
     }
 
@@ -131,9 +129,7 @@ public class Grades extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_value, viewGroup, false);
-            ViewHolder viewHolder = new ViewHolder(view);
-            return viewHolder;
+            return new ViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_value, viewGroup, false));
         }
 
         @Override

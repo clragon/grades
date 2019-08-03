@@ -76,6 +76,7 @@ public class Subjects extends Fragment {
         text.setText("Keine Fächer vorhanden");
 
         checkList();
+
     }
 
     private void checkList() {

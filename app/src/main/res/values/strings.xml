@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">GradeCalc</string>
+    <string name="subjects">Subjects</string>
+    <string name="grades">Grades</string>
+    <string name="overview">Overview</string>
+    <string name="settings">Settings</string>
+    <string name="open_drawer">open drawer</string>
+    <string name="close_drawer">close drawer</string>
+</resources>

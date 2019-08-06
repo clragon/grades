@@ -1,7 +1,5 @@
 package com.gradecalc;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,7 +12,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.os.Bundle;
-import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
@@ -33,6 +32,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        boolean dark = true;
+
+        if (dark) {
+            this.setTheme(R.style.Theme_MaterialComponents_NoActionBar);
+        }
 
         file = new File(getFilesDir() + "/Grades.json");
 
@@ -65,6 +70,20 @@ public class MainActivity extends AppCompatActivity {
 
         // Activating the default menu item in the drawer
         navigation.getMenu().performIdentifierAction(R.id.grades, 0);
+
+
+        Window window = this.getWindow();
+
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        // finally change the color
+        // window.setStatusBarColor(ContextCompat.getColor(this, ));
+
+
     }
 
     public void setDrawerToolbar() {
@@ -75,44 +94,28 @@ public class MainActivity extends AppCompatActivity {
             actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
 
-        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                    toggle.setDrawerIndicatorEnabled(false);
-                    actionbar.setDisplayHomeAsUpEnabled(true);
-                    actionbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-                    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            onBackPressed();
-                        }
-                    });
-                } else {
-                    //show hamburger
-                    toggle.setDrawerIndicatorEnabled(true);
-                    actionbar.setDisplayHomeAsUpEnabled(false);
-                    actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-                    toggle.syncState();
-                    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            drawer.openDrawer(GravityCompat.START);
-                        }
-                    });
-                }
+        fragmentManager.addOnBackStackChangedListener(() -> {
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                toggle.setDrawerIndicatorEnabled(false);
+                actionbar.setDisplayHomeAsUpEnabled(true);
+                actionbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+                toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            } else {
+                //show hamburger
+                toggle.setDrawerIndicatorEnabled(true);
+                actionbar.setDisplayHomeAsUpEnabled(false);
+                actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+                toggle.syncState();
+                toolbar.setNavigationOnClickListener(v -> drawer.openDrawer(GravityCompat.START));
             }
         });
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem);
-                        return true;
-                    }
+                menuItem -> {
+                    selectDrawerItem(menuItem);
+                    return true;
                 });
     }
 

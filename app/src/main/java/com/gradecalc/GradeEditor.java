@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -29,6 +33,7 @@ public class GradeEditor extends DialogFragment {
     TextView valueDate;
     Button valueOK;
     Button valueDelete;
+    SeekBar valueSeekWeight;
     DecimalFormat df = new DecimalFormat("#.##");
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -47,29 +52,60 @@ public class GradeEditor extends DialogFragment {
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
+        ImageButton valueEditDate = view.findViewById(R.id.valueEditDate);
+        valueSeekWeight = view.findViewById(R.id.valueSeekWeight);
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
-        editorHolder.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
 
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-
-                if (hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    checkFields();
-                }
+            if (hasFocus) {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                checkFields();
             }
         });
 
+        valueEditDate.setOnClickListener(v -> {
+            // TODO: implement date picker
+        });
 
-        valueCancel.setOnClickListener(new View.OnClickListener() {
+        valueSeekWeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
             @Override
-            public void onClick(View v) {
-                // TODO: need own yes no dialogue
-                dismiss();
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                double weight;
+                switch (progress) {
+                    case 0:
+                        weight = 0.25;
+                        break;
+                    case 1:
+                        weight = 0.5;
+                        break;
+                    case 2:
+                        weight = 1;
+                        break;
+                    default:
+                        weight = 1;
+                        break;
+                }
+                valueWeight.setText(df.format(weight));
             }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        valueCancel.setOnClickListener(v -> {
+            // TODO: need own yes no dialogue
+            dismiss();
         });
 
         try {
@@ -94,29 +130,39 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(grade.weight));
         valueDate.setText(dateFormat.format(grade.creation));
 
-        valueOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkFields()) {
-                    grade.name = valueTitle.getText().toString();
-                    grade.value = Double.parseDouble(valueValue.getText().toString());
-                    grade.weight = Double.parseDouble(valueWeight.getText().toString());
-                    try {
-                        grade.creation = dateFormat.parse(valueDate.getText().toString());
-                    } catch (ParseException e) { // TODO: something went wrong :(
-                    }
-                    dismiss();
+        int progress;
+        switch (valueWeight.getText().toString()) {
+            case "0.25":
+                progress = 0;
+                break;
+            case "0.5":
+                progress = 1;
+                break;
+            case "1":
+                progress = 2;
+                break;
+            default:
+                progress = 2;
+        }
+        valueSeekWeight.setProgress(progress);
+
+        valueOK.setOnClickListener(v -> {
+            if (checkFields()) {
+                grade.name = valueTitle.getText().toString();
+                grade.value = Double.parseDouble(valueValue.getText().toString());
+                grade.weight = Double.parseDouble(valueWeight.getText().toString());
+                try {
+                    grade.creation = dateFormat.parse(valueDate.getText().toString());
+                } catch (ParseException e) { // TODO: something went wrong :(
                 }
+                dismiss();
             }
         });
 
-        valueDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: need own yes no dialogue
-                grade.getOwnerSubject().remGrade(grade);
-                dismiss();
-            }
+        valueDelete.setOnClickListener(v -> {
+            // TODO: need own yes no dialogue
+            grade.getOwnerSubject().remGrade(grade);
+            dismiss();
         });
     }
 
@@ -126,21 +172,18 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(1.0));
         valueDate.setText(dateFormat.format(new Date()));
 
-        valueOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkFields()) {
-                    String Name = valueTitle.getText().toString();
-                    double Value = Double.parseDouble(valueValue.getText().toString());
-                    double Weight = Double.parseDouble(valueWeight.getText().toString());
-                    Date creation = new Date();
-                    try {
-                        creation = dateFormat.parse(valueDate.getText().toString());
-                    } catch (ParseException e) { // TODO: something went wrong :(
-                    }
-                    subject.addGrade(Value, Weight, Name, creation);
-                    dismiss();
+        valueOK.setOnClickListener(v -> {
+            if (checkFields()) {
+                String Name = valueTitle.getText().toString();
+                double Value = Double.parseDouble(valueValue.getText().toString());
+                double Weight = Double.parseDouble(valueWeight.getText().toString());
+                Date creation = new Date();
+                try {
+                    creation = dateFormat.parse(valueDate.getText().toString());
+                } catch (ParseException e) { // TODO: something went wrong :(
                 }
+                subject.addGrade(Value, Weight, Name, creation);
+                dismiss();
             }
         });
 

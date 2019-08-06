@@ -2,346 +2,334 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".GradeEditor"
-    android:focusableInTouchMode="true"
     android:id="@+id/editorHolder"
     android:layout_width="360dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:context=".GradeEditor">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/valueCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:clickable="false"
         android:focusable="true"
-        app:cardBackgroundColor="?attr/colorBackgroundFloating"
         app:cardCornerRadius="2dp">
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/valueCard"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:clickable="false"
-            android:focusable="true"
-            app:cardBackgroundColor="?attr/scrimBackground"
-            app:cardCornerRadius="2dp">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:clipChildren="false">
 
-                <android.support.constraint.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false">
-
-                    <android.support.constraint.Guideline
-                        android:id="@+id/guideline4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintGuide_begin="366dp" />
-
-                    <FrameLayout
-                        android:id="@+id/valueHolder"
-                        android:layout_width="90dp"
-                        android:layout_height="90dp"
-                        android:layout_marginBottom="8dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <View
-                            android:id="@+id/valueCircle"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center_horizontal|center_vertical"
-                            android:layout_margin="14dp"
-                            android:background="@drawable/circle"
-                            android:elevation="2dp" />
-
-                        <EditText
-                            android:id="@+id/valueValue"
-                            style="@android:style/TextAppearance.Material"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@android:color/transparent"
-                            android:elevation="5dp"
-                            android:ems="10"
-                            android:gravity="center_horizontal|center_vertical"
-                            android:inputType="numberDecimal"
-                            android:singleLine="true"
-                            android:textAlignment="center"
-                            android:textColor="?attr/textColorAlertDialogListItem"
-                            android:textSize="28dp" />
-
-                    </FrameLayout>
-
-
-                    <EditText
-                        android:id="@+id/valueTitle"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="@android:color/transparent"
-                        android:elevation="1dp"
-                        android:ems="10"
-                        android:gravity="start|center_vertical"
-                        android:hint="@string/subject_name"
-                        android:inputType="textMultiLine"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingBottom="8dp"
-                        android:scrollHorizontally="false"
-                        android:textColor="?attr/colorControlNormal"
-                        android:textSize="28sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-                        app:layout_constraintStart_toEndOf="@+id/valueHolder"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <android.support.v7.widget.CardView
-                        android:id="@+id/valueDivider"
-                        android:layout_width="0dp"
-                        android:layout_height="5dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="88dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="?android:attr/colorButtonNormal"
-                        app:cardCornerRadius="3dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                    </android.support.v7.widget.CardView>
-
-                </android.support.constraint.ConstraintLayout>
-
-                <LinearLayout
-                    android:id="@+id/valueExtra"
-                    android:layout_width="match_parent"
+                <android.support.constraint.Guideline
+                    android:id="@+id/guideline4"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="10dp"
-                    android:weightSum="2">
+                    app:layout_constraintGuide_begin="366dp" />
 
-                    <android.support.constraint.ConstraintLayout
+                <FrameLayout
+                    android:id="@+id/valueHolder"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <View
+                        android:id="@+id/valueCircle"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_gravity="center_horizontal|center_vertical"
+                        android:layout_margin="14dp"
+                        android:background="@drawable/circle"
+                        android:elevation="2dp" />
 
-                        <ImageView
-                            android:id="@+id/valueIconWeight"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight="1"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/guideline8"
-                            app:layout_constraintHorizontal_bias="0.0"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.538"
-                            app:srcCompat="@drawable/ic_weight" />
-
-                        <android.support.constraint.Guideline
-                            android:id="@+id/guideline8"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            app:layout_constraintGuide_percent="0.21" />
-
-                        <EditText
-                            android:id="@+id/valueWeight"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight="1"
-                            android:background="@android:color/transparent"
-                            android:ems="3"
-                            android:gravity="center_horizontal|left"
-                            android:inputType="numberDecimal"
-                            android:paddingStart="5dp"
-                            android:textColor="?attr/colorControlNormal"
-                            android:textSize="14sp"
-                            app:layout_constraintBottom_toBottomOf="@+id/valueSeekWeight"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.0"
-                            app:layout_constraintStart_toStartOf="@+id/guideline8"
-                            app:layout_constraintTop_toTopOf="@+id/valueSeekWeight"
-                            app:layout_constraintVertical_bias="0.526" />
-
-                        <SeekBar
-                            android:id="@+id/valueSeekWeight"
-                            style="@style/Widget.AppCompat.SeekBar.Discrete"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="16dp"
-                            android:layout_marginBottom="8dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:max="2"
-                            android:progress="2"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="1.0"
-                            app:layout_constraintStart_toEndOf="@+id/valueWeight"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </android.support.constraint.ConstraintLayout>
-
-                    <android.support.constraint.ConstraintLayout
+                    <EditText
+                        android:id="@+id/valueValue"
+                        style="@android:style/TextAppearance.Material"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:paddingEnd="4dp">
+                        android:background="@android:color/transparent"
+                        android:elevation="5dp"
+                        android:ems="10"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:inputType="numberDecimal"
+                        android:singleLine="true"
+                        android:textAlignment="center"
+                        android:textColor="?attr/textColorAlertDialogListItem"
+                        android:textSize="28dp" />
 
-                        <android.support.constraint.Guideline
-                            android:id="@+id/guideline9"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            app:layout_constraintGuide_percent="0.21" />
+                </FrameLayout>
 
-                        <ImageView
-                            android:id="@+id/valueIconDate"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight="1"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/guideline9"
-                            app:layout_constraintHorizontal_bias="0.0"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.153"
-                            app:srcCompat="@drawable/ic_calendar" />
 
-                        <TextView
-                            android:id="@+id/valueDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical"
-                            android:paddingStart="5dp"
-                            android:textColor="?attr/colorControlNormal"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.004"
-                            app:layout_constraintStart_toStartOf="@+id/guideline9"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.315" />
+                <EditText
+                    android:id="@+id/valueTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@android:color/transparent"
+                    android:elevation="1dp"
+                    android:ems="10"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/subject_name"
+                    android:inputType="textMultiLine"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="8dp"
+                    android:scrollHorizontally="false"
+                    android:textColor="?attr/colorControlNormal"
+                    android:textSize="28sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline4"
+                    app:layout_constraintStart_toEndOf="@+id/valueHolder"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                        <ImageButton
-                            android:id="@+id/valueEditDate"
-                            style="@android:style/Widget.DeviceDefault.ImageButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight="0.3"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:backgroundTint="?attr/colorControlNormal"
-                            android:paddingStart="5dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.969"
-                            app:layout_constraintStart_toStartOf="@+id/guideline9"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.214"
-                            app:srcCompat="@drawable/ic_edit" />
-                    </android.support.constraint.ConstraintLayout>
+                <android.support.v7.widget.CardView
+                    android:id="@+id/valueDivider"
+                    android:layout_width="0dp"
+                    android:layout_height="3dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="88dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardBackgroundColor="?attr/colorControlNormal"
+                    app:cardCornerRadius="4dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline4"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                </LinearLayout>
+                </android.support.v7.widget.CardView>
+
+            </android.support.constraint.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/valueExtra"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="10dp"
+                android:weightSum="2">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:paddingTop="16dp">
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:id="@+id/valueIconWeight"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/guideline8"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.538"
+                        app:srcCompat="@drawable/ic_weight" />
 
                     <android.support.constraint.Guideline
-                        android:id="@+id/guideline3"
+                        android:id="@+id/guideline8"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         app:layout_constraintGuide_percent="0.21" />
 
-
-                    <Button
-                        android:id="@+id/valueOK"
+                    <EditText
+                        android:id="@+id/valueWeight"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal|end"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:ems="3"
+                        android:gravity="center_horizontal|left"
+                        android:inputType="numberDecimal"
+                        android:paddingStart="5dp"
+                        android:textColor="?attr/colorControlNormal"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/valueSeekWeight"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@+id/guideline8"
+                        app:layout_constraintTop_toTopOf="@+id/valueSeekWeight"
+                        app:layout_constraintVertical_bias="0.526" />
+
+                    <SeekBar
+                        android:id="@+id/valueSeekWeight"
+                        style="@style/Widget.AppCompat.SeekBar.Discrete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="8dp"
-                        android:layout_weight="1"
-                        android:text="@android:string/ok"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:max="2"
+                        android:progress="2"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
-                    <Button
-                        android:id="@+id/valueCancel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal|end"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_weight="1"
-                        android:text="@android:string/cancel"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/valueOK"
-                        app:layout_constraintHorizontal_bias="0.916"
-                        app:layout_constraintStart_toStartOf="@+id/guideline3" />
-
-                    <Button
-                        android:id="@+id/valueDelete"
-                        android:layout_width="38dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:foreground="@drawable/ic_delete"
-                        android:foregroundGravity="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/guideline3"
-                        app:layout_constraintHorizontal_bias="0.307"
-                        app:layout_constraintStart_toStartOf="parent" />
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toEndOf="@+id/valueWeight"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </android.support.constraint.ConstraintLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:paddingEnd="4dp">
+
+                    <android.support.constraint.Guideline
+                        android:id="@+id/guideline9"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.21" />
+
+                    <ImageView
+                        android:id="@+id/valueIconDate"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.153"
+                        app:srcCompat="@drawable/ic_calendar" />
+
+                    <TextView
+                        android:id="@+id/valueDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:paddingStart="5dp"
+                        android:textColor="?attr/colorControlNormal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.004"
+                        app:layout_constraintStart_toStartOf="@+id/guideline9"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.315" />
+
+                    <ImageButton
+                        android:id="@+id/valueEditDate"
+                        style="@android:style/Widget.DeviceDefault.ImageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="0.3"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:backgroundTint="?attr/colorControlNormal"
+                        android:paddingStart="5dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.969"
+                        app:layout_constraintStart_toStartOf="@+id/guideline9"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.214"
+                        app:srcCompat="@drawable/ic_edit" />
+                </android.support.constraint.ConstraintLayout>
+
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:paddingTop="16dp">
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/guideline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.21" />
+
+
+                <Button
+                    android:id="@+id/valueOK"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|end"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
+                    android:text="@android:string/ok"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <Button
+                    android:id="@+id/valueCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|end"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
+                    android:text="@android:string/cancel"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/valueOK"
+                    app:layout_constraintHorizontal_bias="0.916"
+                    app:layout_constraintStart_toStartOf="@+id/guideline3" />
+
+                <Button
+                    android:id="@+id/valueDelete"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:foreground="@drawable/ic_delete"
+                    android:foregroundGravity="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
+                    app:layout_constraintHorizontal_bias="0.307"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
+
     </android.support.v7.widget.CardView>
 
 </FrameLayout>

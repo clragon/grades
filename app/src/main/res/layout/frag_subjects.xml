@@ -16,7 +16,6 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/ic_add"
-        android:tint="?attr/editTextColor"
         app:backgroundTint="@color/design_default_color_primary" />
 
     <android.support.v7.widget.RecyclerView

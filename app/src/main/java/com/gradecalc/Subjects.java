@@ -1,7 +1,6 @@
 package com.gradecalc;
 
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -45,27 +44,21 @@ public class Subjects extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
 
         fab = view.findViewById(R.id.addSubject);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SubjectEditor editor = new SubjectEditor();
-                Bundle args = new Bundle();
-                args.putSerializable("table", table);
-                editor.setArguments(args);
-                editor.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        recycler.getAdapter().notifyDataSetChanged();
-                        try {
-                            table.write();
-                        } catch (IOException ex) {
+        fab.setOnClickListener(v -> {
+            SubjectEditor editor = new SubjectEditor();
+            Bundle args = new Bundle();
+            args.putSerializable("table", table);
+            editor.setArguments(args);
+            editor.setOnDismissListener(dialog -> {
+                recycler.getAdapter().notifyDataSetChanged();
+                try {
+                    table.write();
+                } catch (IOException ex) {
 
-                        }
-                        checkList();
-                    }
-                });
-                editor.show(getFragmentManager(), "editor");
-            }
+                }
+                checkList();
+            });
+            editor.show(getFragmentManager(), "editor");
         });
 
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -115,19 +108,16 @@ public class Subjects extends Fragment {
                 dateIcon = itemView.findViewById(R.id.valueIcon2);
                 edit = itemView.findViewById(R.id.valueEdit);
 
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Fragment fragment = new Grades();
-                        Bundle args = new Bundle();
-                        args.putSerializable("subject", table.getSubjects().get(getAdapterPosition()));
-                        fragment.setArguments(args);
-                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
-                        transaction.replace(R.id.framelayout, fragment);
-                        transaction.addToBackStack(null);
-                        transaction.commit();
-                    }
+                itemView.setOnClickListener(v -> {
+                    Fragment fragment = new Grades();
+                    Bundle args = new Bundle();
+                    args.putSerializable("subject", table.getSubjects().get(getAdapterPosition()));
+                    fragment.setArguments(args);
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                    transaction.replace(R.id.framelayout, fragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
                 });
             }
         }
@@ -153,27 +143,21 @@ public class Subjects extends Fragment {
             view.date.setText(dateFormat.format(s.getLatest()));
             view.gradesIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_exam));
             view.dateIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
-            view.edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    SubjectEditor editor = new SubjectEditor();
-                    Bundle args = new Bundle();
-                    args.putSerializable("subject", s);
-                    editor.setArguments(args);
-                    editor.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            recycler.getAdapter().notifyDataSetChanged();
-                            try {
-                                table.write();
-                            } catch (IOException ex) {
+            view.edit.setOnClickListener(v -> {
+                SubjectEditor editor = new SubjectEditor();
+                Bundle args = new Bundle();
+                args.putSerializable("subject", s);
+                editor.setArguments(args);
+                editor.setOnDismissListener(dialog -> {
+                    recycler.getAdapter().notifyDataSetChanged();
+                    try {
+                        table.write();
+                    } catch (IOException ex) {
 
-                            }
-                            checkList();
-                        }
-                    });
-                    editor.show(getFragmentManager(), "editor");
-                }
+                    }
+                    checkList();
+                });
+                editor.show(getFragmentManager(), "editor");
             });
         }
 

@@ -45,24 +45,17 @@ public class SubjectEditor extends DialogFragment {
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
-        editorHolder.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
 
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-
-                if (hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
+            if (hasFocus) {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
 
-        valueCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: need own yes no dialogue
-                dismiss();
-            }
+        valueCancel.setOnClickListener(v -> {
+            // TODO: need own yes no dialogue
+            dismiss();
         });
 
         try {
@@ -84,23 +77,17 @@ public class SubjectEditor extends DialogFragment {
         valueValue.setText(df.format(subject.getAverage()));
         valueValue.setKeyListener(null);
 
-        valueOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkFields()) {
-                    subject.name = valueTitle.getText().toString();
-                    dismiss();
-                }
+        valueOK.setOnClickListener(v -> {
+            if (checkFields()) {
+                subject.name = valueTitle.getText().toString();
+                dismiss();
             }
         });
 
-        valueDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: need own yes no dialogue
-                subject.getOwnerTable().remSubject(subject);
-                dismiss();
-            }
+        valueDelete.setOnClickListener(v -> {
+            // TODO: need own yes no dialogue
+            subject.getOwnerTable().remSubject(subject);
+            dismiss();
         });
     }
 
@@ -108,13 +95,10 @@ public class SubjectEditor extends DialogFragment {
         valueValue.setText(df.format(0));
         valueValue.setKeyListener(null);
 
-        valueOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkFields()) {
-                    table.addSubject(valueTitle.getText().toString());
-                    dismiss();
-                }
+        valueOK.setOnClickListener(v -> {
+            if (checkFields()) {
+                table.addSubject(valueTitle.getText().toString());
+                dismiss();
             }
         });
 

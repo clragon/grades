@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/group_feature"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/grades"
             android:title="@string/subjects" />
@@ -8,7 +10,17 @@
             android:id="@+id/overview"
             android:title="@string/overview" />
         <item
+            android:id="@+id/history"
+            android:title="History" />
+    </group>
+    <group
+        android:id="@+id/group_settings"
+        android:checkableBehavior="single">
+        <item
             android:id="@+id/settings"
             android:title="@string/settings" />
+        <item
+            android:id="@+id/info"
+            android:title="About" />
     </group>
 </menu>

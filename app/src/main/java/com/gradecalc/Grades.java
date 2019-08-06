@@ -43,33 +43,27 @@ public class Grades extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
 
         fab = view.findViewById(R.id.addGrade);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GradeEditor editor = new GradeEditor();
-                Bundle args = new Bundle();
-                args.putSerializable("subject", subject);
-                editor.setArguments(args);
-                editor.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        recycler.getAdapter().notifyDataSetChanged();
-                        try {
-                            subject.getOwnerTable().write();
-                        } catch (IOException ex) {
-
-                        }
-                        checkList();
-                    }
-                });
-                editor.show(getFragmentManager(), "editor");
-            }
+        fab.setOnClickListener(v -> {
+            GradeEditor editor = new GradeEditor();
+            Bundle args = new Bundle();
+            args.putSerializable("subject", subject);
+            editor.setArguments(args);
+            editor.setOnDismissListener(dialog -> {
+                recycler.getAdapter().notifyDataSetChanged();
+                try {
+                    subject.getOwnerTable().write();
+                } catch (IOException ex) {
+                    // TODO: something went wrong :(
+                }
+                checkList();
+            });
+            editor.show(getFragmentManager(), "editor");
         });
 
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         recycler.setAdapter(new Adapter());
 
-        getLayoutInflater().inflate(R.layout.card_empty, (FrameLayout) view.findViewById(R.id.GradeLayout));
+        getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.GradeLayout));
         TextView text = view.findViewById(R.id.emptyText);
         text.setText("Keine Noten vorhanden");
 
@@ -113,12 +107,7 @@ public class Grades extends Fragment {
                 dateIcon = itemView.findViewById(R.id.valueIcon2);
                 edit = itemView.findViewById(R.id.valueEdit);
 
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        edit.performClick();
-                    }
-                });
+                itemView.setOnClickListener(v -> edit.performClick());
             }
         }
 
@@ -142,27 +131,21 @@ public class Grades extends Fragment {
             view.date.setText(dateFormat.format(g.creation));
             view.weightIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_weight));
             view.dateIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_calendar));
-            view.edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    GradeEditor editor = new GradeEditor();
-                    Bundle args = new Bundle();
-                    args.putSerializable("grade", g);
-                    editor.setArguments(args);
-                    editor.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            recycler.getAdapter().notifyDataSetChanged();
-                            try {
-                                subject.getOwnerTable().write();
-                            } catch (IOException ex) {
+            view.edit.setOnClickListener(v -> {
+                GradeEditor editor = new GradeEditor();
+                Bundle args = new Bundle();
+                args.putSerializable("grade", g);
+                editor.setArguments(args);
+                editor.setOnDismissListener(dialog -> {
+                    recycler.getAdapter().notifyDataSetChanged();
+                    try {
+                        subject.getOwnerTable().write();
+                    } catch (IOException ex) {
 
-                            }
-                            checkList();
-                        }
-                    });
-                    editor.show(getFragmentManager(), "editor");
-                }
+                    }
+                    checkList();
+                });
+                editor.show(getFragmentManager(), "editor");
             });
         }
 

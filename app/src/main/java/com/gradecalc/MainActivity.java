@@ -35,11 +35,14 @@ public class MainActivity extends AppCompatActivity {
 
         boolean dark = true;
 
-        if (dark) {
-            this.setTheme(R.style.Theme_MaterialComponents_NoActionBar);
+        if (!dark) {
+            this.setTheme(R.style.Theme_MaterialComponents_Light_NoActionBar);
         }
 
-        file = new File(getFilesDir() + "/Grades.json");
+
+        File tables = new File(getFilesDir(), "tables");
+        tables.mkdir();
+        file = new File(tables, "grades.json");
 
         table.saveFile = file.getPath();
 
@@ -133,6 +136,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.overview:
                 fragmentClass = Overview.class;
                 args.putSerializable("table", table);
+                break;
+            case R.id.history:
+                fragmentClass = History.class;
+                break;
+            case R.id.settings:
+                fragmentClass = Settings.class;
+                break;
+            case R.id.info:
+                fragmentClass = Info.class;
                 break;
             // if no fragment is assigned, remove the displayed one
             default:

@@ -169,6 +169,7 @@ public class GradeEditor extends DialogFragment {
     private void gradeCreate(final Table.Subject subject) {
 
         valueTitle.setText(String.format("%s %x", subject.name, subject.getGrades().size() + 1));
+        valueTitle.setSelectAllOnFocus(true);
         valueWeight.setText(df.format(1.0));
         valueDate.setText(dateFormat.format(new Date()));
 

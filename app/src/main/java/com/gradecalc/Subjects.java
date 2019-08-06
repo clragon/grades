@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -64,9 +63,9 @@ public class Subjects extends Fragment {
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         recycler.setAdapter(new Adapter());
 
-        getLayoutInflater().inflate(R.layout.card_empty, (FrameLayout) view.findViewById(R.id.SubjectLayout));
+        getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.SubjectLayout));
         TextView text = view.findViewById(R.id.emptyText);
-        text.setText("Keine Fächer vorhanden");
+        text.setText(R.string.no_subjects);
 
         checkList();
 
@@ -138,7 +137,7 @@ public class Subjects extends Fragment {
 
             view.average.setText(df.format(s.getAverage()));
             view.name.setText(s.name);
-            view.grades.setText(String.format("Noten: %s", df.format(s.getGrades().size())));
+            view.grades.setText(String.format("%s: %s", getResources().getString(R.string.grades), df.format(s.getGrades().size())));
 
             view.date.setText(dateFormat.format(s.getLatest()));
             view.gradesIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_exam));

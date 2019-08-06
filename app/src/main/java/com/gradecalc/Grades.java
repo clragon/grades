@@ -65,7 +65,7 @@ public class Grades extends Fragment {
 
         getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.GradeLayout));
         TextView text = view.findViewById(R.id.emptyText);
-        text.setText("Keine Noten vorhanden");
+        text.setText(R.string.no_grades);
 
         checkList();
 
@@ -127,7 +127,7 @@ public class Grades extends Fragment {
 
             view.value.setText(df.format(g.value));
             view.name.setText(g.name);
-            view.weight.setText(String.format("Gewicht: %s", df.format(g.weight)));
+            view.weight.setText(String.format("%s: %s", getResources().getString(R.string.weight), df.format(g.weight)));
             view.date.setText(dateFormat.format(g.creation));
             view.weightIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_weight));
             view.dateIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_calendar));

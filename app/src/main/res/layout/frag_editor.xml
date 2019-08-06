@@ -126,6 +126,7 @@
                 android:weightSum="2">
 
                 <android.support.constraint.ConstraintLayout
+                    android:id="@+id/weightEditor"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
@@ -199,6 +200,7 @@
                 </android.support.constraint.ConstraintLayout>
 
                 <android.support.constraint.ConstraintLayout
+                    android:id="@+id/dateEditor"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

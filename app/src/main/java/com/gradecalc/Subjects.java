@@ -1,15 +1,16 @@
 package com.gradecalc;
 
-
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,7 @@ public class Subjects extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_subjects, container, false);
+        return inflater.inflate(R.layout.frag_list, container, false);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class Subjects extends Fragment {
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
 
-        fab = view.findViewById(R.id.addSubject);
+        fab = view.findViewById(R.id.addItem);
         fab.setOnClickListener(v -> {
             SubjectEditor editor = new SubjectEditor();
             Bundle args = new Bundle();
@@ -60,10 +61,9 @@ public class Subjects extends Fragment {
             editor.show(getFragmentManager(), "editor");
         });
 
-        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
 
-        getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.SubjectLayout));
         TextView text = view.findViewById(R.id.emptyText);
         text.setText(R.string.no_subjects);
 
@@ -74,10 +74,14 @@ public class Subjects extends Fragment {
     private void checkList() {
         if (!table.getSubjects().isEmpty()) {
             recycler.setVisibility(RecyclerView.VISIBLE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            if (getView() != null) {
+                getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            }
         } else {
             recycler.setVisibility(RecyclerView.GONE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            if (getView() != null) {
+                getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            }
         }
     }
 
@@ -87,24 +91,24 @@ public class Subjects extends Fragment {
 
             CardView card;
             TextView name;
-            TextView date;
-            TextView grades;
-            TextView average;
+            TextView value;
+            TextView text1;
+            TextView text2;
             ImageButton edit;
-            ImageView dateIcon;
-            ImageView gradesIcon;
+            ImageView icon1;
+            ImageView icon2;
 
 
             ViewHolder(View itemView) {
                 super(itemView);
 
                 card = itemView.findViewById(R.id.valueCard);
-                average = itemView.findViewById(R.id.valueValue);
+                value = itemView.findViewById(R.id.valueValue);
                 name = itemView.findViewById(R.id.valueTitle);
-                grades = itemView.findViewById(R.id.valueWeight);
-                gradesIcon = itemView.findViewById(R.id.valueIcon1);
-                date = itemView.findViewById(R.id.valueDate);
-                dateIcon = itemView.findViewById(R.id.valueIcon2);
+                text1 = itemView.findViewById(R.id.valueText1);
+                text2 = itemView.findViewById(R.id.valueText2);
+                icon1 = itemView.findViewById(R.id.valueIcon1);
+                icon2 = itemView.findViewById(R.id.valueIcon2);
                 edit = itemView.findViewById(R.id.valueEdit);
 
                 itemView.setOnClickListener(v -> {
@@ -114,7 +118,7 @@ public class Subjects extends Fragment {
                     fragment.setArguments(args);
                     FragmentTransaction transaction = getFragmentManager().beginTransaction();
                     transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
-                    transaction.replace(R.id.framelayout, fragment);
+                    transaction.replace(R.id.fragment, fragment);
                     transaction.addToBackStack(null);
                     transaction.commit();
                 });
@@ -135,13 +139,13 @@ public class Subjects extends Fragment {
         public void onBindViewHolder(ViewHolder view, int i) {
             final Table.Subject s = table.getSubjects().get(i);
 
-            view.average.setText(df.format(s.getAverage()));
+            view.value.setText(df.format(s.getAverage()));
             view.name.setText(s.name);
-            view.grades.setText(String.format("%s: %s", getResources().getString(R.string.grades), df.format(s.getGrades().size())));
+            view.text1.setText(String.format("%s: %s", getResources().getString(R.string.grades), df.format(s.getGrades().size())));
+            view.icon1.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_exam));
+            view.text2.setText(dateFormat.format(s.getLatest()));
+            view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
 
-            view.date.setText(dateFormat.format(s.getLatest()));
-            view.gradesIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_exam));
-            view.dateIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
             view.edit.setOnClickListener(v -> {
                 SubjectEditor editor = new SubjectEditor();
                 Bundle args = new Bundle();
@@ -164,7 +168,5 @@ public class Subjects extends Fragment {
         public void onAttachedToRecyclerView(RecyclerView recyclerView) {
             super.onAttachedToRecyclerView(recyclerView);
         }
-
     }
-
 }

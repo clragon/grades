@@ -2,6 +2,8 @@
 
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar" />
 
+    <style name="AppThemeLight" parent="Theme.MaterialComponents.Light.NoActionBar" />
+
     <style name="AppTheme.Launcher" parent="AppTheme">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>

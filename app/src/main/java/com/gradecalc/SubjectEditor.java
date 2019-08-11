@@ -3,7 +3,8 @@ package com.gradecalc;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+
+import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,8 @@ public class SubjectEditor extends DialogFragment {
         Button valueCancel = view.findViewById(R.id.valueCancel);
 
         valueExtra.setVisibility(View.GONE);
+        valueValue.setClickable(false);
+        valueValue.setFocusable(false);
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
@@ -71,11 +74,17 @@ public class SubjectEditor extends DialogFragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        if (getDialog() != null && getRetainInstance()) {
+            getDialog().setDismissMessage(null);
+        }
+        super.onDestroyView();
+    }
+
     private void editSubject(final Table.Subject subject) {
         valueTitle.setText(subject.name);
-
         valueValue.setText(df.format(subject.getAverage()));
-        valueValue.setKeyListener(null);
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
@@ -93,7 +102,6 @@ public class SubjectEditor extends DialogFragment {
 
     private void createSubject(final Table table) {
         valueValue.setText(df.format(0));
-        valueValue.setKeyListener(null);
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {

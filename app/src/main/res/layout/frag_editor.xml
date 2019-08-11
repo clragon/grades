@@ -11,7 +11,7 @@
     android:focusableInTouchMode="true"
     tools:context=".GradeEditor">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/valueCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,12 +25,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipChildren="false">
 
-                <android.support.constraint.Guideline
+                <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -41,7 +41,6 @@
                     android:id="@+id/valueHolder"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
-                    android:layout_marginBottom="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -70,17 +69,16 @@
                         android:singleLine="true"
                         android:textAlignment="center"
                         android:textColor="?attr/textColorAlertDialogListItem"
-                        android:textSize="28dp" />
+                        android:textSize="28sp"
+                        tools:text="4.5" />
 
                 </FrameLayout>
-
 
                 <EditText
                     android:id="@+id/valueTitle"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
                     android:background="@android:color/transparent"
                     android:elevation="1dp"
                     android:ems="10"
@@ -91,31 +89,22 @@
                     android:paddingEnd="8dp"
                     android:paddingBottom="8dp"
                     android:scrollHorizontally="false"
-                    android:textColor="?attr/colorControlNormal"
+                    android:textColor="?attr/textColorAlertDialogListItem"
                     android:textSize="28sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guideline4"
                     app:layout_constraintStart_toEndOf="@+id/valueHolder"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <android.support.v7.widget.CardView
-                    android:id="@+id/valueDivider"
-                    android:layout_width="0dp"
-                    android:layout_height="3dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="88dp"
-                    android:layout_marginEnd="16dp"
-                    app:cardBackgroundColor="?attr/colorControlNormal"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="0dp"
-                    app:layout_constraintEnd_toStartOf="@+id/guideline4"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
 
-                </android.support.v7.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </android.support.constraint.ConstraintLayout>
+            <include
+                layout="@layout/part_divider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp" />
 
             <LinearLayout
                 android:id="@+id/valueExtra"
@@ -125,7 +114,7 @@
                 android:paddingTop="10dp"
                 android:weightSum="2">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/weightEditor"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -148,15 +137,15 @@
                         app:layout_constraintVertical_bias="0.538"
                         app:srcCompat="@drawable/ic_weight" />
 
-                    <android.support.constraint.Guideline
+                    <androidx.constraintlayout.widget.Guideline
                         android:id="@+id/guideline8"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_percent="0.21" />
+                        app:layout_constraintGuide_begin="75dp" />
 
                     <EditText
-                        android:id="@+id/valueWeight"
+                        android:id="@+id/valueText1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -176,7 +165,8 @@
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="@+id/guideline8"
                         app:layout_constraintTop_toTopOf="@+id/valueSeekWeight"
-                        app:layout_constraintVertical_bias="0.526" />
+                        app:layout_constraintVertical_bias="0.526"
+                        tools:text="1" />
 
                     <SeekBar
                         android:id="@+id/valueSeekWeight"
@@ -194,24 +184,24 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1.0"
-                        app:layout_constraintStart_toEndOf="@+id/valueWeight"
+                        app:layout_constraintStart_toEndOf="@+id/valueText1"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/dateEditor"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:paddingEnd="4dp">
 
-                    <android.support.constraint.Guideline
+                    <androidx.constraintlayout.widget.Guideline
                         android:id="@+id/guideline9"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_percent="0.21" />
+                        app:layout_constraintGuide_begin="75dp" />
 
                     <ImageView
                         android:id="@+id/valueIconDate"
@@ -232,7 +222,7 @@
                         app:srcCompat="@drawable/ic_calendar" />
 
                     <TextView
-                        android:id="@+id/valueDate"
+                        android:id="@+id/valueText2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -248,7 +238,8 @@
                         app:layout_constraintHorizontal_bias="0.004"
                         app:layout_constraintStart_toStartOf="@+id/guideline9"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.315" />
+                        app:layout_constraintVertical_bias="0.315"
+                        tools:text="29.08.2019" />
 
                     <ImageButton
                         android:id="@+id/valueEditDate"
@@ -270,68 +261,17 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.214"
                         app:srcCompat="@drawable/ic_edit" />
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <include
+                layout="@layout/part_confirm"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:paddingTop="16dp">
+                android:layout_height="wrap_content" />
 
-                <android.support.constraint.Guideline
-                    android:id="@+id/guideline3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.21" />
-
-
-                <Button
-                    android:id="@+id/valueOK"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|end"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_weight="1"
-                    android:text="@android:string/ok"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-                <Button
-                    android:id="@+id/valueCancel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|end"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_weight="1"
-                    android:text="@android:string/cancel"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/valueOK"
-                    app:layout_constraintHorizontal_bias="0.916"
-                    app:layout_constraintStart_toStartOf="@+id/guideline3" />
-
-                <Button
-                    android:id="@+id/valueDelete"
-                    android:layout_width="38dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:foreground="@drawable/ic_delete"
-                    android:foregroundGravity="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
-                    app:layout_constraintHorizontal_bias="0.307"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-            </android.support.constraint.ConstraintLayout>
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </FrameLayout>

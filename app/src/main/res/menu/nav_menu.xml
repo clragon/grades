@@ -5,22 +5,25 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/grades"
-            android:title="@string/subjects" />
+            android:title="@string/subjects"
+            android:icon="@drawable/ic_subject" />
         <item
             android:id="@+id/overview"
-            android:title="@string/overview" />
+            android:title="@string/overview"
+            android:icon="@drawable/ic_chart" />
         <item
             android:id="@+id/history"
-            android:title="History" />
+            android:title="@string/history"
+            android:icon="@drawable/ic_history" />
     </group>
-    <group
-        android:id="@+id/group_settings"
-        android:checkableBehavior="single">
+    <group android:id="@+id/group_settings">
         <item
             android:id="@+id/settings"
-            android:title="@string/settings" />
+            android:title="@string/settings"
+            android:icon="@drawable/ic_settings" />
         <item
             android:id="@+id/info"
-            android:title="About" />
+            android:title="About"
+            android:icon="@drawable/ic_info" />
     </group>
 </menu>

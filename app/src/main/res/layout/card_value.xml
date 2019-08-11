@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/valueCard"
@@ -11,80 +11,57 @@
     app:cardBackgroundColor="@android:color/transparent"
     app:cardElevation="0dp">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/valueHolder"
+        <include
+            android:id="@+id/include"
+            layout="@layout/part_value"
             android:layout_width="88dp"
             android:layout_height="88dp"
-            android:layout_gravity="center_horizontal|center_vertical"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/valueTitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:id="@+id/valueCircle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:layout_margin="14dp"
-                android:background="@drawable/circle"
-                android:elevation="60dp" />
-
-            <TextView
-                android:id="@+id/valueValue"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:elevation="3dp"
-                android:gravity="center_horizontal|center_vertical"
-                android:paddingBottom="3dp"
-                android:textAlignment="center"
-                android:textColor="?attr/textColorAlertDialogListItem"
-                android:textSize="28sp"
-                tools:text="0.0" />
-
-        </FrameLayout>
-
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.54" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_begin="80dp" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_begin="112dp" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_end="40dp" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_begin="240dp" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -105,7 +82,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline4"
             app:layout_constraintStart_toStartOf="@+id/guideline3"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Title" />
+            tools:text="@string/subject_name" />
 
         <ImageButton
             android:id="@+id/valueEdit"
@@ -123,21 +100,33 @@
             app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@drawable/ic_edit" />
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/valueDivider"
+        <include
+            layout="@layout/part_divider"
             android:layout_width="0dp"
-            android:layout_height="3dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            app:cardBackgroundColor="?attr/colorControlNormal"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/valueHolder"
-            app:layout_constraintTop_toTopOf="@+id/guideline2">
+            app:layout_constraintStart_toEndOf="@+id/include"
+            app:layout_constraintTop_toTopOf="@+id/guideline2" />
 
-        </android.support.v7.widget.CardView>
+        <TextView
+            android:id="@+id/valueText1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingStart="5dp"
+            android:textColor="?attr/colorControlNormal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline5"
+            app:layout_constraintStart_toStartOf="@+id/guideline6"
+            app:layout_constraintTop_toTopOf="@+id/guideline2"
+            tools:text="value 1" />
 
         <ImageView
             android:id="@+id/valueIcon1"
@@ -156,6 +145,23 @@
             app:layout_constraintVertical_bias="0"
             tools:srcCompat="@drawable/ic_edit" />
 
+        <TextView
+            android:id="@+id/valueText2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingStart="5dp"
+            android:textColor="?attr/colorControlNormal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline7"
+            app:layout_constraintTop_toTopOf="@+id/guideline2"
+            tools:text="value 2" />
+
         <ImageView
             android:id="@+id/valueIcon2"
             android:layout_width="25dp"
@@ -173,41 +179,7 @@
             app:layout_constraintVertical_bias="0"
             tools:srcCompat="@drawable/ic_edit" />
 
-        <TextView
-            android:id="@+id/valueWeight"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:paddingStart="5dp"
-            android:textColor="?attr/colorControlNormal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/guideline5"
-            app:layout_constraintStart_toStartOf="@+id/guideline6"
-            app:layout_constraintTop_toTopOf="@+id/guideline2"
-            tools:text="text 1" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/valueDate"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:paddingStart="5dp"
-            android:textColor="?attr/colorControlNormal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline7"
-            app:layout_constraintTop_toTopOf="@+id/guideline2"
-            tools:text="value 2" />
-
-    </android.support.constraint.ConstraintLayout>
-
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>
 

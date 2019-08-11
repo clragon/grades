@@ -3,9 +3,8 @@ package com.gradecalc;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.text.Editable;
-import android.text.TextWatcher;
+
+import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,8 +46,8 @@ public class GradeEditor extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         valueTitle = view.findViewById(R.id.valueTitle);
         valueValue = view.findViewById(R.id.valueValue);
-        valueWeight = view.findViewById(R.id.valueWeight);
-        valueDate = view.findViewById(R.id.valueDate);
+        valueWeight = view.findViewById(R.id.valueText1);
+        valueDate = view.findViewById(R.id.valueText2);
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
@@ -204,12 +203,12 @@ public class GradeEditor extends DialogFragment {
             if (!(value >= table.minGrade)) {
                 valid = false;
             } else {
-                valueValue.setError(null);
+                // valueValue.setError(null);
             }
             if (!(value <= table.maxGrade)) {
                 valid = false;
             } else {
-                valueValue.setError(null);
+                // valueValue.setError(null);
             }
         } catch (Exception e) {
             valid = false;

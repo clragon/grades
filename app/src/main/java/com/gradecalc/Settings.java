@@ -2,27 +2,37 @@ package com.gradecalc;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
-public class Settings extends Fragment {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceFragmentCompat;
 
+import com.afollestad.aesthetic.Aesthetic;
+
+
+public class Settings extends PreferenceFragmentCompat {
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_settings, container, false);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.preferences, rootKey);
+
+        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.settings);
+        }
+
+
+        this.findPreference("dark").setOnPreferenceChangeListener((preference, newValue) -> {
+            if ((Boolean) newValue) {
+                Aesthetic.get()
+                        .activityTheme(R.style.AppTheme)
+                        .isDark(true)
+                        .apply();
+            } else {
+                Aesthetic.get()
+                        .activityTheme(R.style.AppThemeLight)
+                        .isDark(false)
+                        .apply();
+            }
+            return true;
+        });
+
     }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.settings);
-        getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.settings));
-        TextView text = view.findViewById(R.id.emptyText);
-        text.setText(R.string.not_implemented);
-    }
-
 }

@@ -13,10 +13,6 @@ import com.google.gson.*;
 
 public class Table implements Serializable {
 
-    public Table() {
-        new Table(this.name = "Fächer");
-    }
-
     public Table(String name) {
         this.name = name;
     }
@@ -82,6 +78,18 @@ public class Table implements Serializable {
         } else {
             return new Date();
         }
+    }
+
+    public double getCompensation() {
+        double points = 0;
+        if (!this.Subjects.isEmpty()) {
+            for (Subject s : this.Subjects) {
+                points += s.getCompensation();
+            }
+        } else {
+            points = 0;
+        }
+        return points;
     }
 
     public class Subject implements Serializable {
@@ -170,6 +178,19 @@ public class Table implements Serializable {
             } else {
                 return new Date();
             }
+        }
+
+        public double getCompensation() {
+            double points = 0;
+            if (getAverage() != 0) {
+                points = getAverage() - 4;
+                if (points < 0) {
+                    points = points * 2;
+                }
+            } else {
+                points = 0;
+            }
+            return points;
         }
 
         public class Grade implements Serializable {

@@ -1,18 +1,18 @@
 package com.gradecalc;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,7 +32,7 @@ public class Grades extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_grades, container, false);
+        return inflater.inflate(R.layout.frag_list, container, false);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Grades extends Fragment {
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
 
-        fab = view.findViewById(R.id.addGrade);
+        fab = view.findViewById(R.id.addItem);
         fab.setOnClickListener(v -> {
             GradeEditor editor = new GradeEditor();
             Bundle args = new Bundle();
@@ -60,10 +60,9 @@ public class Grades extends Fragment {
             editor.show(getFragmentManager(), "editor");
         });
 
-        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
 
-        getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.GradeLayout));
         TextView text = view.findViewById(R.id.emptyText);
         text.setText(R.string.no_grades);
 
@@ -74,10 +73,14 @@ public class Grades extends Fragment {
     private void checkList() {
         if (!subject.getGrades().isEmpty()) {
             recycler.setVisibility(RecyclerView.VISIBLE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            if (getView() != null) {
+                getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            }
         } else {
             recycler.setVisibility(RecyclerView.GONE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            if (getView() != null) {
+                getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            }
         }
     }
 
@@ -87,12 +90,12 @@ public class Grades extends Fragment {
 
             CardView card;
             TextView name;
-            TextView date;
             TextView value;
-            TextView weight;
+            TextView text1;
+            TextView text2;
             ImageButton edit;
-            ImageView dateIcon;
-            ImageView weightIcon;
+            ImageView icon1;
+            ImageView icon2;
 
 
             ViewHolder(View itemView) {
@@ -101,10 +104,10 @@ public class Grades extends Fragment {
                 card = itemView.findViewById(R.id.valueCard);
                 value = itemView.findViewById(R.id.valueValue);
                 name = itemView.findViewById(R.id.valueTitle);
-                weight = itemView.findViewById(R.id.valueWeight);
-                date = itemView.findViewById(R.id.valueDate);
-                weightIcon = itemView.findViewById(R.id.valueIcon1);
-                dateIcon = itemView.findViewById(R.id.valueIcon2);
+                text1 = itemView.findViewById(R.id.valueText1);
+                text2 = itemView.findViewById(R.id.valueText2);
+                icon1 = itemView.findViewById(R.id.valueIcon1);
+                icon2 = itemView.findViewById(R.id.valueIcon2);
                 edit = itemView.findViewById(R.id.valueEdit);
 
                 itemView.setOnClickListener(v -> edit.performClick());
@@ -127,10 +130,11 @@ public class Grades extends Fragment {
 
             view.value.setText(df.format(g.value));
             view.name.setText(g.name);
-            view.weight.setText(String.format("%s: %s", getResources().getString(R.string.weight), df.format(g.weight)));
-            view.date.setText(dateFormat.format(g.creation));
-            view.weightIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_weight));
-            view.dateIcon.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_calendar));
+            view.text1.setText(String.format("%s: %s", getResources().getString(R.string.weight), df.format(g.weight)));
+            view.icon1.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_weight));
+            view.text2.setText(dateFormat.format(g.creation));
+            view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_calendar));
+
             view.edit.setOnClickListener(v -> {
                 GradeEditor editor = new GradeEditor();
                 Bundle args = new Bundle();

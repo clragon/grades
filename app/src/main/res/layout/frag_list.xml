@@ -2,13 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/GradeLayout"
+    android:id="@+id/ListLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Subjects">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addGrade"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
@@ -16,12 +16,16 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/ic_add"
-        android:tint="?attr/editTextColor"
+        android:tint="@android:color/white"
         app:backgroundTint="@color/design_default_color_primary" />
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <include
+        layout="@layout/card_empty"
+        android:visibility="gone" />
 
 </FrameLayout>

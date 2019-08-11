@@ -1,134 +1,162 @@
 package com.gradecalc;
 
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import android.animation.ValueAnimator;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.preference.PreferenceManager;
+
+import com.afollestad.aesthetic.Aesthetic;
+import com.afollestad.aesthetic.AestheticActivity;
+import com.google.android.material.navigation.NavigationView;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.MenuItem;
 import android.os.Bundle;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AestheticActivity {
 
 
     private Toolbar toolbar;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private FragmentManager fragmentManager = getSupportFragmentManager();
+    private SharedPreferences preferences;
 
-    public Table table = new Table();
-    public File file;
+    public Table table;
+    public File tables;
+    public File table_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        boolean dark = true;
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (!dark) {
-            this.setTheme(R.style.Theme_MaterialComponents_Light_NoActionBar);
+        tables = new File(getFilesDir(), "tables");
+        if (!tables.exists()) {
+            tables.mkdir();
         }
 
+        checkSettings();
 
-        File tables = new File(getFilesDir(), "tables");
-        tables.mkdir();
-        file = new File(tables, "grades.json");
-
-        table.saveFile = file.getPath();
-
-        if (file.exists()) {
-            try {
-                table = Table.read(file.getPath());
-            } catch (Exception ex) {
-                Toast.makeText(this, "can't read table",
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-
+        table_data = new File(tables, preferences.getString("boot_table", "grades.json"));
+        table = getTable();
 
         // Activating the view
         setContentView(R.layout.activity_main);
 
-        // Setting a custom toolbar to have a drawer button
+        // Setting a custom toolbar
         toolbar = findViewById(R.id.toolbar);
-        setDrawerToolbar();
-
-        // Setting the drawer variable so this activity can manage it
         drawer = findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_drawer, R.string.close_drawer);
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_drawer, R.string.close_drawer) {
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+                }
+            }
+        };
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        setSupportActionBar(toolbar);
+
+        fragmentManager.addOnBackStackChangedListener(this::checkToolbar);
 
         // Setting up the Navigation view inside the drawer
         final NavigationView navigation = findViewById(R.id.nav_view);
-        setupDrawerContent(navigation);
+        navigation.setNavigationItemSelectedListener(this::selectDrawerItem);
 
-        // Activating the default menu item in the drawer
-        navigation.getMenu().performIdentifierAction(R.id.grades, 0);
+        checkToolbar();
 
+        if (savedInstanceState == null) {
+            // Activating the default menu item in the drawer
+            navigation.getMenu().performIdentifierAction(R.id.grades, 0);
+            // if (!preferences.getBoolean("dark", true)) {  this.setTheme(R.style.AppThemeLight); }
 
-        Window window = this.getWindow();
-
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-        // finally change the color
-        // window.setStatusBarColor(ContextCompat.getColor(this, ));
-
-
-    }
-
-    public void setDrawerToolbar() {
-        setSupportActionBar(toolbar);
-        final ActionBar actionbar = getSupportActionBar();
-        if (actionbar != null) {
-            actionbar.setDisplayHomeAsUpEnabled(true);
-            actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
-
-        fragmentManager.addOnBackStackChangedListener(() -> {
-            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                toggle.setDrawerIndicatorEnabled(false);
-                actionbar.setDisplayHomeAsUpEnabled(true);
-                actionbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-                toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            if (preferences.getBoolean("dark", true)) {
+                Aesthetic.get()
+                        .activityTheme(R.style.AppTheme)
+                        .isDark(true)
+                        .apply();
             } else {
-                //show hamburger
-                toggle.setDrawerIndicatorEnabled(true);
-                actionbar.setDisplayHomeAsUpEnabled(false);
-                actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-                toggle.syncState();
-                toolbar.setNavigationOnClickListener(v -> drawer.openDrawer(GravityCompat.START));
+                Aesthetic.get()
+                        .activityTheme(R.style.AppThemeLight)
+                        .isDark(false)
+                        .apply();
             }
-        });
+
+        }
     }
 
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                menuItem -> {
-                    selectDrawerItem(menuItem);
-                    return true;
-                });
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
-    public void selectDrawerItem(MenuItem menuItem) {
+    public void checkSettings() {
+        if (!preferences.contains("boot_table") && tables.list().length == 0) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("boot_table", "grades.json");
+            editor.putBoolean("dark", true);
+            editor.putInt("minGrade", 1);
+            editor.putInt("maxGrade", 6);
+            editor.putBoolean("useWeight", true);
+            editor.putBoolean("compensate", true);
+            editor.putBoolean("useLimits", true);
+            editor.apply();
+        }
+    }
+
+    public Table getTable() {
+        table = new Table(getResources().getString(R.string.subjects));
+        table.minGrade = (double) preferences.getInt("minGrade", 1);
+        table.maxGrade = (double) preferences.getInt("maxGrade", 6);
+        table.saveFile = table_data.getPath();
+        if (table_data.exists()) {
+            try {
+                table = Table.read(table_data.getPath());
+            } catch (Exception ex) {
+                Toast.makeText(this, "can't read table", Toast.LENGTH_LONG).show();
+            }
+        }
+        return table;
+    }
+
+    public void checkToolbar() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            setHomeAsUp(true);
+            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            toolbar.setNavigationOnClickListener(v -> drawer.openDrawer(GravityCompat.START));
+            toggle.syncState();
+            setHomeAsUp(false);
+        }
+    }
+
+    public boolean selectDrawerItem(MenuItem item) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
+        boolean wrap = false;
         Fragment fragment = null;
         Class fragmentClass;
         Bundle args = new Bundle();
-        switch (menuItem.getItemId()) {
-            // assigning menu items to fragments
+        final NavigationView navigation = findViewById(R.id.nav_view);
+        // assigning menu items to fragments
+        switch (item.getItemId()) {
             case R.id.grades:
                 fragmentClass = Subjects.class;
                 args.putSerializable("table", table);
@@ -141,52 +169,94 @@ public class MainActivity extends AppCompatActivity {
                 fragmentClass = History.class;
                 break;
             case R.id.settings:
+                wrap = true;
                 fragmentClass = Settings.class;
                 break;
             case R.id.info:
-                fragmentClass = Info.class;
+                wrap = true;
+                fragmentClass = About.class;
                 break;
-            // if no fragment is assigned, remove the displayed one
             default:
-                fragment = fragmentManager.findFragmentById(R.id.framelayout);
+                // if no fragment is assigned, remove the displayed one
+                fragment = fragmentManager.findFragmentById(R.id.fragment);
                 if (fragment != null) {
                     fragmentManager.beginTransaction().remove(fragment).commit();
                 }
-                setTitle(menuItem.getTitle());
-                menuItem.setChecked(true);
+                setTitle(item.getTitle());
+                navigation.setCheckedItem(item);
                 drawer.closeDrawers();
-                return;
+                return true;
         }
 
-        // For whatever reason, there is a try statement here. I'll leave it alone.
         try {
             fragment = (Fragment) fragmentClass.newInstance();
             fragment.setArguments(args);
         } catch (Exception e) {
             // e.printStackTrace();
+            // catastrophic failure.
         }
 
-        // Insert the fragment by replacing any existing fragment
-        if (fragment != null) {
-            getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
-            transaction.replace(R.id.framelayout, fragment).commit();
-            setDrawerToolbar();
+        if (wrap) {
+
+            navigation.getMenu().performIdentifierAction(R.id.grades, 0);
+
+            if (fragment != null) {
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                transaction.replace(R.id.fragment, fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+            }
+        } else {
+            // Insert the fragment by replacing any existing fragment
+            if (fragment != null) {
+                // getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                for (int i = 0; i < fragmentManager.getBackStackEntryCount(); ++i) {
+                    fragmentManager.popBackStack();
+                }
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                transaction.replace(R.id.fragment, fragment).commit();
+                // setDrawerToolbar();
+            }
+            // Highlight the selected item
+            navigation.setCheckedItem(item);
         }
 
-        // Highlight the selected item
-        menuItem.setChecked(true);
         drawer.closeDrawers();
+        return true;
+    }
+
+    protected boolean isHomeAsUp = false;
+
+    // call this method for animation between hamburger and arrow
+    protected void setHomeAsUp(boolean isHomeAsUp) {
+        if (this.isHomeAsUp != isHomeAsUp) {
+            this.isHomeAsUp = isHomeAsUp;
+
+            ValueAnimator anim = isHomeAsUp ? ValueAnimator.ofFloat(0, 1) : ValueAnimator.ofFloat(1, 0);
+            anim.addUpdateListener(valueAnimator -> {
+                float slideOffset = (Float) valueAnimator.getAnimatedValue();
+                toggle.onDrawerSlide(drawer, slideOffset);
+            });
+            anim.setInterpolator(new DecelerateInterpolator());
+            // You can change this duration to more closely match that of the default animation.
+            anim.setDuration(400);
+            anim.start();
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                drawer.openDrawer(GravityCompat.START);
-                return true;
-        }
+        toggle.onOptionsItemSelected(item);
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        toggle.onConfigurationChanged(newConfig);
     }
 }

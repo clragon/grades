@@ -6,8 +6,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.afollestad.aesthetic.Aesthetic;
-
 
 public class Settings extends PreferenceFragmentCompat {
     @Override
@@ -19,18 +17,13 @@ public class Settings extends PreferenceFragmentCompat {
         }
 
 
+        this.findPreference("primary").setOnPreferenceChangeListener((preference, newValue) -> {
+
+            return true;
+        });
+
         this.findPreference("dark").setOnPreferenceChangeListener((preference, newValue) -> {
-            if ((Boolean) newValue) {
-                Aesthetic.get()
-                        .activityTheme(R.style.AppTheme)
-                        .isDark(true)
-                        .apply();
-            } else {
-                Aesthetic.get()
-                        .activityTheme(R.style.AppThemeLight)
-                        .isDark(false)
-                        .apply();
-            }
+            ((MainActivity) getActivity()).changeTheme((Boolean) newValue);
             return true;
         });
 

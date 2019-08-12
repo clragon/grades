@@ -21,7 +21,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.MenuItem;
 import android.os.Bundle;
-import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
@@ -62,9 +61,11 @@ public class MainActivity extends AestheticActivity {
         // Setting a custom toolbar
         toolbar = findViewById(R.id.toolbar);
         drawer = findViewById(R.id.drawer_layout);
+
+
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_drawer, R.string.close_drawer) {
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
+            public void onDrawerStateChanged(int newState) {
+                super.onDrawerStateChanged(newState);
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 }
@@ -87,19 +88,9 @@ public class MainActivity extends AestheticActivity {
             navigation.getMenu().performIdentifierAction(R.id.grades, 0);
             // if (!preferences.getBoolean("dark", true)) {  this.setTheme(R.style.AppThemeLight); }
 
-            if (preferences.getBoolean("dark", true)) {
-                Aesthetic.get()
-                        .activityTheme(R.style.AppTheme)
-                        .isDark(true)
-                        .apply();
-            } else {
-                Aesthetic.get()
-                        .activityTheme(R.style.AppThemeLight)
-                        .isDark(false)
-                        .apply();
-            }
-
+            changeTheme(preferences.getBoolean("dark", true));
         }
+
     }
 
     @Override
@@ -258,5 +249,19 @@ public class MainActivity extends AestheticActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         toggle.onConfigurationChanged(newConfig);
+    }
+
+    public void changeTheme(boolean dark) {
+        if (dark) {
+            Aesthetic.get()
+                    .activityTheme(R.style.AppTheme)
+                    .isDark(true)
+                    .apply();
+        } else {
+            Aesthetic.get()
+                    .activityTheme(R.style.AppThemeLight)
+                    .isDark(false)
+                    .apply();
+        }
     }
 }

@@ -70,6 +70,7 @@
                         android:textAlignment="center"
                         android:textColor="?attr/textColorAlertDialogListItem"
                         android:textSize="28sp"
+                        android:maxLength="4"
                         tools:text="4.5" />
 
                 </FrameLayout>

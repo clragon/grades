@@ -1,14 +1,17 @@
 package com.gradecalc;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -50,12 +53,12 @@ public class Subjects extends Fragment {
             args.putSerializable("table", table);
             editor.setArguments(args);
             editor.setOnDismissListener(dialog -> {
-                recycler.getAdapter().notifyDataSetChanged();
                 try {
                     table.write();
                 } catch (IOException ex) {
 
                 }
+                recycler.getAdapter().notifyDataSetChanged();
                 checkList();
             });
             editor.show(getFragmentManager(), "editor");
@@ -64,11 +67,38 @@ public class Subjects extends Fragment {
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
 
+        ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                if (viewHolder.getItemViewType() != target.getItemViewType()) {
+                    return false;
+                }
+
+                // Notify the adapter of the move
+                recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                Table.Subject s = table.getSubjects().get(viewHolder.getAdapterPosition());
+                table.remSubject(s);
+                table.addSubject(s, target.getAdapterPosition());
+                try {
+                    table.write();
+                } catch (IOException ex) {
+
+                }
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+        };
+
+        ItemTouchHelper toucher = new ItemTouchHelper(callback);
+        toucher.attachToRecyclerView(recycler);
+
         TextView text = view.findViewById(R.id.emptyText);
         text.setText(R.string.no_subjects);
 
         checkList();
-
     }
 
     private void checkList() {
@@ -85,6 +115,7 @@ public class Subjects extends Fragment {
         }
     }
 
+
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
         private class ViewHolder extends RecyclerView.ViewHolder {
@@ -97,7 +128,6 @@ public class Subjects extends Fragment {
             ImageButton edit;
             ImageView icon1;
             ImageView icon2;
-
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -162,11 +192,6 @@ public class Subjects extends Fragment {
                 });
                 editor.show(getFragmentManager(), "editor");
             });
-        }
-
-        @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
         }
     }
 }

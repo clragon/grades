@@ -19,6 +19,7 @@
         android:tint="@android:color/white"
         app:backgroundTint="@color/design_default_color_primary" />
 
+    <!-- android:layoutAnimation="@anim/recycler" -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

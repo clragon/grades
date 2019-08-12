@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,14 +75,6 @@ public class SubjectEditor extends DialogFragment {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        if (getDialog() != null && getRetainInstance()) {
-            getDialog().setDismissMessage(null);
-        }
-        super.onDestroyView();
-    }
-
     private void editSubject(final Table.Subject subject) {
         valueTitle.setText(subject.name);
         valueValue.setText(df.format(subject.getAverage()));
@@ -93,11 +86,18 @@ public class SubjectEditor extends DialogFragment {
             }
         });
 
-        valueDelete.setOnClickListener(v -> {
-            // TODO: need own yes no dialogue
-            subject.getOwnerTable().remSubject(subject);
-            dismiss();
-        });
+        valueDelete.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+                .setTitle(getResources().getString(R.string.confirmation))
+                .setMessage(String.format(getResources().getString(R.string.delete_object), subject.name))
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    subject.getOwnerTable().remSubject(subject);
+                    dismiss();
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .setIcon(R.drawable.ic_warning)
+                .show());
+
+        valueDelete.setVisibility(View.VISIBLE);
     }
 
     private void createSubject(final Table table) {
@@ -109,8 +109,6 @@ public class SubjectEditor extends DialogFragment {
                 dismiss();
             }
         });
-
-        valueDelete.setVisibility(View.GONE);
     }
 
     private boolean checkFields() {

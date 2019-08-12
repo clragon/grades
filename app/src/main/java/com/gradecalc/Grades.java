@@ -4,10 +4,12 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -49,12 +51,12 @@ public class Grades extends Fragment {
             args.putSerializable("subject", subject);
             editor.setArguments(args);
             editor.setOnDismissListener(dialog -> {
-                recycler.getAdapter().notifyDataSetChanged();
                 try {
                     subject.getOwnerTable().write();
                 } catch (IOException ex) {
                     // TODO: something went wrong :(
                 }
+                recycler.getAdapter().notifyDataSetChanged();
                 checkList();
             });
             editor.show(getFragmentManager(), "editor");
@@ -62,6 +64,34 @@ public class Grades extends Fragment {
 
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
+
+        ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                if (viewHolder.getItemViewType() != target.getItemViewType()) {
+                    return false;
+                }
+
+                // Notify the adapter of the move
+                recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                Table.Subject.Grade g = subject.getGrades().get(viewHolder.getAdapterPosition());
+                subject.remGrade(g);
+                subject.addGrade(g, target.getAdapterPosition());
+                try {
+                    subject.getOwnerTable().write();
+                } catch (IOException ex) {
+
+                }
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+        };
+
+        ItemTouchHelper toucher = new ItemTouchHelper(callback);
+        toucher.attachToRecyclerView(recycler);
 
         TextView text = view.findViewById(R.id.emptyText);
         text.setText(R.string.no_grades);

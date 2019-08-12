@@ -1,21 +1,42 @@
-<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="Display">
 
         <SwitchPreference
             app:defaultValue="true"
             app:key="dark"
-            app:summary="Use dark theme in app"
-            app:title="Dark theme" />
+            app:title="@string/theme"
+            app:summaryOn="@string/use_dark_theme"
+            app:summaryOff="@string/use_light_theme" />
+
+        <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
+            android:defaultValue="?android:colorPrimary"
+            android:key="primary"
+            app:title="@string/color"
+            app:summary="@string/pick_color" />
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/table">
 
+        <SwitchPreference
+            app:defaultValue="true"
+            app:key="useLimits"
+            app:title="@string/grade_limits"
+            app:summaryOn="@string/enforce_limits"
+            app:summaryOff="@string/ignore_limits" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/overview">
 
+        <SwitchPreference
+            app:defaultValue="true"
+            app:key="compensate"
+            app:title="@string/compensation"
+            app:summaryOn="@string/enable_compensation"
+            app:summaryOff="@string/disable_compensation" />
 
     </PreferenceCategory>
 

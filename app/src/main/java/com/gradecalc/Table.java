@@ -38,6 +38,12 @@ public class Table implements Serializable {
         return s;
     }
 
+    public Subject addSubject(Subject s, int pos) {
+        s.ownerTable = this;
+        Subjects.add(pos, s);
+        return s;
+    }
+
     public Subject addSubject(Subject s) {
         s.ownerTable = this;
         Subjects.add(s);
@@ -141,6 +147,12 @@ public class Table implements Serializable {
         public Grade addGrade(Grade g) {
             g.ownerSubject = this;
             Grades.add(g);
+            return g;
+        }
+
+        public Grade addGrade(Grade g, int pos) {
+            g.ownerSubject = this;
+            Grades.add(pos, g);
             return g;
         }
 

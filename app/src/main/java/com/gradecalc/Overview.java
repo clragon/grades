@@ -84,7 +84,7 @@ public class Overview extends Fragment {
 
         BarDataSet set = new BarDataSet(entries, "subjects");
         set.setHighLightAlpha(255);
-        set.setColors(new int[]{ContextCompat.getColor(getActivity(), R.color.design_default_color_primary)});
+        set.setColors(ContextCompat.getColor(getActivity(), R.color.design_default_color_primary));
         BarData data = new BarData(set);
         data.setBarWidth(0.6f);
         data.setValueTextColor(primaryColor);
@@ -114,7 +114,7 @@ public class Overview extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setValueFormatter(new SubjectFormatter());
         xAxis.setGranularity(1);
-        xAxis.setLabelCount(table.getSubjects().size() + 1);
+        xAxis.setLabelCount(table.getSubjects().size() + 2);
         xAxis.setTextColor(primaryColor);
         xAxis.setTextSize(16);
         xAxis.setDrawGridLines(false);

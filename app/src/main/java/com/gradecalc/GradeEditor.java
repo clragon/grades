@@ -2,8 +2,10 @@ package com.gradecalc;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -158,11 +160,18 @@ public class GradeEditor extends DialogFragment {
             }
         });
 
-        valueDelete.setOnClickListener(v -> {
-            // TODO: need own yes no dialogue
-            grade.getOwnerSubject().remGrade(grade);
-            dismiss();
-        });
+        valueDelete.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+                .setTitle(getResources().getString(R.string.confirmation))
+                .setMessage(String.format(getResources().getString(R.string.delete_object), grade.name))
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    grade.getOwnerSubject().remGrade(grade);
+                    dismiss();
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .setIcon(R.drawable.ic_warning)
+                .show());
+
+        valueDelete.setVisibility(View.VISIBLE);
     }
 
     private void gradeCreate(final Table.Subject subject) {
@@ -186,8 +195,6 @@ public class GradeEditor extends DialogFragment {
                 dismiss();
             }
         });
-
-        valueDelete.setVisibility(View.GONE);
     }
 
     private boolean checkFields() {

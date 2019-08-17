@@ -2,18 +2,18 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/valueHolder"
+    android:id="@+id/value_holder"
     android:layout_width="88dp"
     android:layout_height="88dp"
     android:layout_gravity="center_horizontal|center_vertical"
     android:layout_marginEnd="8dp"
     app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toStartOf="@+id/valueTitle"
+    app:layout_constraintEnd_toStartOf="@+id/value_title"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
     <View
-        android:id="@+id/valueCircle"
+        android:id="@+id/value_circle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal|center_vertical"
@@ -22,7 +22,7 @@
         android:elevation="60dp" />
 
     <TextView
-        android:id="@+id/valueValue"
+        android:id="@+id/value_value"
         tools:text="0.0"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

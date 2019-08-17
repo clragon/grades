@@ -1,12 +1,16 @@
-package com.gradecalc;
+package com.gradestat;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
+
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,46 +22,48 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import org.threeten.bp.format.DateTimeFormatter;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.FormatStyle;
 
 
 public class GradeEditor extends DialogFragment {
 
-    View view;
-    Table table;
-    EditText valueTitle;
-    EditText valueValue;
-    EditText valueWeight;
-    TextView valueDate;
-    Button valueOK;
-    Button valueDelete;
-    SeekBar valueSeekWeight;
-    DecimalFormat df = new DecimalFormat("#.##");
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+    private Table table;
+    private EditText valueTitle;
+    private EditText valueValue;
+    private EditText valueWeight;
+    private TextView valueDate;
+    private Button valueOK;
+    private Button valueDelete;
+    private SeekBar valueSeekWeight;
+    private ConstraintLayout weight_editor;
+    private DecimalFormat df = new DecimalFormat("#.##");
+    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.frag_editor, container, false);
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.frag_editor, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        valueTitle = view.findViewById(R.id.valueTitle);
-        valueValue = view.findViewById(R.id.valueValue);
-        valueWeight = view.findViewById(R.id.valueText1);
-        valueDate = view.findViewById(R.id.valueText2);
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        valueTitle = view.findViewById(R.id.value_title);
+        valueValue = view.findViewById(R.id.value_value);
+        valueWeight = view.findViewById(R.id.value_text1);
+        valueDate = view.findViewById(R.id.value_text2);
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
         ImageButton valueEditDate = view.findViewById(R.id.valueEditDate);
-        valueSeekWeight = view.findViewById(R.id.valueSeekWeight);
+        valueSeekWeight = view.findViewById(R.id.value_seek_weight);
+        weight_editor = view.findViewById(R.id.weight_editor);
+
+        valueTitle.setHint(R.string.grade_name);
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
-
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
 
             if (hasFocus) {
@@ -131,6 +137,10 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(grade.weight));
         valueDate.setText(dateFormat.format(grade.creation));
 
+        if (!grade.getOwnerSubject().getOwnerTable().useWeight) {
+            weight_editor.setVisibility(View.GONE);
+        }
+
         int progress;
         switch (valueWeight.getText().toString()) {
             case "0.25":
@@ -152,10 +162,7 @@ public class GradeEditor extends DialogFragment {
                 grade.name = valueTitle.getText().toString();
                 grade.value = Double.parseDouble(valueValue.getText().toString());
                 grade.weight = Double.parseDouble(valueWeight.getText().toString());
-                try {
-                    grade.creation = dateFormat.parse(valueDate.getText().toString());
-                } catch (ParseException e) { // TODO: something went wrong :(
-                }
+                grade.creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
                 dismiss();
             }
         });
@@ -179,18 +186,18 @@ public class GradeEditor extends DialogFragment {
         valueTitle.setText(String.format("%s %x", subject.name, subject.getGrades().size() + 1));
         valueTitle.setSelectAllOnFocus(true);
         valueWeight.setText(df.format(1.0));
-        valueDate.setText(dateFormat.format(new Date()));
+        valueDate.setText(dateFormat.format(LocalDate.now()));
+
+        if (!subject.getOwnerTable().useWeight) {
+            weight_editor.setVisibility(View.GONE);
+        }
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 String Name = valueTitle.getText().toString();
                 double Value = Double.parseDouble(valueValue.getText().toString());
                 double Weight = Double.parseDouble(valueWeight.getText().toString());
-                Date creation = new Date();
-                try {
-                    creation = dateFormat.parse(valueDate.getText().toString());
-                } catch (ParseException e) { // TODO: something went wrong :(
-                }
+                LocalDate creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
                 subject.addGrade(Value, Weight, Name, creation);
                 dismiss();
             }
@@ -206,16 +213,19 @@ public class GradeEditor extends DialogFragment {
             valueTitle.setError(null);
         }
         try {
-            double value = Double.parseDouble(valueValue.getText().toString());
-            if (!(value >= table.minGrade)) {
-                valid = false;
-            } else {
-                // valueValue.setError(null);
-            }
-            if (!(value <= table.maxGrade)) {
-                valid = false;
-            } else {
-                // valueValue.setError(null);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            if (preferences.getBoolean("useLimits", false)) {
+                double value = Double.parseDouble(valueValue.getText().toString());
+                if (!(value >= table.minGrade)) {
+                    valid = false;
+                } else {
+                    // valueValue.setError(null);
+                }
+                if (!(value <= table.maxGrade)) {
+                    valid = false;
+                } else {
+                    // valueValue.setError(null);
+                }
             }
         } catch (Exception e) {
             valid = false;

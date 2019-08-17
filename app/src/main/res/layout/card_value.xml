@@ -22,7 +22,7 @@
             android:layout_height="88dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/valueTitle"
+            app:layout_constraintEnd_toStartOf="@+id/value_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,7 +69,7 @@
             app:layout_constraintGuide_begin="272dp" />
 
         <TextView
-            android:id="@+id/valueTitle"
+            android:id="@+id/value_title"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
@@ -85,16 +85,15 @@
             tools:text="@string/subject_name" />
 
         <ImageButton
-            android:id="@+id/valueEdit"
+            android:id="@+id/value_edit"
             style="@android:style/Widget.DeviceDefault.ImageButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="0.3"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:backgroundTint="?attr/colorControlNormal"
-            android:paddingStart="5dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline4"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
@@ -112,7 +111,7 @@
             app:layout_constraintTop_toTopOf="@+id/guideline2" />
 
         <TextView
-            android:id="@+id/valueText1"
+            android:id="@+id/value_text1"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="4dp"
@@ -129,7 +128,7 @@
             tools:text="value 1" />
 
         <ImageView
-            android:id="@+id/valueIcon1"
+            android:id="@+id/value_icon1"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_gravity="center_horizontal|center_vertical"
@@ -146,7 +145,7 @@
             tools:srcCompat="@drawable/ic_edit" />
 
         <TextView
-            android:id="@+id/valueText2"
+            android:id="@+id/value_text2"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="4dp"
@@ -163,17 +162,17 @@
             tools:text="value 2" />
 
         <ImageView
-            android:id="@+id/valueIcon2"
+            android:id="@+id/value_icon2"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:layout_weight="1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@+id/guideline5"
             app:layout_constraintTop_toTopOf="@+id/guideline2"
             app:layout_constraintVertical_bias="0"

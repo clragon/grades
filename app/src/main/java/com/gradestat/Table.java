@@ -1,14 +1,16 @@
-package com.gradecalc;
+package com.gradestat;
 
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.io.Serializable;
 
 import com.google.gson.*;
+
+import org.threeten.bp.LocalDate;
 
 
 public class Table implements Serializable {
@@ -22,6 +24,8 @@ public class Table implements Serializable {
     public String name;
     public double minGrade = 1;
     public double maxGrade = 6;
+
+    public boolean useWeight = true;
 
     private transient final double fullWeight = 1.0;
 
@@ -71,18 +75,18 @@ public class Table implements Serializable {
         }
     }
 
-    public Date getLatest() {
+    public LocalDate getLatest() {
         Subject latest;
         if (!this.Subjects.isEmpty()) {
             latest = this.Subjects.get(0);
             for (Subject s : this.Subjects) {
-                if (s.getLatest().after(latest.getLatest())) {
+                if (s.getLatest().isAfter(latest.getLatest())) {
                     latest = s;
                 }
             }
             return latest.getLatest();
         } else {
-            return new Date();
+            return LocalDate.now();
         }
     }
 
@@ -123,7 +127,7 @@ public class Table implements Serializable {
             return Grades;
         }
 
-        public Grade addGrade(double value, double weight, String name, Date creation) {
+        public Grade addGrade(double value, double weight, String name, LocalDate creation) {
             Grade g = new Grade(value, weight);
             g.ownerSubject = this;
             g.name = name;
@@ -133,7 +137,7 @@ public class Table implements Serializable {
         }
 
         public Grade addGrade(double value, double weight, String name) {
-            return addGrade(value, weight, name, new Date());
+            return addGrade(value, weight, name, LocalDate.now());
         }
 
         public Grade addGrade(double value, double weight) {
@@ -167,9 +171,16 @@ public class Table implements Serializable {
         public double getAverage() {
             if (!Grades.isEmpty()) {
                 double values = 0, weights = 0;
-                for (Grade g : Grades) {
-                    values += (g.value * g.weight);
-                    weights += g.weight;
+                if (ownerTable.useWeight) {
+                    for (Grade g : Grades) {
+                        values += (g.value * g.weight);
+                        weights += g.weight;
+                    }
+                } else {
+                    for (Grade g : Grades) {
+                        values += g.value;
+                        weights += 1;
+                    }
                 }
 
                 return Math.round((values / weights) * 2) / 2.0;
@@ -178,17 +189,17 @@ public class Table implements Serializable {
             }
         }
 
-        public Date getLatest() {
+        public LocalDate getLatest() {
             if (!this.Grades.isEmpty()) {
                 Grade latest = this.Grades.get(0);
                 for (Grade g : this.Grades) {
-                    if (g.creation.after(latest.creation)) {
+                    if (g.creation.isAfter(latest.creation)) {
                         latest = g;
                     }
                 }
                 return latest.creation;
             } else {
-                return new Date();
+                return LocalDate.now();
             }
         }
 
@@ -209,11 +220,16 @@ public class Table implements Serializable {
             Grade(double value, double weight) {
                 this.value = value;
                 this.weight = weight;
+                this.creation = LocalDate.now();
+            }
+
+            Grade(double value) {
+                new Grade(value, 1);
             }
 
             public String name;
 
-            public Date creation;
+            public LocalDate creation;
 
             public double value;
 
@@ -271,6 +287,17 @@ public class Table implements Serializable {
             fileWriter.write(json);
             fileWriter.flush();
             fileWriter.close();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void delete() throws java.io.IOException, IllegalStateException {
+        if (!this.saveFile.equals("")) {
+            new File(saveFile).delete();
+            Subjects = new ArrayList<>();
+            ;
+            name = "";
         } else {
             throw new IllegalStateException();
         }

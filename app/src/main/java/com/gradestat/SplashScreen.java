@@ -1,4 +1,4 @@
-package com.gradecalc;
+package com.gradestat;
 
 import android.content.Intent;
 

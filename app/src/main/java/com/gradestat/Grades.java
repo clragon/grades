@@ -1,19 +1,19 @@
-package com.gradecalc;
+package com.gradestat;
 
-import android.content.pm.ActivityInfo;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,42 +21,50 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 import java.io.IOException;
+
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
+
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+
+import static androidx.core.content.ContextCompat.getDrawable;
 
 
-public class Subjects extends Fragment {
+public class Grades extends Fragment {
 
-    Table table;
-    RecyclerView recycler;
-    FloatingActionButton fab;
-    DecimalFormat df = new DecimalFormat("#.##");
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+    private Table.Subject subject;
+    private RecyclerView recycler;
+    private SharedPreferences preferences;
+    private DecimalFormat doubleFormat = new DecimalFormat("#.##");
+    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.frag_list, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        table = (Table) getArguments().getSerializable("table");
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        subject = (Table.Subject) getArguments().getSerializable("subject");
         recycler = view.findViewById(R.id.recyclerView);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        fab = view.findViewById(R.id.addItem);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
+
+        FloatingActionButton fab = view.findViewById(R.id.addItem);
         fab.setOnClickListener(v -> {
-            SubjectEditor editor = new SubjectEditor();
+            GradeEditor editor = new GradeEditor();
             Bundle args = new Bundle();
-            args.putSerializable("table", table);
+            args.putSerializable("subject", subject);
             editor.setArguments(args);
             editor.setOnDismissListener(dialog -> {
                 try {
-                    table.write();
+                    subject.getOwnerTable().write();
                 } catch (IOException ex) {
-
+                    // TODO: something went wrong :(
                 }
                 recycler.getAdapter().notifyDataSetChanged();
                 checkList();
@@ -76,13 +84,13 @@ public class Subjects extends Fragment {
 
                 // Notify the adapter of the move
                 recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-                Table.Subject s = table.getSubjects().get(viewHolder.getAdapterPosition());
-                table.remSubject(s);
-                table.addSubject(s, target.getAdapterPosition());
+                Table.Subject.Grade g = subject.getGrades().get(viewHolder.getAdapterPosition());
+                subject.remGrade(g);
+                subject.addGrade(g, target.getAdapterPosition());
                 try {
-                    table.write();
+                    subject.getOwnerTable().write();
                 } catch (IOException ex) {
-
+                    // TODO: something went wrong :(
                 }
                 return true;
             }
@@ -96,13 +104,14 @@ public class Subjects extends Fragment {
         toucher.attachToRecyclerView(recycler);
 
         TextView text = view.findViewById(R.id.emptyText);
-        text.setText(R.string.no_subjects);
+        text.setText(R.string.no_grades);
 
         checkList();
+
     }
 
     private void checkList() {
-        if (!table.getSubjects().isEmpty()) {
+        if (!subject.getGrades().isEmpty()) {
             recycler.setVisibility(RecyclerView.VISIBLE);
             if (getView() != null) {
                 getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
@@ -114,7 +123,6 @@ public class Subjects extends Fragment {
             }
         }
     }
-
 
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
@@ -129,69 +137,75 @@ public class Subjects extends Fragment {
             ImageView icon1;
             ImageView icon2;
 
+
             ViewHolder(View itemView) {
                 super(itemView);
 
                 card = itemView.findViewById(R.id.valueCard);
-                value = itemView.findViewById(R.id.valueValue);
-                name = itemView.findViewById(R.id.valueTitle);
-                text1 = itemView.findViewById(R.id.valueText1);
-                text2 = itemView.findViewById(R.id.valueText2);
-                icon1 = itemView.findViewById(R.id.valueIcon1);
-                icon2 = itemView.findViewById(R.id.valueIcon2);
-                edit = itemView.findViewById(R.id.valueEdit);
+                value = itemView.findViewById(R.id.value_value);
+                name = itemView.findViewById(R.id.value_title);
+                text1 = itemView.findViewById(R.id.value_text1);
+                text2 = itemView.findViewById(R.id.value_text2);
+                icon1 = itemView.findViewById(R.id.value_icon1);
+                icon2 = itemView.findViewById(R.id.value_icon2);
+                edit = itemView.findViewById(R.id.value_edit);
 
-                itemView.setOnClickListener(v -> {
-                    Fragment fragment = new Grades();
-                    Bundle args = new Bundle();
-                    args.putSerializable("subject", table.getSubjects().get(getAdapterPosition()));
-                    fragment.setArguments(args);
-                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                    transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
-                    transaction.replace(R.id.fragment, fragment);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
-                });
+                itemView.setOnClickListener(v -> edit.performClick());
             }
         }
 
         @Override
         public int getItemCount() {
-            return table.getSubjects().size();
+            return subject.getGrades().size();
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             return new ViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_value, viewGroup, false));
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder view, int i) {
-            final Table.Subject s = table.getSubjects().get(i);
+        public void onBindViewHolder(@NonNull ViewHolder view, final int i) {
+            final Table.Subject.Grade g = subject.getGrades().get(i);
 
-            view.value.setText(df.format(s.getAverage()));
-            view.name.setText(s.name);
-            view.text1.setText(String.format("%s: %s", getResources().getString(R.string.grades), df.format(s.getGrades().size())));
-            view.icon1.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_exam));
-            view.text2.setText(dateFormat.format(s.getLatest()));
-            view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
+            view.value.setText(doubleFormat.format(g.value));
+            view.name.setText(g.name);
+            if (preferences.getBoolean("useWeight", true)) {
+                view.text1.setText(String.format("%s: %s", getResources().getString(R.string.weight), doubleFormat.format(g.weight)));
+                view.icon1.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_weight));
+                view.text1.setVisibility(View.VISIBLE);
+                view.icon1.setVisibility(View.VISIBLE);
+            } else {
+                view.text1.setVisibility(View.GONE);
+                view.icon1.setVisibility(View.GONE);
+            }
+
+            view.text2.setText(dateFormat.format(g.creation));
+            view.icon2.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_calendar));
 
             view.edit.setOnClickListener(v -> {
-                SubjectEditor editor = new SubjectEditor();
+                GradeEditor editor = new GradeEditor();
                 Bundle args = new Bundle();
-                args.putSerializable("subject", s);
+                args.putSerializable("grade", g);
                 editor.setArguments(args);
                 editor.setOnDismissListener(dialog -> {
                     recycler.getAdapter().notifyDataSetChanged();
                     try {
-                        table.write();
+                        subject.getOwnerTable().write();
                     } catch (IOException ex) {
-
+                        // TODO: something went wrong :(
                     }
                     checkList();
                 });
                 editor.show(getFragmentManager(), "editor");
             });
         }
+
+        @Override
+        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+        }
+
     }
+
 }

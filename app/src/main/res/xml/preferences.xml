@@ -8,13 +8,17 @@
             app:key="dark"
             app:title="@string/theme"
             app:summaryOn="@string/use_dark_theme"
-            app:summaryOff="@string/use_light_theme" />
+            app:summaryOff="@string/use_light_theme"
+            app:enabled="false"
+            android:icon="@drawable/ic_brightness" />
 
         <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
             android:defaultValue="?android:colorPrimary"
             android:key="primary"
             app:title="@string/color"
-            app:summary="@string/pick_color" />
+            app:summary="@string/pick_color"
+            app:enabled="false"
+            android:icon="@drawable/ic_palette" />
 
     </PreferenceCategory>
 
@@ -26,6 +30,13 @@
             app:title="@string/grade_limits"
             app:summaryOn="@string/enforce_limits"
             app:summaryOff="@string/ignore_limits" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="advanced"
+            app:title="@string/advanced"
+            app:summaryOn="@string/advanced_desc_on"
+            app:summaryOff="@string/advanced_desc_off" />
 
     </PreferenceCategory>
 

@@ -1,9 +1,10 @@
-package com.gradecalc;
+package com.gradestat;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -15,30 +16,29 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.evernote.android.state.State;
+
 import java.text.DecimalFormat;
 
 
 public class SubjectEditor extends DialogFragment {
 
-    View view;
-    EditText valueTitle;
-    EditText valueValue;
-    LinearLayout valueExtra;
-    Button valueOK;
-    Button valueDelete;
-    DecimalFormat df = new DecimalFormat("#.##");
+    private EditText valueTitle;
+    private EditText valueValue;
+    private Button valueOK;
+    private Button valueDelete;
+    private DecimalFormat df = new DecimalFormat("#.##");
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.frag_editor, container, false);
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.frag_editor, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        valueTitle = view.findViewById(R.id.valueTitle);
-        valueValue = view.findViewById(R.id.valueValue);
-        valueExtra = view.findViewById(R.id.valueExtra);
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        valueTitle = view.findViewById(R.id.value_title);
+        valueValue = view.findViewById(R.id.value_value);
+        LinearLayout valueExtra = view.findViewById(R.id.value_extra);
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
@@ -46,6 +46,8 @@ public class SubjectEditor extends DialogFragment {
         valueExtra.setVisibility(View.GONE);
         valueValue.setClickable(false);
         valueValue.setFocusable(false);
+
+        valueTitle.setHint(R.string.subject_name);
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
@@ -129,7 +131,7 @@ public class SubjectEditor extends DialogFragment {
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog) {
+    public void onDismiss(@NonNull DialogInterface dialog) {
         super.onDismiss(dialog);
         if (onDismissListener != null) {
             onDismissListener.onDismiss(dialog);

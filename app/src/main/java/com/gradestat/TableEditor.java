@@ -31,6 +31,7 @@ public class TableEditor extends DialogFragment {
     private EditText tableEdit1;
     private EditText tableEdit2;
     private Switch switch3;
+    SharedPreferences preferences;
     private DecimalFormat df = new DecimalFormat("#.##");
 
     @Override
@@ -51,7 +52,7 @@ public class TableEditor extends DialogFragment {
         tableEdit2 = view.findViewById(R.id.table_edit2);
         switch3 = view.findViewById(R.id.switch3);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         valueExtra.setVisibility(View.GONE);
         if (preferences.getBoolean("advanced", false)) {
@@ -107,9 +108,7 @@ public class TableEditor extends DialogFragment {
                 try {
                     table.write();
                 } catch (Exception ex) {
-
                 }
-
                 dismiss();
             }
         });
@@ -133,26 +132,31 @@ public class TableEditor extends DialogFragment {
     }
 
     private void createTable(final File file) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         valueValue.setText(df.format(0));
-        tableEdit1.setText(preferences.getInt("minGrade", 1));
-        tableEdit1.setText(preferences.getInt("maxGrade", 6));
-        switch3.setChecked(preferences.getBoolean("useWeight", true));
+        if (preferences.getBoolean("advanced", false)) {
+            tableEdit1.setText(df.format(Double.valueOf(preferences.getInt("minGrade", 1))));
+            tableEdit1.setText(df.format(Double.valueOf(preferences.getInt("maxGrade", 6))));
+            switch3.setChecked(preferences.getBoolean("useWeight", true));
+        }
+
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
-
                 Table table = new Table(valueTitle.getText().toString());
-                table.minGrade = Double.parseDouble(tableEdit1.getText().toString());
-                table.maxGrade = Double.parseDouble(tableEdit2.getText().toString());
-                table.useWeight = switch3.isChecked();
+                if (preferences.getBoolean("advanced", false)) {
+                    table.minGrade = Double.parseDouble(tableEdit1.getText().toString());
+                    table.maxGrade = Double.parseDouble(tableEdit2.getText().toString());
+                    table.useWeight = switch3.isChecked();
+                } else {
+                    table.minGrade = preferences.getInt("minGrade", 1);
+                    table.maxGrade = preferences.getInt("maxGrade", 6);
+                    table.useWeight = preferences.getBoolean("useWeight", true);
+                }
                 table.saveFile = file.getPath();
                 try {
                     table.write();
                 } catch (IOException ex) {
-                    // oh no
                 }
-
                 dismiss();
             }
         });

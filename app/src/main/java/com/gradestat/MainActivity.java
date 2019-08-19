@@ -15,6 +15,7 @@ import android.preference.PreferenceManager;
 import com.afollestad.aesthetic.Aesthetic;
 import com.afollestad.aesthetic.AestheticActivity;
 import com.evernote.android.state.State;
+import com.evernote.android.state.StateSaver;
 import com.google.android.material.navigation.NavigationView;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -23,6 +24,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.os.Bundle;
@@ -74,7 +76,10 @@ public class MainActivity extends AestheticActivity {
         tables_dir = new File(getFilesDir(), "tables");
 
         if (savedInstanceState == null) {
+
             AndroidThreeTen.init(this);
+
+            StateSaver.setEnabledForAllActivitiesAndSupportFragments(this.getApplication(), true);
 
             if (!tables_dir.exists()) {
                 tables_dir.mkdir();
@@ -137,12 +142,8 @@ public class MainActivity extends AestheticActivity {
         });
 
 
-        (navHeader.findViewById(R.id.table_edit)).setOnClickListener(v -> {
-            TableEditor editor = new TableEditor();
-            Bundle args = new Bundle();
-            args.putSerializable("table", (Table) spinner.getSelectedItem());
-            editor.setArguments(args);
-            editor.setOnDismissListener(dialog -> {
+        navHeader.findViewById(R.id.table_edit).setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), (Table) spinner.getSelectedItem())
+                .setPositiveButton(v1 -> {
                 adapter.clear();
                 ArrayList<Table> new_tables = getSpinnerList();
                 adapter.addAll(new_tables);
@@ -157,10 +158,7 @@ public class MainActivity extends AestheticActivity {
                     spinner.setSelection(spinner.getSelectedItemPosition() - 1);
                 }
                 navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
-
-            });
-            editor.show(getSupportFragmentManager(), "editor");
-        });
+                }).show());
 
 
         if (savedInstanceState == null) {
@@ -249,13 +247,10 @@ public class MainActivity extends AestheticActivity {
     public void updateNavbar() {
         FrameLayout navheader = (FrameLayout) ((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0);
 
-        // Spinner drop = navheader.findViewById(R.id.table_dropdown);
-        // TextView title = navheader.findViewById(R.id.table_title);
         TextView value = navheader.findViewById(R.id.value_value);
         TextView text1 = navheader.findViewById(R.id.table_text1);
         TextView text2 = navheader.findViewById(R.id.table_text2);
 
-        // title.setText(table.name);
         value.setText(doubleFormat.format(table.getAverage()));
         // text1.setText(String.format("%s: %d", getString(R.string.subjects), table.getSubjects().size()));
         int grades = 0;
@@ -285,6 +280,7 @@ public class MainActivity extends AestheticActivity {
                 break;
             case R.id.history:
                 fragmentClass = History.class;
+                args.putSerializable("table", table);
                 break;
             case R.id.settings:
                 wrap = true;
@@ -338,7 +334,6 @@ public class MainActivity extends AestheticActivity {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
                 transaction.replace(R.id.fragment, fragment).commit();
-                // setDrawerToolbar();
             }
             // Highlight the selected item
             navigation.setCheckedItem(item);
@@ -361,7 +356,6 @@ public class MainActivity extends AestheticActivity {
                 toggle.onDrawerSlide(drawer, slideOffset);
             });
             anim.setInterpolator(new DecelerateInterpolator());
-            // You can change this duration to more closely match that of the default animation.
             anim.setDuration(400);
             anim.start();
         }
@@ -407,8 +401,10 @@ public class MainActivity extends AestheticActivity {
                 convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
                 drop_text = convertView.findViewById(R.id.drop_text);
                 drop_text.setText(getString(R.string.add_table));
+                TypedValue outValue = new TypedValue();
+                getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+                drop_text.setBackgroundResource(outValue.resourceId);
                 drop_text.setOnClickListener(v -> {
-                    TableEditor editor = new TableEditor();
                     File file;
                     File def = new File(tables_dir.getPath(), "grades.json");
                     if (def.exists()) {
@@ -421,16 +417,14 @@ public class MainActivity extends AestheticActivity {
                     } else {
                         file = def;
                     }
-                    Bundle args = new Bundle();
-                    args.putSerializable("file", file);
-                    editor.setArguments(args);
-                    editor.setOnDismissListener(dialog -> {
-                        adapter.clear();
-                        ArrayList<Table> tables = getSpinnerList();
-                        adapter.addAll(tables);
-                        adapter.notifyDataSetChanged();
-                    });
-                    editor.show(getSupportFragmentManager(), "editor");
+
+                    new TableEditor.Builder(getSupportFragmentManager(), file)
+                            .setPositiveButton(v1 -> {
+                                adapter.clear();
+                                ArrayList<Table> tables = getSpinnerList();
+                                adapter.addAll(tables);
+                                adapter.notifyDataSetChanged();
+                            }).show();
                 });
             } else if (((TextView) convertView.findViewById(R.id.drop_text)).getText().toString().equals(getString(R.string.add_table))) {
                 convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);

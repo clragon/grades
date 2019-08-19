@@ -18,12 +18,22 @@ import android.widget.Switch;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class TableEditor extends DialogFragment {
+
+    private Table table;
+    private File file;
+    private boolean edit;
+    private View.OnClickListener onYes;
+    private View.OnClickListener onNo;
+    private View.OnClickListener onDel;
+
     private EditText valueTitle;
     private EditText valueValue;
     private Button valueOK;
@@ -67,7 +77,6 @@ public class TableEditor extends DialogFragment {
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
-
             if (hasFocus) {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -75,20 +84,14 @@ public class TableEditor extends DialogFragment {
         });
 
         valueCancel.setOnClickListener(v -> {
-            // TODO: need own yes no dialogue
+            onNo.onClick(v);
             dismiss();
         });
 
-        try {
-            if (getArguments().containsKey("table")) {
-                Table table = (Table) getArguments().getSerializable("table");
-                editTable(table);
-            } else if (getArguments().containsKey("file")) {
-                File file = (File) getArguments().getSerializable("file");
-                createTable(file);
-            }
-        } catch (Exception e) {
-            // TODO: something went wrong :(
+        if (edit) {
+            editTable(table);
+        } else {
+            createTable(file);
         }
     }
 
@@ -109,6 +112,7 @@ public class TableEditor extends DialogFragment {
                     table.write();
                 } catch (Exception ex) {
                 }
+                onYes.onClick(v);
                 dismiss();
             }
         });
@@ -122,6 +126,7 @@ public class TableEditor extends DialogFragment {
                     } catch (IOException ex) {
                         // oof
                     }
+                    onDel.onClick(v);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -157,6 +162,7 @@ public class TableEditor extends DialogFragment {
                     table.write();
                 } catch (IOException ex) {
                 }
+                onYes.onClick(v);
                 dismiss();
             }
         });
@@ -176,17 +182,58 @@ public class TableEditor extends DialogFragment {
         return valid;
     }
 
-    private DialogInterface.OnDismissListener onDismissListener;
+    public static class Builder {
+        private Table table = null;
+        private File file = null;
+        private boolean edit;
+        private View.OnClickListener onYes = v -> {
 
-    public void setOnDismissListener(DialogInterface.OnDismissListener onDismissListener) {
-        this.onDismissListener = onDismissListener;
-    }
+        };
+        private View.OnClickListener onNo = v -> {
 
-    @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
-        if (onDismissListener != null) {
-            onDismissListener.onDismiss(dialog);
+        };
+        private View.OnClickListener onDel;
+        private FragmentManager manager;
+
+        public Builder(@NonNull FragmentManager manager, @NonNull Table table) {
+            this.manager = manager;
+            this.table = table;
+            edit = true;
+        }
+
+        public Builder(@NonNull FragmentManager manager, @NonNull File file) {
+            this.manager = manager;
+            this.file = file;
+            edit = false;
+        }
+
+        public Builder setPositiveButton(View.OnClickListener onYes) {
+            this.onYes = onYes;
+            return this;
+        }
+
+        public Builder setNegativeButton(View.OnClickListener onNo) {
+            this.onNo = onNo;
+            return this;
+        }
+
+        public Builder setDeleteButton(View.OnClickListener onDel) {
+            this.onDel = onDel;
+            return this;
+        }
+
+        public void show() {
+            TableEditor editor = new TableEditor();
+            editor.table = this.table;
+            editor.file = this.file;
+            editor.edit = this.edit;
+            editor.onYes = this.onYes;
+            editor.onNo = this.onNo;
+            if (this.onDel == null) {
+                onDel = onYes;
+            }
+            editor.onDel = this.onDel;
+            editor.show(manager, "editor");
         }
     }
 }

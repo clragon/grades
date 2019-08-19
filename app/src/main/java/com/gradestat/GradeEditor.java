@@ -1,7 +1,6 @@
 package com.gradestat;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -9,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -30,6 +31,14 @@ import org.threeten.bp.format.FormatStyle;
 
 
 public class GradeEditor extends DialogFragment {
+
+    private Table.Subject.Grade grade;
+    private Table.Subject subject;
+    private boolean edit;
+    private View.OnClickListener onYes;
+    private View.OnClickListener onNo;
+    private View.OnClickListener onDel;
+
 
     private Table table;
     private EditText valueTitle;
@@ -111,22 +120,16 @@ public class GradeEditor extends DialogFragment {
         });
 
         valueCancel.setOnClickListener(v -> {
-            // TODO: need own yes no dialogue
+            onNo.onClick(v);
             dismiss();
         });
 
-        try {
-            if (getArguments().containsKey("grade")) {
-                Table.Subject.Grade grade = (Table.Subject.Grade) getArguments().getSerializable("grade");
-                table = grade.getOwnerSubject().getOwnerTable();
-                gradeEdit(grade);
-            } else if (getArguments().containsKey("subject")) {
-                Table.Subject subject = (Table.Subject) getArguments().getSerializable("subject");
-                table = subject.getOwnerTable();
-                gradeCreate(subject);
-            }
-        } catch (Exception e) {
-            // TODO: something went wrong :(
+        if (edit) {
+            table = grade.getOwnerSubject().getOwnerTable();
+            gradeEdit(grade);
+        } else {
+            table = subject.getOwnerTable();
+            gradeCreate(subject);
         }
     }
 
@@ -163,6 +166,7 @@ public class GradeEditor extends DialogFragment {
                 grade.value = Double.parseDouble(valueValue.getText().toString());
                 grade.weight = Double.parseDouble(valueWeight.getText().toString());
                 grade.creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
+                onYes.onClick(v);
                 dismiss();
             }
         });
@@ -172,6 +176,7 @@ public class GradeEditor extends DialogFragment {
                 .setMessage(String.format(getResources().getString(R.string.delete_object), grade.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     grade.getOwnerSubject().remGrade(grade);
+                    onDel.onClick(v);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -199,6 +204,7 @@ public class GradeEditor extends DialogFragment {
                 double Weight = Double.parseDouble(valueWeight.getText().toString());
                 LocalDate creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
                 subject.addGrade(Value, Weight, Name, creation);
+                onYes.onClick(v);
                 dismiss();
             }
         });
@@ -219,12 +225,12 @@ public class GradeEditor extends DialogFragment {
                 if (!(value >= table.minGrade)) {
                     valid = false;
                 } else {
-                    // valueValue.setError(null);
+                    valueValue.setError(null);
                 }
                 if (!(value <= table.maxGrade)) {
                     valid = false;
                 } else {
-                    // valueValue.setError(null);
+                    valueValue.setError(null);
                 }
             }
         } catch (Exception e) {
@@ -251,17 +257,58 @@ public class GradeEditor extends DialogFragment {
         return valid;
     }
 
-    private DialogInterface.OnDismissListener onDismissListener;
+    public static class Builder {
+        private Table.Subject.Grade grade = null;
+        private Table.Subject subject = null;
+        private boolean edit;
+        private View.OnClickListener onYes = v -> {
 
-    public void setOnDismissListener(DialogInterface.OnDismissListener onDismissListener) {
-        this.onDismissListener = onDismissListener;
-    }
+        };
+        private View.OnClickListener onNo = v -> {
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        if (onDismissListener != null) {
-            onDismissListener.onDismiss(dialog);
+        };
+        private View.OnClickListener onDel;
+        private FragmentManager manager;
+
+        public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject.Grade grade) {
+            this.manager = manager;
+            this.grade = grade;
+            edit = true;
+        }
+
+        public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject subject) {
+            this.manager = manager;
+            this.subject = subject;
+            edit = false;
+        }
+
+        public Builder setPositiveButton(View.OnClickListener onYes) {
+            this.onYes = onYes;
+            return this;
+        }
+
+        public Builder setNegativeButton(View.OnClickListener onNo) {
+            this.onNo = onNo;
+            return this;
+        }
+
+        public Builder setDeleteButton(View.OnClickListener onDel) {
+            this.onDel = onDel;
+            return this;
+        }
+
+        public void show() {
+            GradeEditor editor = new GradeEditor();
+            editor.grade = this.grade;
+            editor.subject = this.subject;
+            editor.edit = this.edit;
+            editor.onYes = this.onYes;
+            editor.onNo = this.onNo;
+            if (this.onDel == null) {
+                onDel = onYes;
+            }
+            editor.onDel = this.onDel;
+            editor.show(manager, "editor");
         }
     }
 

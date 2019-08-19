@@ -9,7 +9,6 @@
             app:title="@string/theme"
             app:summaryOn="@string/use_dark_theme"
             app:summaryOff="@string/use_light_theme"
-            app:enabled="false"
             android:icon="@drawable/ic_brightness" />
 
         <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat

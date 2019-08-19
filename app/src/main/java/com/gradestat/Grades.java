@@ -55,22 +55,16 @@ public class Grades extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
 
         FloatingActionButton fab = view.findViewById(R.id.addItem);
-        fab.setOnClickListener(v -> {
-            GradeEditor editor = new GradeEditor();
-            Bundle args = new Bundle();
-            args.putSerializable("subject", subject);
-            editor.setArguments(args);
-            editor.setOnDismissListener(dialog -> {
-                try {
-                    subject.getOwnerTable().write();
-                } catch (IOException ex) {
-                    // TODO: something went wrong :(
-                }
-                recycler.getAdapter().notifyDataSetChanged();
-                checkList();
-            });
-            editor.show(getFragmentManager(), "editor");
-        });
+        fab.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), subject)
+                .setPositiveButton(v1 -> {
+                    try {
+                        subject.getOwnerTable().write();
+                    } catch (IOException ex) {
+                        // TODO: something went wrong :(
+                    }
+                    recycler.getAdapter().notifyDataSetChanged();
+                    checkList();
+                }).show());
 
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
@@ -183,22 +177,16 @@ public class Grades extends Fragment {
             view.text2.setText(dateFormat.format(g.creation));
             view.icon2.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_calendar));
 
-            view.edit.setOnClickListener(v -> {
-                GradeEditor editor = new GradeEditor();
-                Bundle args = new Bundle();
-                args.putSerializable("grade", g);
-                editor.setArguments(args);
-                editor.setOnDismissListener(dialog -> {
-                    recycler.getAdapter().notifyDataSetChanged();
-                    try {
-                        subject.getOwnerTable().write();
-                    } catch (IOException ex) {
-                        // TODO: something went wrong :(
-                    }
-                    checkList();
-                });
-                editor.show(getFragmentManager(), "editor");
-            });
+            view.edit.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), g)
+                    .setPositiveButton(v1 -> {
+                        recycler.getAdapter().notifyDataSetChanged();
+                        try {
+                            subject.getOwnerTable().write();
+                        } catch (IOException ex) {
+                            // TODO: something went wrong :(
+                        }
+                        checkList();
+                    }).show());
         }
 
         @Override

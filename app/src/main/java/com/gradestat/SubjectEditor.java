@@ -1,12 +1,14 @@
 package com.gradestat;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +18,17 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.evernote.android.state.State;
-
 import java.text.DecimalFormat;
 
 
 public class SubjectEditor extends DialogFragment {
+
+    private Table table;
+    private Table.Subject subject;
+    private boolean edit;
+    private View.OnClickListener onYes;
+    private View.OnClickListener onNo;
+    private View.OnClickListener onDel;
 
     private EditText valueTitle;
     private EditText valueValue;
@@ -52,7 +59,6 @@ public class SubjectEditor extends DialogFragment {
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
-
             if (hasFocus) {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -60,20 +66,14 @@ public class SubjectEditor extends DialogFragment {
         });
 
         valueCancel.setOnClickListener(v -> {
-            // TODO: need own yes no dialogue
+            onNo.onClick(v);
             dismiss();
         });
 
-        try {
-            if (getArguments().containsKey("subject")) {
-                Table.Subject subject = (Table.Subject) getArguments().getSerializable("subject");
-                editSubject(subject);
-            } else if (getArguments().containsKey("table")) {
-                Table table = (Table) getArguments().getSerializable("table");
-                createSubject(table);
-            }
-        } catch (Exception e) {
-            // TODO: something went wrong :(
+        if (edit) {
+            editSubject(subject);
+        } else {
+            createSubject(table);
         }
     }
 
@@ -84,6 +84,7 @@ public class SubjectEditor extends DialogFragment {
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 subject.name = valueTitle.getText().toString();
+                onYes.onClick(v);
                 dismiss();
             }
         });
@@ -93,6 +94,7 @@ public class SubjectEditor extends DialogFragment {
                 .setMessage(String.format(getResources().getString(R.string.delete_object), subject.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     subject.getOwnerTable().remSubject(subject);
+                    onDel.onClick(v);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -108,6 +110,7 @@ public class SubjectEditor extends DialogFragment {
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 table.addSubject(valueTitle.getText().toString());
+                onYes.onClick(v);
                 dismiss();
             }
         });
@@ -124,18 +127,58 @@ public class SubjectEditor extends DialogFragment {
         return valid;
     }
 
-    private DialogInterface.OnDismissListener onDismissListener;
+    public static class Builder {
+        private Table.Subject subject = null;
+        private Table table = null;
+        private boolean edit;
+        private View.OnClickListener onYes = v -> {
 
-    public void setOnDismissListener(DialogInterface.OnDismissListener onDismissListener) {
-        this.onDismissListener = onDismissListener;
-    }
+        };
+        private View.OnClickListener onNo = v -> {
 
-    @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
-        if (onDismissListener != null) {
-            onDismissListener.onDismiss(dialog);
+        };
+        private View.OnClickListener onDel;
+        private FragmentManager manager;
+
+        public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject subject) {
+            this.manager = manager;
+            this.subject = subject;
+            edit = true;
+        }
+
+        public Builder(@NonNull FragmentManager manager, @NonNull Table table) {
+            this.manager = manager;
+            this.table = table;
+            edit = false;
+        }
+
+        public Builder setPositiveButton(View.OnClickListener onYes) {
+            this.onYes = onYes;
+            return this;
+        }
+
+        public Builder setNegativeButton(View.OnClickListener onNo) {
+            this.onNo = onNo;
+            return this;
+        }
+
+        public Builder setDeleteButton(View.OnClickListener onDel) {
+            this.onDel = onDel;
+            return this;
+        }
+
+        public void show() {
+            SubjectEditor editor = new SubjectEditor();
+            editor.table = this.table;
+            editor.subject = this.subject;
+            editor.edit = this.edit;
+            editor.onYes = this.onYes;
+            editor.onNo = this.onNo;
+            if (this.onDel == null) {
+                onDel = onYes;
+            }
+            editor.onDel = this.onDel;
+            editor.show(manager, "editor");
         }
     }
-
 }

@@ -49,22 +49,16 @@ public class Subjects extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
 
         FloatingActionButton fab = view.findViewById(R.id.addItem);
-        fab.setOnClickListener(v -> {
-            SubjectEditor editor = new SubjectEditor();
-            Bundle args = new Bundle();
-            args.putSerializable("table", table);
-            editor.setArguments(args);
-            editor.setOnDismissListener(dialog -> {
-                try {
-                    table.write();
-                } catch (IOException ex) {
-                    // TODO: something went wrong :(
-                }
-                recycler.getAdapter().notifyDataSetChanged();
-                checkList();
-            });
-            editor.show(getFragmentManager(), "editor");
-        });
+        fab.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), table)
+                .setPositiveButton(v1 -> {
+                    try {
+                        table.write();
+                    } catch (IOException ex) {
+                        // TODO: something went wrong :(
+                    }
+                    recycler.getAdapter().notifyDataSetChanged();
+                    checkList();
+                }).show());
 
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
@@ -179,22 +173,16 @@ public class Subjects extends Fragment {
             view.text2.setText(s.getLatest().format(dateFormat));
             view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
 
-            view.edit.setOnClickListener(v -> {
-                SubjectEditor editor = new SubjectEditor();
-                Bundle args = new Bundle();
-                args.putSerializable("subject", s);
-                editor.setArguments(args);
-                editor.setOnDismissListener(dialog -> {
-                    recycler.getAdapter().notifyDataSetChanged();
-                    try {
-                        table.write();
-                    } catch (IOException ex) {
-                        // TODO: something went wrong :(
-                    }
-                    checkList();
-                });
-                editor.show(getFragmentManager(), "editor");
-            });
+            view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), s)
+                    .setPositiveButton(v1 -> {
+                        recycler.getAdapter().notifyDataSetChanged();
+                        try {
+                            table.write();
+                        } catch (IOException ex) {
+                            // TODO: something went wrong :(
+                        }
+                        checkList();
+                    }).show());
         }
     }
 }

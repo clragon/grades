@@ -10,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:gravity="bottom"
-        android:orientation="vertical"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:orientation="vertical">
 
         <Spinner
             android:id="@+id/table_dropdown"

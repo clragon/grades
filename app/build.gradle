@@ -1,8 +1,15 @@
 apply plugin: 'com.android.application'
 
+Properties props = new Properties()
+props.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     signingConfigs {
     release {
+        storeFile = file(props["storeFile"])
+        storePassword = props["storePassword"]
+        keyAlias = props["keyAlias"]
+        keyPassword = props["keyPassword"]
 
     }
         release {

@@ -1,7 +1,6 @@
 package com.gradestat;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,7 +17,6 @@ import android.widget.Switch;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
@@ -41,7 +39,7 @@ public class TableEditor extends DialogFragment {
     private EditText tableEdit1;
     private EditText tableEdit2;
     private Switch switch3;
-    SharedPreferences preferences;
+    private SharedPreferences preferences;
     private DecimalFormat df = new DecimalFormat("#.##");
 
     @Override
@@ -64,6 +62,9 @@ public class TableEditor extends DialogFragment {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+        tableEdit1.setHint(df.format(Double.valueOf(preferences.getInt("minGrade", 1))));
+        tableEdit2.setHint(df.format(Double.valueOf(preferences.getInt("maxGrade", 6))));
+
         valueExtra.setVisibility(View.GONE);
         if (preferences.getBoolean("advanced", false)) {
             tableExtra.setVisibility(View.VISIBLE);
@@ -78,13 +79,13 @@ public class TableEditor extends DialogFragment {
 
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                hideKeyboard(v);
             }
         });
 
         valueCancel.setOnClickListener(v -> {
             onNo.onClick(v);
+            hideKeyboard(v);
             dismiss();
         });
 
@@ -111,8 +112,10 @@ public class TableEditor extends DialogFragment {
                 try {
                     table.write();
                 } catch (Exception ex) {
+                    // oh no
                 }
                 onYes.onClick(v);
+                hideKeyboard(v);
                 dismiss();
             }
         });
@@ -127,6 +130,7 @@ public class TableEditor extends DialogFragment {
                         // oof
                     }
                     onDel.onClick(v);
+                    hideKeyboard(v);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -138,11 +142,9 @@ public class TableEditor extends DialogFragment {
 
     private void createTable(final File file) {
         valueValue.setText(df.format(0));
-        if (preferences.getBoolean("advanced", false)) {
-            tableEdit1.setText(df.format(Double.valueOf(preferences.getInt("minGrade", 1))));
-            tableEdit1.setText(df.format(Double.valueOf(preferences.getInt("maxGrade", 6))));
-            switch3.setChecked(preferences.getBoolean("useWeight", true));
-        }
+        tableEdit1.setText(df.format(Double.valueOf(preferences.getInt("minGrade", 1))));
+        tableEdit2.setText(df.format(Double.valueOf(preferences.getInt("maxGrade", 6))));
+        switch3.setChecked(preferences.getBoolean("useWeight", true));
 
 
         valueOK.setOnClickListener(v -> {
@@ -163,6 +165,7 @@ public class TableEditor extends DialogFragment {
                 } catch (IOException ex) {
                 }
                 onYes.onClick(v);
+                hideKeyboard(v);
                 dismiss();
             }
         });
@@ -180,6 +183,11 @@ public class TableEditor extends DialogFragment {
             valueTitle.setError(null);
         }
         return valid;
+    }
+
+    private void hideKeyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     public static class Builder {

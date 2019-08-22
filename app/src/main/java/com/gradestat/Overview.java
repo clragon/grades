@@ -80,14 +80,14 @@ public class Overview extends Fragment {
 
         TypedValue typedValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
-        int primaryColor = getActivity().obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.textColorPrimary}).getColor(0, -1);
+        int textColor = getActivity().obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.textColorPrimary}).getColor(0, -1);
 
         BarDataSet set = new BarDataSet(entries, "subjects");
         set.setHighLightAlpha(255);
         set.setColors(ContextCompat.getColor(getActivity(), R.color.design_default_color_primary));
         BarData data = new BarData(set);
         data.setBarWidth(0.6f);
-        data.setValueTextColor(primaryColor);
+        data.setValueTextColor(textColor);
         data.setValueTextSize(12);
         data.setValueFormatter(new ValueFormatter() {
             @Override
@@ -115,7 +115,7 @@ public class Overview extends Fragment {
         xAxis.setValueFormatter(new SubjectFormatter());
         xAxis.setGranularity(1);
         xAxis.setLabelCount(table.getSubjects().size() + 2);
-        xAxis.setTextColor(primaryColor);
+        xAxis.setTextColor(textColor);
         xAxis.setTextSize(16);
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(false);
@@ -127,7 +127,7 @@ public class Overview extends Fragment {
             yAxis.setAxisMinimum((float) table.minGrade);
         }
         yAxis.setAxisMaximum((float) table.maxGrade);
-        yAxis.setTextColor(primaryColor);
+        yAxis.setTextColor(textColor);
         yAxis.setTextSize(16);
         yAxis.setDrawGridLines(false);
         yAxis.setDrawAxisLine(false);

@@ -16,15 +16,15 @@
             android:id="@+id/table_dropdown"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="?android:attr/colorControlNormal"
             android:foregroundGravity="center_vertical|center_horizontal"
+            app:backgroundTint="?android:attr/colorControlNormal"
             app:layout_constraintBottom_toBottomOf="@+id/include"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline12"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/include"
             app:layout_constraintTop_toTopOf="@+id/include"
-            app:layout_constraintVertical_bias="0.656" />
+            app:layout_constraintVertical_bias="0.5" />
 
         <ImageButton
             android:id="@+id/table_edit"
@@ -42,7 +42,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline12"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.763"
+            app:layout_constraintVertical_bias="0.67"
             app:srcCompat="@drawable/ic_edit" />
 
         <include

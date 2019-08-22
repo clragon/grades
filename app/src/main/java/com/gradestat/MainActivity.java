@@ -47,6 +47,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 public class MainActivity extends AestheticActivity {
 
@@ -61,6 +63,7 @@ public class MainActivity extends AestheticActivity {
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
     private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
+    @State
     public Table table;
     @State
     public File tables_dir;
@@ -128,12 +131,16 @@ public class MainActivity extends AestheticActivity {
 
         adapter = new tableSpinner(this, getSpinnerList());
         spinner.setAdapter(adapter);
-
+        adapter.notifyDataSetChanged();
+        spinner.setSelection(getTableIndex(table), false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                table = (Table) parent.getItemAtPosition(position);
-                navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                if (parent.getItemAtPosition(position) != null) {
+                    table = (Table) parent.getItemAtPosition(position);
+                    preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
+                    navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                }
             }
 
             @Override
@@ -190,11 +197,6 @@ public class MainActivity extends AestheticActivity {
     }
 
     public Table getTable() {
-        table = new Table(getResources().getString(R.string.subjects));
-        table.minGrade = (double) preferences.getInt("minGrade", 1);
-        table.maxGrade = (double) preferences.getInt("maxGrade", 6);
-        table.useWeight = preferences.getBoolean("useWeight", true);
-        table.saveFile = table_data.getPath();
         if (table_data.exists()) {
             try {
                 table = Table.read(table_data.getPath());
@@ -202,6 +204,13 @@ public class MainActivity extends AestheticActivity {
                 Toast.makeText(this, "can't read table", Toast.LENGTH_LONG).show();
             }
         } else {
+
+            table = new Table(getResources().getString(R.string.subjects));
+            table.saveFile = table_data.getPath();
+            table.minGrade = (double) preferences.getInt("minGrade", 1);
+            table.maxGrade = (double) preferences.getInt("maxGrade", 6);
+            table.useWeight = preferences.getBoolean("useWeight", true);
+
             try {
                 table.write();
             } catch (IOException ex) {
@@ -230,6 +239,19 @@ public class MainActivity extends AestheticActivity {
         ArrayList<Table> t = getTableList();
         t.add(null);
         return t;
+    }
+
+    public int getTableIndex(Table t) {
+        int index = 0;
+        ArrayList<Table> temp = getSpinnerList();
+        for (Table current : temp) {
+            if (current != null) {
+                if (new File(current.saveFile).getName().equals(new File(t.saveFile).getName())) {
+                    index = temp.indexOf(current);
+                }
+            }
+        }
+        return index;
     }
 
     public void checkToolbar() {
@@ -317,7 +339,7 @@ public class MainActivity extends AestheticActivity {
 
             if (fragment != null) {
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                 transaction.replace(R.id.fragment, fragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
@@ -332,7 +354,7 @@ public class MainActivity extends AestheticActivity {
                     fragmentManager.popBackStack();
                 }
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                 transaction.replace(R.id.fragment, fragment).commit();
             }
             // Highlight the selected item
@@ -445,18 +467,34 @@ public class MainActivity extends AestheticActivity {
         }
     }
 
-
     public void changeTheme(boolean dark) {
+
+        int theme;
+
         if (dark) {
-            Aesthetic.get()
-                    .activityTheme(R.style.AppTheme)
-                    .isDark(true)
-                    .apply();
+            theme = R.style.AppTheme;
+
         } else {
-            Aesthetic.get()
-                    .activityTheme(R.style.AppThemeLight)
-                    .isDark(false)
-                    .apply();
+            theme = R.style.AppThemeLight;
         }
+
+        this.setTheme(theme);
+
+        TypedValue outValue = new TypedValue();
+        this.getTheme().resolveAttribute(android.R.attr.colorBackground, outValue, true);
+        int background = this.obtainStyledAttributes(outValue.data, new int[]{android.R.attr.colorBackground}).getColor(0, -1);
+
+        TypedValue typedValue = new TypedValue();
+        this.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+        int alertTextColor = this.obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.textColorAlertDialogListItem}).getColor(0, -1);
+
+        Aesthetic.get()
+                .activityTheme(theme)
+                .isDark(dark)
+                .colorStatusBar(background, background)
+                .colorNavigationBar(background, background)
+                .toolbarIconColor(alertTextColor, alertTextColor)
+                .toolbarTitleColor(alertTextColor, alertTextColor)
+                .apply();
     }
 }

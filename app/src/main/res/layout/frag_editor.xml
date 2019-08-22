@@ -309,13 +309,6 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
-                    <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/guideline10"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintGuide_begin="75dp" />
-
                     <TextView
                         android:id="@+id/table_text1"
                         android:layout_width="wrap_content"
@@ -336,6 +329,13 @@
                         app:layout_constraintStart_toStartOf="@+id/guideline10"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline10"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="75dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -379,13 +379,6 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
-                    <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/guideline14"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintGuide_begin="75dp" />
-
                     <TextView
                         android:id="@+id/table_text2"
                         android:layout_width="wrap_content"
@@ -406,6 +399,13 @@
                         app:layout_constraintStart_toStartOf="@+id/guideline14"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline14"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="75dp" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -430,12 +430,21 @@
                         app:layout_constraintVertical_bias="0.0"
                         app:srcCompat="@drawable/ic_weight" />
 
-                    <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/guideline13"
+                    <Switch
+                        android:id="@+id/switch3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintGuide_begin="75dp" />
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_horizontal|end"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.965"
+                        app:layout_constraintStart_toStartOf="@+id/guideline13"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
 
                     <TextView
                         android:id="@+id/table_text3"
@@ -458,21 +467,12 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
-                    <Switch
-                        android:id="@+id/switch3"
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline13"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center_horizontal|end"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.965"
-                        app:layout_constraintStart_toStartOf="@+id/guideline13"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0" />
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="75dp" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>

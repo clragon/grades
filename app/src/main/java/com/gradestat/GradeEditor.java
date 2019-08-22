@@ -1,6 +1,7 @@
 package com.gradestat;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -8,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.preference.PreferenceManager;
@@ -47,6 +47,7 @@ public class GradeEditor extends DialogFragment {
     private TextView valueDate;
     private Button valueOK;
     private Button valueDelete;
+    private ImageButton valueEditDate;
     private SeekBar valueSeekWeight;
     private ConstraintLayout weight_editor;
     private DecimalFormat df = new DecimalFormat("#.##");
@@ -66,7 +67,7 @@ public class GradeEditor extends DialogFragment {
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
-        ImageButton valueEditDate = view.findViewById(R.id.valueEditDate);
+        valueEditDate = view.findViewById(R.id.valueEditDate);
         valueSeekWeight = view.findViewById(R.id.value_seek_weight);
         weight_editor = view.findViewById(R.id.weight_editor);
 
@@ -80,10 +81,6 @@ public class GradeEditor extends DialogFragment {
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 checkFields();
             }
-        });
-
-        valueEditDate.setOnClickListener(v -> {
-            // TODO: implement date picker
         });
 
         valueSeekWeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -160,6 +157,9 @@ public class GradeEditor extends DialogFragment {
         }
         valueSeekWeight.setProgress(progress);
 
+        // LocalDate selectedDate = LocalDate.parse(valueDate.getText().toString(), dateFormat);
+        // valueEditDate.setOnClickListener(v -> new DatePickerDialog(getActivity(), (view, year, month, dayOfMonth) -> valueDate.setText(dateFormat.format(LocalDate.of(year, month, dayOfMonth))), selectedDate.getYear(), selectedDate.getMonthValue(), selectedDate.getDayOfMonth()).show());
+
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 grade.name = valueTitle.getText().toString();
@@ -196,6 +196,14 @@ public class GradeEditor extends DialogFragment {
         if (!subject.getOwnerTable().useWeight) {
             weight_editor.setVisibility(View.GONE);
         }
+
+        // LocalDate selectedDate = LocalDate.parse(valueDate.getText().toString(), dateFormat);
+        valueEditDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // new DatePickerDialog(getActivity(), (view, year, month, dayOfMonth) -> valueDate.setText(dateFormat.format(LocalDate.of(year, month, dayOfMonth))), selectedDate.getYear(), selectedDate.getMonthValue(), selectedDate.getDayOfMonth()).show();
+            }
+        });
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {

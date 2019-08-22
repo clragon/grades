@@ -296,7 +296,6 @@ public class Table implements Serializable {
         if (!this.saveFile.equals("")) {
             new File(saveFile).delete();
             Subjects = new ArrayList<>();
-            ;
             name = "";
         } else {
             throw new IllegalStateException();

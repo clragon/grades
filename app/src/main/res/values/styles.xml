@@ -2,9 +2,25 @@
 
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar" />
 
-    <style name="AppThemeLight" parent="Theme.MaterialComponents.Light.NoActionBar" />
+    <style name="AppTheme.DatePicker" parent="Theme.MaterialComponents.Dialog">
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="android:headerBackground">?android:colorBackground</item>
+        <item name="android:textColorPrimaryInverse">?android:textColorPrimary</item>
+        <item name="android:background">?android:colorBackground</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar" />
+
+    <style name="AppTheme.Light.DatePicker" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="android:headerBackground">?android:colorBackground</item>
+        <item name="android:textColorPrimaryInverse">?android:textColorPrimary</item>
+        <item name="android:background">?android:colorBackground</item>
+    </style>
 
     <style name="AppTheme.Launcher" parent="AppTheme">
+        <item name="android:statusBarColor">?android:colorBackground</item>
+        <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 

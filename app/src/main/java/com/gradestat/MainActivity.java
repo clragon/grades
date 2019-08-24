@@ -34,8 +34,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,8 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 public class MainActivity extends AestheticActivity {
 
@@ -57,7 +53,6 @@ public class MainActivity extends AestheticActivity {
     private ActionBarDrawerToggle toggle;
     private FragmentManager fragmentManager = getSupportFragmentManager();
 
-    private Spinner spinner;
     private tableSpinner adapter;
     private SharedPreferences preferences;
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
@@ -65,57 +60,71 @@ public class MainActivity extends AestheticActivity {
 
     @State
     public Table table;
-    @State
     public File tables_dir;
-    @State
-    public File table_data;
+
+    private boolean isHomeAsUp = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         tables_dir = new File(getFilesDir(), "tables");
 
         if (savedInstanceState == null) {
 
             AndroidThreeTen.init(this);
-
             StateSaver.setEnabledForAllActivitiesAndSupportFragments(this.getApplication(), true);
 
             if (!tables_dir.exists()) {
                 tables_dir.mkdir();
             }
 
-            table_data = new File(tables_dir, preferences.getString("boot_table", "grades.json"));
-            table = getTable();
+            if (!preferences.contains("boot_table")) {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("boot_table", "grades.json");
+                editor.putBoolean("dark", true);
+                editor.putInt("minGrade", 1);
+                editor.putInt("maxGrade", 6);
+                editor.putBoolean("useWeight", true);
+                editor.putBoolean("compensate", true);
+                editor.putBoolean("useLimits", true);
+                editor.putBoolean("advanced", false);
+                editor.apply();
+                recreate();
+            }
 
-            checkSettings();
+            table = getTable();
         }
 
         // Activating the view
         setContentView(R.layout.activity_main);
 
-        // Setting a custom toolbar
+        // Setup drawer and toolbar
         toolbar = findViewById(R.id.toolbar);
         drawer = findViewById(R.id.drawer_layout);
-
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_drawer, R.string.close_drawer) {
             public void onDrawerStateChanged(int newState) {
                 super.onDrawerStateChanged(newState);
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 }
-                updateNavbar();
+                FrameLayout navHeader = (FrameLayout) ((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0);
+
+                ((TextView) navHeader.findViewById(R.id.value_value)).setText(doubleFormat.format(table.getAverage()));
+                // ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.subjects), table.getSubjects().size()));
+                int grades = 0;
+                for (Table.Subject s : table.getSubjects()) {
+                    grades += s.getGrades().size();
+                }
+                ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.grades), grades));
+                ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLatest()));
             }
         };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         setSupportActionBar(toolbar);
-
         checkToolbar();
-
         fragmentManager.addOnBackStackChangedListener(this::checkToolbar);
 
         // Setting up the Navigation view inside the drawer
@@ -123,16 +132,11 @@ public class MainActivity extends AestheticActivity {
         navigation.setNavigationItemSelectedListener(this::selectDrawerItem);
 
         View navHeader = navigation.getHeaderView(0);
-        ((ImageView) navHeader.findViewById(R.id.table_icon1)).setImageDrawable(getDrawable(R.drawable.ic_grade));
-        ((ImageView) navHeader.findViewById(R.id.table_icon2)).setImageDrawable(getDrawable(R.drawable.ic_lastest));
-        ((ImageButton) navHeader.findViewById(R.id.table_edit)).setImageDrawable(getDrawable(R.drawable.ic_edit));
 
-        spinner = navHeader.findViewById(R.id.table_dropdown);
-
+        Spinner spinner = navHeader.findViewById(R.id.table_dropdown);
         adapter = new tableSpinner(this, getSpinnerList());
         spinner.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        spinner.setSelection(getTableIndex(table), false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -147,56 +151,36 @@ public class MainActivity extends AestheticActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        spinner.setSelection(getTableIndex(table), false);
 
 
         navHeader.findViewById(R.id.table_edit).setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), (Table) spinner.getSelectedItem())
                 .setPositiveButton(v1 -> {
-                adapter.clear();
-                ArrayList<Table> new_tables = getSpinnerList();
-                adapter.addAll(new_tables);
+                    adapter.clear();
+                    ArrayList<Table> new_tables = getSpinnerList();
+                    adapter.addAll(new_tables);
 
-                if (spinner.getSelectedItem() == null) {
-                    if (spinner.getSelectedItemPosition() == 0 || getTableList().size() == 0) {
-                        getTable();
-                        adapter.clear();
-                        adapter.addAll(getSpinnerList());
-                        adapter.notifyDataSetChanged();
+                    if (spinner.getSelectedItem() == null) {
+                        if (spinner.getSelectedItemPosition() == 0 || getTableList().size() == 0) {
+                            getTable();
+                            adapter.clear();
+                            adapter.addAll(getSpinnerList());
+                            adapter.notifyDataSetChanged();
+                        }
+                        spinner.setSelection(spinner.getSelectedItemPosition() - 1);
                     }
-                    spinner.setSelection(spinner.getSelectedItemPosition() - 1);
-                }
-                navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                    navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
                 }).show());
-
 
         if (savedInstanceState == null) {
             // Activating the default menu item in the drawer
             navigation.getMenu().performIdentifierAction(R.id.grades, 0);
             changeTheme(preferences.getBoolean("dark", true));
         }
-
-    }
-
-    public void checkSettings() {
-        if (!preferences.contains("boot_table")) {
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("boot_table", "grades.json");
-            editor.putBoolean("dark", true);
-            editor.putInt("minGrade", 1);
-            editor.putInt("maxGrade", 6);
-            editor.putBoolean("useWeight", true);
-            editor.putBoolean("compensate", true);
-            editor.putBoolean("useLimits", true);
-            editor.putBoolean("advanced", false);
-            editor.apply();
-            try {
-                table.write();
-            } catch (IOException ex) {
-                // oh no
-            }
-        }
     }
 
     public Table getTable() {
+        File table_data = new File(tables_dir, preferences.getString("boot_table", "grades.json"));
         if (table_data.exists()) {
             try {
                 table = Table.read(table_data.getPath());
@@ -204,13 +188,11 @@ public class MainActivity extends AestheticActivity {
                 Toast.makeText(this, "can't read table", Toast.LENGTH_LONG).show();
             }
         } else {
-
             table = new Table(getResources().getString(R.string.subjects));
             table.saveFile = table_data.getPath();
             table.minGrade = (double) preferences.getInt("minGrade", 1);
             table.maxGrade = (double) preferences.getInt("maxGrade", 6);
             table.useWeight = preferences.getBoolean("useWeight", true);
-
             try {
                 table.write();
             } catch (IOException ex) {
@@ -264,23 +246,6 @@ public class MainActivity extends AestheticActivity {
             toggle.syncState();
             setHomeAsUp(false);
         }
-    }
-
-    public void updateNavbar() {
-        FrameLayout navheader = (FrameLayout) ((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0);
-
-        TextView value = navheader.findViewById(R.id.value_value);
-        TextView text1 = navheader.findViewById(R.id.table_text1);
-        TextView text2 = navheader.findViewById(R.id.table_text2);
-
-        value.setText(doubleFormat.format(table.getAverage()));
-        // text1.setText(String.format("%s: %d", getString(R.string.subjects), table.getSubjects().size()));
-        int grades = 0;
-        for (Table.Subject s : table.getSubjects()) {
-            grades += s.getGrades().size();
-        }
-        text1.setText(String.format("%s: %d", getString(R.string.grades), grades));
-        text2.setText(dateFormat.format(table.getLatest()));
     }
 
     public boolean selectDrawerItem(MenuItem item) {
@@ -365,10 +330,8 @@ public class MainActivity extends AestheticActivity {
         return true;
     }
 
-    protected boolean isHomeAsUp = false;
-
     // call this method for animation between hamburger and arrow
-    protected void setHomeAsUp(boolean isHomeAsUp) {
+    private void setHomeAsUp(boolean isHomeAsUp) {
         if (this.isHomeAsUp != isHomeAsUp) {
             this.isHomeAsUp = isHomeAsUp;
 
@@ -397,7 +360,7 @@ public class MainActivity extends AestheticActivity {
 
     public class tableSpinner extends ArrayAdapter<Table> {
 
-        public tableSpinner(Context context, ArrayList<Table> tables) {
+        private tableSpinner(Context context, ArrayList<Table> tables) {
             super(context, 0, tables);
         }
 
@@ -448,15 +411,11 @@ public class MainActivity extends AestheticActivity {
                                 adapter.notifyDataSetChanged();
                             }).show();
                 });
-            } else if (((TextView) convertView.findViewById(R.id.drop_text)).getText().toString().equals(getString(R.string.add_table))) {
-                convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
-
-                drop_text = convertView.findViewById(R.id.drop_text);
-                Table current = getItem(position);
-                if (current != null) {
-                    drop_text.setText(current.name);
-                }
             } else {
+                if (((TextView) convertView.findViewById(R.id.drop_text)).getText().toString().equals(getString(R.string.add_table))) {
+                    convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
+                    drop_text = convertView.findViewById(R.id.drop_text);
+                }
                 Table current = getItem(position);
                 if (current != null) {
                     drop_text.setText(current.name);
@@ -473,9 +432,8 @@ public class MainActivity extends AestheticActivity {
 
         if (dark) {
             theme = R.style.AppTheme;
-
         } else {
-            theme = R.style.AppThemeLight;
+            theme = R.style.AppTheme_Light;
         }
 
         this.setTheme(theme);

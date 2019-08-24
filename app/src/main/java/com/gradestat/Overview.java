@@ -96,6 +96,8 @@ public class Overview extends Fragment {
             }
         });
 
+        int max_length = 12;
+
         class SubjectFormatter extends ValueFormatter {
             @Override
             public String getAxisLabel(float value, AxisBase axis) {
@@ -105,7 +107,11 @@ public class Overview extends Fragment {
                     case 1:
                         return "";
                     default:
-                        return reverseList(table.getSubjects()).get((int) value - 2).name;
+                        String name = reverseList(table.getSubjects()).get((int) value - 2).name;
+                        if (name.length() >= max_length) {
+                            name = name.substring(0, name.lastIndexOf(' ', max_length - 3) == -1 ? max_length - 3 : name.lastIndexOf(' ', max_length - 3)) + "...";
+                        }
+                        return name;
                 }
             }
         }

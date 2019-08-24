@@ -146,7 +146,6 @@ public class TableEditor extends DialogFragment {
         tableEdit2.setText(df.format(Double.valueOf(preferences.getInt("maxGrade", 6))));
         switch3.setChecked(preferences.getBoolean("useWeight", true));
 
-
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 Table table = new Table(valueTitle.getText().toString());
@@ -181,6 +180,20 @@ public class TableEditor extends DialogFragment {
             valid = false;
         } else {
             valueTitle.setError(null);
+        }
+        if (preferences.getBoolean("advanced", false)) {
+            if (tableEdit1.getText().toString().equals("")) {
+                tableEdit1.setError(getString(R.string.value_cannot_be_empty));
+                valid = false;
+            } else {
+                tableEdit1.setError(null);
+            }
+            if (tableEdit2.getText().toString().equals("")) {
+                tableEdit2.setError(getString(R.string.value_cannot_be_empty));
+                valid = false;
+            } else {
+                tableEdit2.setError(null);
+            }
         }
         return valid;
     }

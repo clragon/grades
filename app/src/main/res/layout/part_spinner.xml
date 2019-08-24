@@ -17,7 +17,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="8dp"
         android:paddingBottom="8dp"
-        android:textColor="?attr/textColorAlertDialogListItem"
+        android:textColor="?android:textColorPrimary"
         android:textSize="28sp"
         tools:text="@string/table" />
 

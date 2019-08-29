@@ -19,18 +19,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.evernote.android.state.State;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DecimalFormat;
+
 
 public class TableEditor extends DialogFragment {
 
-    private Table table;
-    private File file;
-    private boolean edit;
-    private View.OnClickListener onYes;
-    private View.OnClickListener onNo;
-    private View.OnClickListener onDel;
+    private Builder builder;
 
     private EditText valueTitle;
     private EditText valueValue;
@@ -49,6 +48,12 @@ public class TableEditor extends DialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            builder = (Builder) savedInstanceState.getSerializable("builder");
+            dismiss();
+        }
+
         valueTitle = view.findViewById(R.id.value_title);
         valueValue = view.findViewById(R.id.value_value);
         LinearLayout valueExtra = view.findViewById(R.id.value_extra);
@@ -84,16 +89,22 @@ public class TableEditor extends DialogFragment {
         });
 
         valueCancel.setOnClickListener(v -> {
-            onNo.onClick(v);
+            builder.onNo.onClick(v);
             hideKeyboard(v);
             dismiss();
         });
 
-        if (edit) {
-            editTable(table);
+        if (builder.edit) {
+            editTable(builder.table);
         } else {
-            createTable(file);
+            createTable(builder.file);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable("builder", builder);
+        super.onSaveInstanceState(outState);
     }
 
     private void editTable(final Table table) {
@@ -114,7 +125,7 @@ public class TableEditor extends DialogFragment {
                 } catch (Exception ex) {
                     // oh no
                 }
-                onYes.onClick(v);
+                builder.onYes.onClick(v);
                 hideKeyboard(v);
                 dismiss();
             }
@@ -129,7 +140,7 @@ public class TableEditor extends DialogFragment {
                     } catch (IOException ex) {
                         // oof
                     }
-                    onDel.onClick(v);
+                    builder.onDel.onClick(v);
                     hideKeyboard(v);
                     dismiss();
                 })
@@ -163,7 +174,7 @@ public class TableEditor extends DialogFragment {
                     table.write();
                 } catch (IOException ex) {
                 }
-                onYes.onClick(v);
+                builder.onYes.onClick(v);
                 hideKeyboard(v);
                 dismiss();
             }
@@ -203,29 +214,30 @@ public class TableEditor extends DialogFragment {
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    public static class Builder {
+    public static class Builder implements Serializable {
+
         private Table table = null;
         private File file = null;
         private boolean edit;
         private View.OnClickListener onYes = v -> {
-
         };
         private View.OnClickListener onNo = v -> {
-
         };
-        private View.OnClickListener onDel;
+        private View.OnClickListener onDel = v -> {
+        };
+
         private FragmentManager manager;
 
         public Builder(@NonNull FragmentManager manager, @NonNull Table table) {
             this.manager = manager;
             this.table = table;
-            edit = true;
+            this.edit = true;
         }
 
         public Builder(@NonNull FragmentManager manager, @NonNull File file) {
             this.manager = manager;
             this.file = file;
-            edit = false;
+            this.edit = false;
         }
 
         public Builder setPositiveButton(View.OnClickListener onYes) {
@@ -243,18 +255,19 @@ public class TableEditor extends DialogFragment {
             return this;
         }
 
-        public void show() {
-            TableEditor editor = new TableEditor();
-            editor.table = this.table;
-            editor.file = this.file;
-            editor.edit = this.edit;
-            editor.onYes = this.onYes;
-            editor.onNo = this.onNo;
+        public TableEditor build() {
             if (this.onDel == null) {
-                onDel = onYes;
+                this.onDel = this.onYes;
             }
-            editor.onDel = this.onDel;
-            editor.show(manager, "editor");
+            TableEditor editor = new TableEditor();
+            editor.builder = this;
+            return editor;
+        }
+
+        public void show() {
+            this.build().show(manager, "editor");
         }
     }
 }
+
+

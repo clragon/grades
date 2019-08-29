@@ -11,14 +11,6 @@
             app:summaryOff="@string/use_light_theme"
             android:icon="@drawable/ic_brightness" />
 
-        <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
-            android:defaultValue="?android:colorPrimary"
-            android:key="primary"
-            app:title="@string/color"
-            app:summary="@string/pick_color"
-            app:enabled="false"
-            android:icon="@drawable/ic_palette" />
-
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/table">

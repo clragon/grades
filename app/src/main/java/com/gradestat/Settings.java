@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat;
+
 
 public class Settings extends PreferenceFragmentCompat {
     @Override
@@ -15,12 +17,6 @@ public class Settings extends PreferenceFragmentCompat {
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.settings);
         }
-
-
-        this.findPreference("primary").setOnPreferenceChangeListener((preference, newValue) -> {
-
-            return true;
-        });
 
         this.findPreference("dark").setOnPreferenceChangeListener((preference, newValue) -> {
             ((MainActivity) getActivity()).changeTheme((Boolean) newValue);

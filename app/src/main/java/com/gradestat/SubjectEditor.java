@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
@@ -18,17 +17,13 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 
 public class SubjectEditor extends DialogFragment {
 
-    private Table table;
-    private Table.Subject subject;
-    private boolean edit;
-    private View.OnClickListener onYes;
-    private View.OnClickListener onNo;
-    private View.OnClickListener onDel;
+    private Builder builder;
 
     private EditText valueTitle;
     private EditText valueValue;
@@ -43,6 +38,12 @@ public class SubjectEditor extends DialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            builder = (Builder) savedInstanceState.getSerializable("builder");
+            dismiss();
+        }
+
         valueTitle = view.findViewById(R.id.value_title);
         valueValue = view.findViewById(R.id.value_value);
         LinearLayout valueExtra = view.findViewById(R.id.value_extra);
@@ -66,15 +67,21 @@ public class SubjectEditor extends DialogFragment {
         });
 
         valueCancel.setOnClickListener(v -> {
-            onNo.onClick(v);
+            builder.onNo.onClick(v);
             dismiss();
         });
 
-        if (edit) {
-            editSubject(subject);
+        if (builder.edit) {
+            editSubject(builder.subject);
         } else {
-            createSubject(table);
+            createSubject(builder.table);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable("builder", builder);
+        super.onSaveInstanceState(outState);
     }
 
     private void editSubject(final Table.Subject subject) {
@@ -84,7 +91,7 @@ public class SubjectEditor extends DialogFragment {
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 subject.name = valueTitle.getText().toString();
-                onYes.onClick(v);
+                builder.onYes.onClick(v);
                 dismiss();
             }
         });
@@ -94,7 +101,7 @@ public class SubjectEditor extends DialogFragment {
                 .setMessage(String.format(getResources().getString(R.string.delete_object), subject.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     subject.getOwnerTable().remSubject(subject);
-                    onDel.onClick(v);
+                    builder.onDel.onClick(v);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -110,7 +117,7 @@ public class SubjectEditor extends DialogFragment {
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 table.addSubject(valueTitle.getText().toString());
-                onYes.onClick(v);
+                builder.onYes.onClick(v);
                 dismiss();
             }
         });
@@ -127,17 +134,18 @@ public class SubjectEditor extends DialogFragment {
         return valid;
     }
 
-    public static class Builder {
+    public static class Builder implements Serializable {
+
         private Table.Subject subject = null;
         private Table table = null;
         private boolean edit;
         private View.OnClickListener onYes = v -> {
-
         };
         private View.OnClickListener onNo = v -> {
-
         };
-        private View.OnClickListener onDel;
+        private View.OnClickListener onDel = v -> {
+        };
+
         private FragmentManager manager;
 
         public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject subject) {
@@ -168,16 +176,11 @@ public class SubjectEditor extends DialogFragment {
         }
 
         public void show() {
-            SubjectEditor editor = new SubjectEditor();
-            editor.table = this.table;
-            editor.subject = this.subject;
-            editor.edit = this.edit;
-            editor.onYes = this.onYes;
-            editor.onNo = this.onNo;
             if (this.onDel == null) {
                 onDel = onYes;
             }
-            editor.onDel = this.onDel;
+            SubjectEditor editor = new SubjectEditor();
+            editor.builder = this;
             editor.show(manager, "editor");
         }
     }

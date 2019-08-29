@@ -62,7 +62,7 @@ public class Grades extends Fragment {
                     } catch (IOException ex) {
                         // TODO: something went wrong :(
                     }
-                    recycler.getAdapter().notifyDataSetChanged();
+                    ((RecyclerView) view.findViewById(R.id.recyclerView)).getAdapter().notifyDataSetChanged();
                     checkList();
                 }).show());
 

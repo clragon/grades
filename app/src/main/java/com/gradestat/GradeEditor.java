@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -26,6 +25,7 @@ import android.widget.TextView;
 
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import org.threeten.bp.LocalDate;
@@ -34,13 +34,7 @@ import org.threeten.bp.format.FormatStyle;
 
 public class GradeEditor extends DialogFragment {
 
-    private Table.Subject.Grade grade;
-    private Table.Subject subject;
-    private boolean edit;
-    private View.OnClickListener onYes;
-    private View.OnClickListener onNo;
-    private View.OnClickListener onDel;
-
+    private Builder builder;
 
     private Table table;
     private EditText valueTitle;
@@ -63,6 +57,12 @@ public class GradeEditor extends DialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            builder = (Builder) savedInstanceState.getSerializable("builder");
+            dismiss();
+        }
+
         valueTitle = view.findViewById(R.id.value_title);
         valueValue = view.findViewById(R.id.value_value);
         valueWeight = view.findViewById(R.id.value_text1);
@@ -128,17 +128,23 @@ public class GradeEditor extends DialogFragment {
         });
 
         valueCancel.setOnClickListener(v -> {
-            onNo.onClick(v);
+            builder.onNo.onClick(v);
             dismiss();
         });
 
-        if (edit) {
-            table = grade.getOwnerSubject().getOwnerTable();
-            gradeEdit(grade);
+        if (builder.edit) {
+            table = builder.grade.getOwnerSubject().getOwnerTable();
+            gradeEdit(builder.grade);
         } else {
-            table = subject.getOwnerTable();
-            gradeCreate(subject);
+            table = builder.subject.getOwnerTable();
+            gradeCreate(builder.subject);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable("builder", builder);
+        super.onSaveInstanceState(outState);
     }
 
     private void gradeEdit(final Table.Subject.Grade grade) {
@@ -179,7 +185,7 @@ public class GradeEditor extends DialogFragment {
                 grade.value = Double.parseDouble(valueValue.getText().toString());
                 grade.weight = Double.parseDouble(valueWeight.getText().toString());
                 grade.creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
-                onYes.onClick(v);
+                builder.onYes.onClick(v);
                 dismiss();
             }
         });
@@ -189,7 +195,7 @@ public class GradeEditor extends DialogFragment {
                 .setMessage(String.format(getResources().getString(R.string.delete_object), grade.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     grade.getOwnerSubject().remGrade(grade);
-                    onDel.onClick(v);
+                    builder.onDel.onClick(v);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -222,7 +228,7 @@ public class GradeEditor extends DialogFragment {
                 double Weight = Double.parseDouble(valueWeight.getText().toString());
                 LocalDate creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
                 subject.addGrade(Value, Weight, Name, creation);
-                onYes.onClick(v);
+                builder.onYes.onClick(v);
                 dismiss();
             }
         });
@@ -275,17 +281,18 @@ public class GradeEditor extends DialogFragment {
         return valid;
     }
 
-    public static class Builder {
+    public static class Builder implements Serializable {
+
         private Table.Subject.Grade grade = null;
         private Table.Subject subject = null;
         private boolean edit;
         private View.OnClickListener onYes = v -> {
-
         };
         private View.OnClickListener onNo = v -> {
-
         };
-        private View.OnClickListener onDel;
+        private View.OnClickListener onDel = v -> {
+        };
+
         private FragmentManager manager;
 
         public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject.Grade grade) {
@@ -316,16 +323,12 @@ public class GradeEditor extends DialogFragment {
         }
 
         public void show() {
-            GradeEditor editor = new GradeEditor();
-            editor.grade = this.grade;
-            editor.subject = this.subject;
-            editor.edit = this.edit;
-            editor.onYes = this.onYes;
-            editor.onNo = this.onNo;
+
             if (this.onDel == null) {
                 onDel = onYes;
             }
-            editor.onDel = this.onDel;
+            GradeEditor editor = new GradeEditor();
+            editor.builder = this;
             editor.show(manager, "editor");
         }
     }

@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 
 import com.afollestad.aesthetic.Aesthetic;
 import com.afollestad.aesthetic.AestheticActivity;
-import com.evernote.android.state.State;
 import com.evernote.android.state.StateSaver;
 import com.google.android.material.navigation.NavigationView;
 import com.jakewharton.threetenabp.AndroidThreeTen;
@@ -46,6 +45,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+
 public class MainActivity extends AestheticActivity {
 
     private Toolbar toolbar;
@@ -58,7 +58,6 @@ public class MainActivity extends AestheticActivity {
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
     private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
-    @State
     public Table table;
     public File tables_dir;
 
@@ -73,13 +72,15 @@ public class MainActivity extends AestheticActivity {
 
         if (savedInstanceState == null) {
 
+            // initialize date library
             AndroidThreeTen.init(this);
-            StateSaver.setEnabledForAllActivitiesAndSupportFragments(this.getApplication(), true);
 
+            // check if table directory exists
             if (!tables_dir.exists()) {
                 tables_dir.mkdir();
             }
 
+            // check if settings exist
             if (!preferences.contains("boot_table")) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("boot_table", "grades.json");
@@ -94,7 +95,14 @@ public class MainActivity extends AestheticActivity {
                 recreate();
             }
 
+            // initialize theme from settings
+            changeTheme(preferences.getBoolean("dark", true));
+
+            // get current table
             table = getTable();
+        } else {
+            // get current table
+            table = (Table) savedInstanceState.getSerializable("table");
         }
 
         // Activating the view
@@ -103,44 +111,44 @@ public class MainActivity extends AestheticActivity {
         // Setup drawer and toolbar
         toolbar = findViewById(R.id.toolbar);
         drawer = findViewById(R.id.drawer_layout);
+
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_drawer, R.string.close_drawer) {
             public void onDrawerStateChanged(int newState) {
                 super.onDrawerStateChanged(newState);
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 }
-                FrameLayout navHeader = (FrameLayout) ((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0);
-
-                ((TextView) navHeader.findViewById(R.id.value_value)).setText(doubleFormat.format(table.getAverage()));
-                // ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.subjects), table.getSubjects().size()));
-                int grades = 0;
-                for (Table.Subject s : table.getSubjects()) {
-                    grades += s.getGrades().size();
-                }
-                ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.grades), grades));
-                ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLatest()));
+                updateDrawer();
             }
         };
+        // update drawer first time to adjust for recreation
+        updateDrawer();
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+        // set toolbar as activity toolbar
         setSupportActionBar(toolbar);
-        checkToolbar();
         fragmentManager.addOnBackStackChangedListener(this::checkToolbar);
+        // update toolbar first time
+        checkToolbar();
 
         // Setting up the Navigation view inside the drawer
         final NavigationView navigation = findViewById(R.id.nav_view);
         navigation.setNavigationItemSelectedListener(this::selectDrawerItem);
 
+        // get nav header view to access views in the header
         View navHeader = navigation.getHeaderView(0);
 
         Spinner spinner = navHeader.findViewById(R.id.table_dropdown);
+        // get new custom adapter
         adapter = new tableSpinner(this, getSpinnerList());
         spinner.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // check if the current entry isn't the add new item button
                 if (parent.getItemAtPosition(position) != null) {
+                    // replace the current table with the selected one
                     table = (Table) parent.getItemAtPosition(position);
                     preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
                     navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
@@ -151,9 +159,10 @@ public class MainActivity extends AestheticActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        // set selected item to the loaded table
         spinner.setSelection(getTableIndex(table), false);
 
-
+        // call edit table dialog when edit button is clicked
         navHeader.findViewById(R.id.table_edit).setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), (Table) spinner.getSelectedItem())
                 .setPositiveButton(v1 -> {
                     adapter.clear();
@@ -169,18 +178,32 @@ public class MainActivity extends AestheticActivity {
                         }
                         spinner.setSelection(spinner.getSelectedItemPosition() - 1);
                     }
-                    navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                    try {
+                        navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                    } catch (Exception ex) {
+
+                    }
+
                 }).show());
+
 
         if (savedInstanceState == null) {
             // Activating the default menu item in the drawer
             navigation.getMenu().performIdentifierAction(R.id.grades, 0);
-            changeTheme(preferences.getBoolean("dark", true));
         }
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // save table on state change
+        outState.putSerializable("table", table);
+        super.onSaveInstanceState(outState);
     }
 
     public Table getTable() {
         File table_data = new File(tables_dir, preferences.getString("boot_table", "grades.json"));
+        // get the current table and try to load it
         if (table_data.exists()) {
             try {
                 table = Table.read(table_data.getPath());
@@ -188,6 +211,7 @@ public class MainActivity extends AestheticActivity {
                 Toast.makeText(this, "can't read table", Toast.LENGTH_LONG).show();
             }
         } else {
+            // if the table doesn't exist, make it
             table = new Table(getResources().getString(R.string.subjects));
             table.saveFile = table_data.getPath();
             table.minGrade = (double) preferences.getInt("minGrade", 1);
@@ -246,6 +270,19 @@ public class MainActivity extends AestheticActivity {
             toggle.syncState();
             setHomeAsUp(false);
         }
+    }
+
+    public void updateDrawer() {
+        FrameLayout navHeader = (FrameLayout) ((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0);
+
+        ((TextView) navHeader.findViewById(R.id.value_value)).setText(doubleFormat.format(table.getAverage()));
+        // ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.subjects), table.getSubjects().size()));
+        int grades = 0;
+        for (Table.Subject s : table.getSubjects()) {
+            grades += s.getGrades().size();
+        }
+        ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.grades), grades));
+        ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLatest()));
     }
 
     public boolean selectDrawerItem(MenuItem item) {
@@ -426,28 +463,33 @@ public class MainActivity extends AestheticActivity {
         }
     }
 
+    public int getAttr(int id) {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(id, value, true);
+        return obtainStyledAttributes(value.data, new int[]{id}).getColor(0, 1);
+    }
+
     public void changeTheme(boolean dark) {
 
-        int theme;
+        int themeID;
 
+        // decide which theme is active
         if (dark) {
-            theme = R.style.AppTheme;
+            themeID = R.style.AppTheme;
         } else {
-            theme = R.style.AppTheme_Light;
+            themeID = R.style.AppTheme_Light;
         }
 
-        this.setTheme(theme);
+        // set theme to update colors
+        setTheme(themeID);
 
-        TypedValue outValue = new TypedValue();
-        this.getTheme().resolveAttribute(android.R.attr.colorBackground, outValue, true);
-        int background = this.obtainStyledAttributes(outValue.data, new int[]{android.R.attr.colorBackground}).getColor(0, -1);
+        // get new background and text colors
+        int background = getAttr(android.R.attr.colorBackground);
+        int alertTextColor = getAttr(android.R.attr.textColorPrimary);
 
-        TypedValue typedValue = new TypedValue();
-        this.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
-        int alertTextColor = this.obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.textColorAlertDialogListItem}).getColor(0, -1);
-
+        // update the theme with aesthetic
         Aesthetic.get()
-                .activityTheme(theme)
+                .activityTheme(themeID)
                 .isDark(dark)
                 .colorStatusBar(background, background)
                 .colorNavigationBar(background, background)

@@ -1,6 +1,8 @@
 package com.gradestat;
 
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,7 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.gradestat.BuildConfig;
 
 public class About extends Fragment {
 
@@ -21,9 +26,18 @@ public class About extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.about);
-        getLayoutInflater().inflate(R.layout.card_empty, view.findViewById(R.id.about));
-        TextView text = view.findViewById(R.id.emptyText);
-        text.setText(R.string.not_implemented);
+        TextView appname = view.findViewById(R.id.appname);
+        TextView appvers = view.findViewById(R.id.appversion);
+        ImageView appicon = view.findViewById(R.id.appicon);
+
+        appname.setText(R.string.app_name);
+        appvers.setText(BuildConfig.VERSION_NAME);
+        if (savedInstanceState == null) {
+            appicon.setOnClickListener(v -> {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("https://play.google.com/store/apps/details?id=%s", BuildConfig.APPLICATION_ID)));
+                startActivity(browserIntent);
+            });
+        }
     }
 
 }

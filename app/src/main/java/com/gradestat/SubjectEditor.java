@@ -143,8 +143,7 @@ public class SubjectEditor extends DialogFragment {
         };
         private View.OnClickListener onNo = v -> {
         };
-        private View.OnClickListener onDel = v -> {
-        };
+        private View.OnClickListener onDel;
 
         private FragmentManager manager;
 

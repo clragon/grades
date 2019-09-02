@@ -92,6 +92,8 @@ public class MainActivity extends AestheticActivity {
                 editor.putBoolean("useLimits", true);
                 editor.putBoolean("advanced", false);
                 editor.apply();
+
+                changeTheme(preferences.getBoolean("dark", true));
                 recreate();
             }
 

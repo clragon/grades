@@ -80,7 +80,8 @@ public class MainActivity extends AestheticActivity {
                 tables_dir.mkdir();
             }
 
-            // check if settings exist
+            // check if most important setting keyword exists
+            // else, set default settings
             if (!preferences.contains("boot_table")) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("boot_table", "grades.json");
@@ -93,6 +94,8 @@ public class MainActivity extends AestheticActivity {
                 editor.putBoolean("advanced", false);
                 editor.apply();
 
+                // settings do not exist, so theme files neither
+                // call for first time, then recreate app to refresh
                 changeTheme(preferences.getBoolean("dark", true));
                 recreate();
             }
@@ -103,7 +106,7 @@ public class MainActivity extends AestheticActivity {
             // get current table
             table = getTable();
         } else {
-            // get current table
+            // get current table from saved instance
             table = (Table) savedInstanceState.getSerializable("table");
         }
 
@@ -117,13 +120,17 @@ public class MainActivity extends AestheticActivity {
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_drawer, R.string.close_drawer) {
             public void onDrawerStateChanged(int newState) {
                 super.onDrawerStateChanged(newState);
+                // check if more than one fragment is inflated
+                // if, replace hamburger with back button
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 }
+                // update header whenever drawer is opened.
                 updateDrawer();
             }
         };
-        // update drawer first time to adjust for recreation
+
+        // update drawer header first time
         updateDrawer();
         drawer.addDrawerListener(toggle);
         toggle.syncState();
@@ -141,7 +148,7 @@ public class MainActivity extends AestheticActivity {
         View navHeader = navigation.getHeaderView(0);
 
         Spinner spinner = navHeader.findViewById(R.id.table_dropdown);
-        // get new custom adapter
+        // put tables into spinner
         adapter = new tableSpinner(this, getSpinnerList());
         spinner.setAdapter(adapter);
         adapter.notifyDataSetChanged();
@@ -152,7 +159,9 @@ public class MainActivity extends AestheticActivity {
                 if (parent.getItemAtPosition(position) != null) {
                     // replace the current table with the selected one
                     table = (Table) parent.getItemAtPosition(position);
+                    // update the boot table to the current one
                     preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
+                    // refresh subjects by reapplying the fragment
                     navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
                 }
             }
@@ -167,20 +176,31 @@ public class MainActivity extends AestheticActivity {
         // call edit table dialog when edit button is clicked
         navHeader.findViewById(R.id.table_edit).setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), (Table) spinner.getSelectedItem())
                 .setPositiveButton(v1 -> {
+                    // update adapter before null check
                     adapter.clear();
-                    ArrayList<Table> new_tables = getSpinnerList();
-                    adapter.addAll(new_tables);
+                    adapter.addAll(getSpinnerList());
+                    adapter.notifyDataSetChanged();
 
+                    // check if the add new item button is the only item left
                     if (spinner.getSelectedItem() == null) {
                         if (spinner.getSelectedItemPosition() == 0 || getTableList().size() == 0) {
-                            getTable();
-                            adapter.clear();
-                            adapter.addAll(getSpinnerList());
-                            adapter.notifyDataSetChanged();
+                            // no tables left, recreate the default one
+                            table = getTable();
+                            preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
                         }
                         spinner.setSelection(spinner.getSelectedItemPosition() - 1);
+                    } else {
+                        // update the app table with the edited one
+                        table = (Table) spinner.getSelectedItem();
                     }
+
+                    // update adapter to reflect changes
+                    adapter.clear();
+                    adapter.addAll(getSpinnerList());
+                    adapter.notifyDataSetChanged();
+
                     try {
+                        // update subject fragment
                         navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
                     } catch (Exception ex) {
 
@@ -213,7 +233,7 @@ public class MainActivity extends AestheticActivity {
                 Toast.makeText(this, "can't read table", Toast.LENGTH_LONG).show();
             }
         } else {
-            // if the table doesn't exist, make it
+            // if the table doesn't exist, create it
             table = new Table(getResources().getString(R.string.subjects));
             table.saveFile = table_data.getPath();
             table.minGrade = (double) preferences.getInt("minGrade", 1);
@@ -229,29 +249,34 @@ public class MainActivity extends AestheticActivity {
     }
 
     public ArrayList<Table> getTableList() {
+        // read all files that start with "grades" and end with "json"
+        // naming scheme of tables is "grades_n.json" or for the very first one "grades.json"
         File[] table_files = tables_dir.listFiles(pathname -> (pathname.getName().startsWith("grades") && pathname.getName().endsWith(".json")));
 
+        // put all tables into a list.
         ArrayList<Table> tables = new ArrayList<>();
         for (File table_file : table_files) {
             try {
                 tables.add(Table.read(table_file.getPath()));
             } catch (IOException ex) {
-                // oh no
+                // unable to read the tables
             }
         }
-
         return tables;
     }
 
     public ArrayList<Table> getSpinnerList() {
         ArrayList<Table> t = getTableList();
+        // add null entry for the add new item button
         t.add(null);
         return t;
     }
 
     public int getTableIndex(Table t) {
+        // find index of a table by reading the list of tables
+        // then finding the table we search by its safe-file in it.
         int index = 0;
-        ArrayList<Table> temp = getSpinnerList();
+        ArrayList<Table> temp = getTableList();
         for (Table current : temp) {
             if (current != null) {
                 if (new File(current.saveFile).getName().equals(new File(t.saveFile).getName())) {
@@ -263,6 +288,7 @@ public class MainActivity extends AestheticActivity {
     }
 
     public void checkToolbar() {
+        // play arrow to hamburger transition animation when switching from or to a second layer fragment
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             setHomeAsUp(true);
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
@@ -309,15 +335,16 @@ public class MainActivity extends AestheticActivity {
                 args.putSerializable("table", table);
                 break;
             case R.id.settings:
-                wrap = true;
                 fragmentClass = Settings.class;
+                wrap = true;
                 break;
             case R.id.info:
-                wrap = true;
                 fragmentClass = About.class;
+                wrap = true;
                 break;
             default:
-                // if no fragment is assigned, remove the displayed one
+                // no fragment is assigned, remove the displayed one
+                // or maybe show empty?
                 fragment = fragmentManager.findFragmentById(R.id.fragment);
                 if (fragment != null) {
                     fragmentManager.beginTransaction().remove(fragment).commit();
@@ -332,15 +359,16 @@ public class MainActivity extends AestheticActivity {
             fragment = (Fragment) fragmentClass.newInstance();
             fragment.setArguments(args);
         } catch (Exception e) {
-            // e.printStackTrace();
-            // catastrophic failure.
+            // this really shouldn't happen
         }
 
         if (wrap) {
 
+            // fragment should be treated like new activity
+            // insert old fragment so it shows up on going back
             navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
-            // navigation.getMenu().performIdentifierAction(R.id.grades, 0);
 
+            // insert the new fragment without trashing all others
             if (fragment != null) {
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -353,10 +381,11 @@ public class MainActivity extends AestheticActivity {
         } else {
             // Insert the fragment by replacing any existing fragment
             if (fragment != null) {
-                // getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                // throw away all fragments in the back stack
                 for (int i = 0; i < fragmentManager.getBackStackEntryCount(); ++i) {
                     fragmentManager.popBackStack();
                 }
+                // insert new fragment
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                 transaction.replace(R.id.fragment, fragment).commit();
@@ -369,8 +398,9 @@ public class MainActivity extends AestheticActivity {
         return true;
     }
 
-    // call this method for animation between hamburger and arrow
     private void setHomeAsUp(boolean isHomeAsUp) {
+        // animation between hamburger and back arrow
+        // isHomeAsUp == true == back arrow
         if (this.isHomeAsUp != isHomeAsUp) {
             this.isHomeAsUp = isHomeAsUp;
 
@@ -383,18 +413,6 @@ public class MainActivity extends AestheticActivity {
             anim.setDuration(400);
             anim.start();
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        toggle.onOptionsItemSelected(item);
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        toggle.onConfigurationChanged(newConfig);
     }
 
     public class tableSpinner extends ArrayAdapter<Table> {
@@ -421,14 +439,15 @@ public class MainActivity extends AestheticActivity {
             TextView drop_text = convertView.findViewById(R.id.drop_text);
 
             if (getItem(position) == null) {
-
+                // create view for add new item button
                 convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
                 drop_text = convertView.findViewById(R.id.drop_text);
                 drop_text.setText(getString(R.string.add_table));
-                TypedValue outValue = new TypedValue();
-                getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-                drop_text.setBackgroundResource(outValue.resourceId);
+                // ripple effect on button
+                drop_text.setBackgroundResource(getAttr(android.R.attr.selectableItemBackground));
+                // create table on click
                 drop_text.setOnClickListener(v -> {
+                    // find next available file by incrementing until name doesn't exist
                     File file;
                     File def = new File(tables_dir.getPath(), "grades.json");
                     if (def.exists()) {
@@ -444,17 +463,19 @@ public class MainActivity extends AestheticActivity {
 
                     new TableEditor.Builder(getSupportFragmentManager(), file)
                             .setPositiveButton(v1 -> {
+                                // refresh adapter after creation
                                 adapter.clear();
-                                ArrayList<Table> tables = getSpinnerList();
-                                adapter.addAll(tables);
+                                adapter.addAll(getSpinnerList());
                                 adapter.notifyDataSetChanged();
                             }).show();
                 });
             } else {
                 if (((TextView) convertView.findViewById(R.id.drop_text)).getText().toString().equals(getString(R.string.add_table))) {
+                    // spinner is trying to reuse add item button. insert new one instead
                     convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
                     drop_text = convertView.findViewById(R.id.drop_text);
                 }
+                // update view text
                 Table current = getItem(position);
                 if (current != null) {
                     drop_text.setText(current.name);
@@ -466,6 +487,7 @@ public class MainActivity extends AestheticActivity {
     }
 
     public int getAttr(int id) {
+        // shortcut so I don't have to type the horrible garbage below everywhere
         TypedValue value = new TypedValue();
         getTheme().resolveAttribute(id, value, true);
         return obtainStyledAttributes(value.data, new int[]{id}).getColor(0, 1);

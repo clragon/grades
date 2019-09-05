@@ -50,7 +50,6 @@ public class TableEditor extends DialogFragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            builder = (Builder) savedInstanceState.getSerializable("builder");
             dismiss();
         }
 
@@ -99,12 +98,6 @@ public class TableEditor extends DialogFragment {
         } else {
             createTable(builder.file);
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("builder", builder);
-        super.onSaveInstanceState(outState);
     }
 
     private void editTable(final Table table) {
@@ -214,7 +207,7 @@ public class TableEditor extends DialogFragment {
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    public static class Builder implements Serializable {
+    public static class Builder {
 
         private Table table = null;
         private File file = null;

@@ -59,7 +59,6 @@ public class GradeEditor extends DialogFragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            builder = (Builder) savedInstanceState.getSerializable("builder");
             dismiss();
         }
 
@@ -139,12 +138,6 @@ public class GradeEditor extends DialogFragment {
             table = builder.subject.getOwnerTable();
             gradeCreate(builder.subject);
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("builder", builder);
-        super.onSaveInstanceState(outState);
     }
 
     private void gradeEdit(final Table.Subject.Grade grade) {
@@ -281,7 +274,7 @@ public class GradeEditor extends DialogFragment {
         return valid;
     }
 
-    public static class Builder implements Serializable {
+    public static class Builder {
 
         private Table.Subject.Grade grade = null;
         private Table.Subject subject = null;

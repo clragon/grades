@@ -40,7 +40,6 @@ public class SubjectEditor extends DialogFragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            builder = (Builder) savedInstanceState.getSerializable("builder");
             dismiss();
         }
 
@@ -76,12 +75,6 @@ public class SubjectEditor extends DialogFragment {
         } else {
             createSubject(builder.table);
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("builder", builder);
-        super.onSaveInstanceState(outState);
     }
 
     private void editSubject(final Table.Subject subject) {
@@ -134,7 +127,7 @@ public class SubjectEditor extends DialogFragment {
         return valid;
     }
 
-    public static class Builder implements Serializable {
+    public static class Builder {
 
         private Table.Subject subject = null;
         private Table table = null;

@@ -444,7 +444,9 @@ public class MainActivity extends AestheticActivity {
                 drop_text = convertView.findViewById(R.id.drop_text);
                 drop_text.setText(getString(R.string.add_table));
                 // ripple effect on button
-                drop_text.setBackgroundResource(getAttr(android.R.attr.selectableItemBackground));
+                TypedValue outValue = new TypedValue();
+                getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+                drop_text.setBackgroundResource(outValue.resourceId);
                 // create table on click
                 drop_text.setOnClickListener(v -> {
                     // find next available file by incrementing until name doesn't exist

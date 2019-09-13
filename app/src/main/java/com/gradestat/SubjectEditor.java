@@ -39,7 +39,7 @@ public class SubjectEditor extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null || builder == null) {
             dismiss();
         }
 
@@ -93,7 +93,7 @@ public class SubjectEditor extends DialogFragment {
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), subject.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    subject.getOwnerTable().remSubject(subject);
+                    subject.getParent().remSubject(subject);
                     builder.onDel.onClick(v);
                     dismiss();
                 })

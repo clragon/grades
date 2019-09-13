@@ -9,12 +9,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 
 import com.afollestad.aesthetic.Aesthetic;
 import com.afollestad.aesthetic.AestheticActivity;
-import com.evernote.android.state.StateSaver;
 import com.google.android.material.navigation.NavigationView;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -75,13 +73,13 @@ public class MainActivity extends AestheticActivity {
             // initialize date library
             AndroidThreeTen.init(this);
 
-            // check if table directory exists
+            // ensure table directory exists
             if (!tables_dir.exists()) {
                 tables_dir.mkdir();
             }
 
-            // check if most important setting keyword exists
-            // else, set default settings
+            // ensure most important setting exists
+            // checked by boot_table keyword
             if (!preferences.contains("boot_table")) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("boot_table", "grades.json");
@@ -95,7 +93,7 @@ public class MainActivity extends AestheticActivity {
                 editor.apply();
 
                 // settings do not exist, so theme files neither
-                // call for first time, then recreate app to refresh
+                // call for creation, then recreate app to refresh
                 changeTheme(preferences.getBoolean("dark", true));
                 recreate();
             }
@@ -203,7 +201,7 @@ public class MainActivity extends AestheticActivity {
                         // update subject fragment
                         navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
                     } catch (Exception ex) {
-
+                        // this shouldn't happen.
                     }
 
                 }).show());
@@ -310,7 +308,7 @@ public class MainActivity extends AestheticActivity {
             grades += s.getGrades().size();
         }
         ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.grades), grades));
-        ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLatest()));
+        ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLast()));
     }
 
     public boolean selectDrawerItem(MenuItem item) {
@@ -444,6 +442,7 @@ public class MainActivity extends AestheticActivity {
                 drop_text = convertView.findViewById(R.id.drop_text);
                 drop_text.setText(getString(R.string.add_table));
                 // ripple effect on button
+                // do not call getAttr
                 TypedValue outValue = new TypedValue();
                 getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
                 drop_text.setBackgroundResource(outValue.resourceId);

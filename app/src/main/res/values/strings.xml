@@ -6,7 +6,6 @@
     <string name="weight">Weight</string>
     <string name="overview">Overview</string>
     <string name="total">Total</string>
-    <string name="history">History</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
     <string name="add_table">New table...</string>
@@ -41,4 +40,5 @@
     <string name="advanced">Advanced settings</string>
     <string name="advanced_desc_on">Display advanced table settings</string>
     <string name="advanced_desc_off">Do not display advanced table settings</string>
+    <string name="history">History</string>
 </resources>

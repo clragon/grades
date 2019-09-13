@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -25,7 +26,6 @@ import android.widget.TextView;
 
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import org.threeten.bp.LocalDate;
@@ -58,7 +58,7 @@ public class GradeEditor extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null || builder == null) {
             dismiss();
         }
 
@@ -100,16 +100,16 @@ public class GradeEditor extends DialogFragment {
                 double weight;
                 switch (progress) {
                     case 0:
-                        weight = 0.25;
+                        weight = table.getFullWeight() / 4;
                         break;
                     case 1:
-                        weight = 0.5;
+                        weight = table.getFullWeight() / 2;
                         break;
                     case 2:
-                        weight = 1;
+                        weight = table.getFullWeight();
                         break;
                     default:
-                        weight = 1;
+                        weight = table.getFullWeight();
                         break;
                 }
                 valueWeight.setText(df.format(weight));
@@ -132,10 +132,10 @@ public class GradeEditor extends DialogFragment {
         });
 
         if (builder.edit) {
-            table = builder.grade.getOwnerSubject().getOwnerTable();
+            table = builder.grade.getParent().getParent();
             gradeEdit(builder.grade);
         } else {
-            table = builder.subject.getOwnerTable();
+            table = builder.subject.getParent();
             gradeCreate(builder.subject);
         }
     }
@@ -147,29 +147,27 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(grade.weight));
         valueDate.setText(dateFormat.format(grade.creation));
 
-        if (!grade.getOwnerSubject().getOwnerTable().useWeight) {
+        if (!grade.getParent().getParent().useWeight) {
             weight_editor.setVisibility(View.GONE);
         }
 
         int progress;
-        switch (valueWeight.getText().toString()) {
-            case "0.25":
-                progress = 0;
-                break;
-            case "0.5":
-                progress = 1;
-                break;
-            case "1":
-                progress = 2;
-                break;
-            default:
-                progress = 2;
+        String weight = valueWeight.getText().toString();
+        if (weight.equals(df.format(table.getFullWeight() / 4))) {
+            progress = 0;
+        } else if (weight.equals(df.format(table.getFullWeight() / 2))) {
+            progress = 1;
+        } else if (weight.equals(df.format(table.getFullWeight()))) {
+            progress = 2;
+        } else {
+            progress = 2;
         }
         valueSeekWeight.setProgress(progress);
 
         valueEditDate.setOnClickListener(v -> {
             LocalDate current = LocalDate.parse(valueDate.getText().toString(), dateFormat);
-            new DatePickerDialog(getActivity(), dialogTheme, (view, year, month, dayOfMonth) -> valueDate.setText(dateFormat.format(LocalDate.of(year, month, dayOfMonth))), current.getYear(), current.getMonthValue(), current.getDayOfMonth()).show();
+            // very weird fix. do not remove +1 and -1. DialogTheme starts months with 1, but threethen with 0 as it seems.
+            new DatePickerDialog(getActivity(), dialogTheme, (view, year, month, dayOfMonth) -> valueDate.setText(dateFormat.format(LocalDate.of(year, month + 1, dayOfMonth))), current.getYear(), current.getMonthValue() - 1, current.getDayOfMonth()).show();
         });
 
         valueOK.setOnClickListener(v -> {
@@ -187,7 +185,7 @@ public class GradeEditor extends DialogFragment {
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), grade.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    grade.getOwnerSubject().remGrade(grade);
+                    grade.getParent().remGrade(grade);
                     builder.onDel.onClick(v);
                     dismiss();
                 })
@@ -205,13 +203,13 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(1.0));
         valueDate.setText(dateFormat.format(LocalDate.now()));
 
-        if (!subject.getOwnerTable().useWeight) {
+        if (!subject.getParent().useWeight) {
             weight_editor.setVisibility(View.GONE);
         }
 
         valueEditDate.setOnClickListener(v -> {
             LocalDate current = LocalDate.parse(valueDate.getText().toString(), dateFormat);
-            new DatePickerDialog(getActivity(), dialogTheme, (view, year, month, dayOfMonth) -> valueDate.setText(dateFormat.format(LocalDate.of(year, month, dayOfMonth))), current.getYear(), current.getMonthValue(), current.getDayOfMonth()).show();
+            new DatePickerDialog(getActivity(), dialogTheme, (view, year, month, dayOfMonth) -> valueDate.setText(dateFormat.format(LocalDate.of(year, month + 1, dayOfMonth))), current.getYear(), current.getMonthValue() - 1, current.getDayOfMonth()).show();
         });
 
         valueOK.setOnClickListener(v -> {

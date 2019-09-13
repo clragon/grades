@@ -49,7 +49,7 @@ public class TableEditor extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null || builder == null) {
             dismiss();
         }
 
@@ -113,11 +113,7 @@ public class TableEditor extends DialogFragment {
                 table.minGrade = Double.parseDouble(tableEdit1.getText().toString());
                 table.maxGrade = Double.parseDouble(tableEdit2.getText().toString());
                 table.useWeight = switch3.isChecked();
-                try {
-                    table.write();
-                } catch (Exception ex) {
-                    // oh no
-                }
+                table.save();
                 builder.onYes.onClick(v);
                 hideKeyboard(v);
                 dismiss();
@@ -128,11 +124,7 @@ public class TableEditor extends DialogFragment {
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), table.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    try {
-                        table.delete();
-                    } catch (IOException ex) {
-                        // oof
-                    }
+                    table.delete();
                     builder.onDel.onClick(v);
                     hideKeyboard(v);
                     dismiss();
@@ -163,10 +155,7 @@ public class TableEditor extends DialogFragment {
                     table.useWeight = preferences.getBoolean("useWeight", true);
                 }
                 table.saveFile = file.getPath();
-                try {
-                    table.write();
-                } catch (IOException ex) {
-                }
+                table.save();
                 builder.onYes.onClick(v);
                 hideKeyboard(v);
                 dismiss();

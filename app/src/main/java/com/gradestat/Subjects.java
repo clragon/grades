@@ -22,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import java.io.IOException;
-
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
@@ -45,18 +43,14 @@ public class Subjects extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         table = (Table) getArguments().getSerializable("table");
-        recycler = view.findViewById(R.id.recyclerView);
-
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
+
+        recycler = view.findViewById(R.id.recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.addItem);
         fab.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), table)
                 .setPositiveButton(v1 -> {
-                    try {
-                        table.write();
-                    } catch (IOException ex) {
-                        // TODO: something went wrong :(
-                    }
+                    table.save();
                     recycler.getAdapter().notifyDataSetChanged();
                     checkList();
                 }).show());
@@ -74,13 +68,9 @@ public class Subjects extends Fragment {
                 // Notify the adapter of the move
                 recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                 Table.Subject s = table.getSubjects().get(viewHolder.getAdapterPosition());
-                table.remSubject(s);
-                table.addSubject(s, target.getAdapterPosition());
-                try {
-                    table.write();
-                } catch (IOException ex) {
-
-                }
+                // move subject to new position
+                table.movSubject(s, target.getAdapterPosition());
+                table.save();
                 return true;
             }
 
@@ -89,26 +79,20 @@ public class Subjects extends Fragment {
             }
         };
 
-        ItemTouchHelper toucher = new ItemTouchHelper(callback);
-        toucher.attachToRecyclerView(recycler);
+        new ItemTouchHelper(callback).attachToRecyclerView(recycler);
 
-        TextView text = view.findViewById(R.id.emptyText);
-        text.setText(R.string.no_subjects);
+        ((TextView) view.findViewById(R.id.emptyText)).setText(R.string.no_subjects);
 
         checkList();
     }
 
     private void checkList() {
         if (!table.getSubjects().isEmpty()) {
-            recycler.setVisibility(RecyclerView.VISIBLE);
-            if (getView() != null) {
-                getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
-            }
+            recycler.setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
         } else {
-            recycler.setVisibility(RecyclerView.GONE);
-            if (getView() != null) {
-                getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
-            }
+            recycler.setVisibility(View.GONE);
+            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
         }
     }
 
@@ -171,17 +155,13 @@ public class Subjects extends Fragment {
             view.name.setText(s.name);
             view.text1.setText(String.format("%s: %s", getResources().getString(R.string.grades), doubleFormat.format(s.getGrades().size())));
             view.icon1.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_grade));
-            view.text2.setText(s.getLatest().format(dateFormat));
+            view.text2.setText(s.getLast().format(dateFormat));
             view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
 
             view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), s)
                     .setPositiveButton(v1 -> {
                         recycler.getAdapter().notifyDataSetChanged();
-                        try {
-                            table.write();
-                        } catch (IOException ex) {
-                            // TODO: something went wrong :(
-                        }
+                        table.save();
                         checkList();
                     }).show());
         }

@@ -7,7 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".Overview">
 
+    <include
+        layout="@layout/card_empty"
+        android:visibility="gone" />
+
     <ScrollView
+        android:id="@+id/overscroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none">
@@ -20,18 +25,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-
-                <com.github.mikephil.charting.charts.HorizontalBarChart
-                    android:id="@+id/barchart"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_margin="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                </com.github.mikephil.charting.charts.HorizontalBarChart>
 
                 <TextView
                     android:id="@+id/comp"
@@ -50,7 +43,20 @@
                     app:layout_constraintVertical_bias="0.0"
                     tools:text="@string/compensation" />
 
+                <com.github.mikephil.charting.charts.HorizontalBarChart
+                    android:id="@+id/barchart"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                </com.github.mikephil.charting.charts.HorizontalBarChart>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </LinearLayout>
     </ScrollView>
 

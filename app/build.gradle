@@ -5,14 +5,12 @@ props.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     signingConfigs {
-    release {
-        storeFile = file(props["storeFile"])
-        storePassword = props["storePassword"]
-        keyAlias = props["keyAlias"]
-        keyPassword = props["keyPassword"]
-
-    }
         release {
+            storeFile = file(props["storeFile"])
+            storePassword = props["storePassword"]
+            keyAlias = props["keyAlias"]
+            keyPassword = props["keyPassword"]
+
         }
     }
     compileSdkVersion 28
@@ -20,14 +18,15 @@ android {
         applicationId 'com.gradestat'
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 13
-        versionName '1.9.3'
+        versionCode 15
+        versionName '1.9.5'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

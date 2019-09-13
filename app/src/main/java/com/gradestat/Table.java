@@ -4,6 +4,7 @@ package com.gradestat;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.Serializable;
@@ -29,6 +30,10 @@ public class Table implements Serializable {
 
     private transient final double fullWeight = 1.0;
 
+    public double getFullWeight() {
+        return fullWeight;
+    }
+
     private List<Subject> Subjects = new ArrayList<>();
 
     public List<Subject> getSubjects() {
@@ -37,29 +42,19 @@ public class Table implements Serializable {
 
     public Subject addSubject(String name) {
         Subject s = new Subject(name);
-        s.ownerTable = this;
+        s.parent = this;
         Subjects.add(s);
         return s;
     }
 
-    public Subject addSubject(Subject s, int pos) {
-        s.ownerTable = this;
+    public Subject movSubject(Subject s, int pos) {
+        Subjects.remove(s);
         Subjects.add(pos, s);
-        return s;
-    }
-
-    public Subject addSubject(Subject s) {
-        s.ownerTable = this;
-        Subjects.add(s);
         return s;
     }
 
     public void remSubject(Subject subject) {
         Subjects.remove(subject);
-    }
-
-    public void remSubject(int index) {
-        Subjects.remove(index);
     }
 
     public double getAverage() {
@@ -75,19 +70,33 @@ public class Table implements Serializable {
         }
     }
 
-    public LocalDate getLatest() {
-        Subject latest;
+    private LocalDate getEdgeDate(boolean last) {
+        Subject edge;
         if (!this.Subjects.isEmpty()) {
-            latest = this.Subjects.get(0);
+            edge = this.Subjects.get(0);
             for (Subject s : this.Subjects) {
-                if (s.getLatest().isAfter(latest.getLatest())) {
-                    latest = s;
+                if (last) {
+                    if (s.getLast().isAfter(edge.getLast())) {
+                        edge = s;
+                    }
+                } else {
+                    if (s.getFirst().isBefore(edge.getLast())) {
+                        edge = s;
+                    }
                 }
             }
-            return latest.getLatest();
+            return edge.getLast();
         } else {
             return LocalDate.now();
         }
+    }
+
+    public LocalDate getLast() {
+        return getEdgeDate(true);
+    }
+
+    public LocalDate getFirst() {
+        return getEdgeDate(false);
     }
 
     public double getCompensation() {
@@ -110,15 +119,10 @@ public class Table implements Serializable {
 
         public String name;
 
-        private transient Table ownerTable;
+        private transient Table parent;
 
-        public Table getOwnerTable() {
-            return ownerTable;
-        }
-
-        public void setOwnerTable(Table newOwnerTable) {
-            ownerTable.remSubject(this);
-            newOwnerTable.addSubject(this);
+        public Table getParent() {
+            return parent;
         }
 
         private List<Grade> Grades = new ArrayList<>();
@@ -129,7 +133,7 @@ public class Table implements Serializable {
 
         public Grade addGrade(double value, double weight, String name, LocalDate creation) {
             Grade g = new Grade(value, weight);
-            g.ownerSubject = this;
+            g.parent = this;
             g.name = name;
             g.creation = creation;
             Grades.add(g);
@@ -148,14 +152,8 @@ public class Table implements Serializable {
             return addGrade(value, fullWeight);
         }
 
-        public Grade addGrade(Grade g) {
-            g.ownerSubject = this;
-            Grades.add(g);
-            return g;
-        }
-
-        public Grade addGrade(Grade g, int pos) {
-            g.ownerSubject = this;
+        public Grade movGrade(Grade g, int pos) {
+            Grades.remove(g);
             Grades.add(pos, g);
             return g;
         }
@@ -164,14 +162,10 @@ public class Table implements Serializable {
             Grades.remove(g);
         }
 
-        public void remGrade(int index) {
-            Grades.remove(index);
-        }
-
         public double getAverage() {
             if (!Grades.isEmpty()) {
                 double values = 0, weights = 0;
-                if (ownerTable.useWeight) {
+                if (getParent().useWeight) {
                     for (Grade g : Grades) {
                         values += (g.value * g.weight);
                         weights += g.weight;
@@ -179,32 +173,45 @@ public class Table implements Serializable {
                 } else {
                     for (Grade g : Grades) {
                         values += g.value;
-                        weights += 1;
+                        weights += fullWeight;
                     }
                 }
-
                 return Math.round((values / weights) * 2) / 2.0;
             } else {
                 return 0;
             }
         }
 
-        public LocalDate getLatest() {
+        private LocalDate getEdgeDate(boolean last) {
             if (!this.Grades.isEmpty()) {
-                Grade latest = this.Grades.get(0);
+                Grade edge = this.Grades.get(0);
                 for (Grade g : this.Grades) {
-                    if (g.creation.isAfter(latest.creation)) {
-                        latest = g;
+                    if (last) {
+                        if (g.creation.isAfter(edge.creation)) {
+                            edge = g;
+                        }
+                    } else {
+                        if (g.creation.isBefore(edge.creation)) {
+                            edge = g;
+                        }
                     }
                 }
-                return latest.creation;
+                return edge.creation;
             } else {
                 return LocalDate.now();
             }
         }
 
+        public LocalDate getLast() {
+            return getEdgeDate(true);
+        }
+
+        public LocalDate getFirst() {
+            return getEdgeDate(false);
+        }
+
         public double getCompensation() {
-            double points = 0;
+            double points;
             if (getAverage() != 0) {
                 points = getAverage() - 4;
                 if (points < 0) {
@@ -223,51 +230,33 @@ public class Table implements Serializable {
                 this.creation = LocalDate.now();
             }
 
-            Grade(double value) {
-                new Grade(value, 1);
-            }
-
             public String name;
-
             public LocalDate creation;
 
             public double value;
-
             public double weight;
 
-            private transient Subject ownerSubject;
+            private transient Subject parent;
 
-            public Subject getOwnerSubject() {
-                return ownerSubject;
+            public Subject getParent() {
+                return parent;
             }
-
-            public void setOwnerSubject(Subject newOwnerSubject) {
-                ownerSubject.remGrade(this);
-                newOwnerSubject.addGrade(this);
-
-            }
-
         }
-
     }
 
 
     public static Table read(String file) throws java.io.IOException {
-        try {
-            Table table;
-            FileReader fileReader = new FileReader(file);
-            table = new Gson().fromJson(fileReader, Table.class);
-            table.saveFile = file;
-            for (Subject s : table.Subjects) {
-                s.ownerTable = table;
-                for (Subject.Grade g : s.Grades) {
-                    g.ownerSubject = s;
-                }
+        Table table;
+        FileReader fileReader = new FileReader(file);
+        table = new Gson().fromJson(fileReader, Table.class);
+        table.saveFile = file;
+        for (Subject s : table.Subjects) {
+            s.parent = table;
+            for (Subject.Grade g : s.Grades) {
+                g.parent = s;
             }
-            return table;
-        } catch (java.io.IOException ex) {
-            throw ex;
         }
+        return table;
     }
 
     public void write(String file) throws java.io.IOException {
@@ -292,7 +281,16 @@ public class Table implements Serializable {
         }
     }
 
-    public void delete() throws java.io.IOException, IllegalStateException {
+    public boolean save() {
+        try {
+            write();
+            return true;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
+    public void delete() throws IllegalStateException {
         if (!this.saveFile.equals("")) {
             new File(saveFile).delete();
             Subjects = new ArrayList<>();

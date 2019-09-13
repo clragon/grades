@@ -22,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import java.io.IOException;
-
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
@@ -48,20 +46,16 @@ public class Grades extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         subject = (Table.Subject) getArguments().getSerializable("subject");
-        recycler = view.findViewById(R.id.recyclerView);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
+        recycler = view.findViewById(R.id.recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.addItem);
         fab.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), subject)
                 .setPositiveButton(v1 -> {
-                    try {
-                        subject.getOwnerTable().write();
-                    } catch (IOException ex) {
-                        // TODO: something went wrong :(
-                    }
+                    subject.getParent().save();
                     ((RecyclerView) view.findViewById(R.id.recyclerView)).getAdapter().notifyDataSetChanged();
                     checkList();
                 }).show());
@@ -79,13 +73,9 @@ public class Grades extends Fragment {
                 // Notify the adapter of the move
                 recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                 Table.Subject.Grade g = subject.getGrades().get(viewHolder.getAdapterPosition());
-                subject.remGrade(g);
-                subject.addGrade(g, target.getAdapterPosition());
-                try {
-                    subject.getOwnerTable().write();
-                } catch (IOException ex) {
-                    // TODO: something went wrong :(
-                }
+                // move grade to new position
+                subject.movGrade(g, target.getAdapterPosition());
+                subject.getParent().save();
                 return true;
             }
 
@@ -94,11 +84,9 @@ public class Grades extends Fragment {
             }
         };
 
-        ItemTouchHelper toucher = new ItemTouchHelper(callback);
-        toucher.attachToRecyclerView(recycler);
+        new ItemTouchHelper(callback).attachToRecyclerView(recycler);
 
-        TextView text = view.findViewById(R.id.emptyText);
-        text.setText(R.string.no_grades);
+        ((TextView) view.findViewById(R.id.emptyText)).setText(R.string.no_grades);
 
         checkList();
 
@@ -106,15 +94,11 @@ public class Grades extends Fragment {
 
     private void checkList() {
         if (!subject.getGrades().isEmpty()) {
-            recycler.setVisibility(RecyclerView.VISIBLE);
-            if (getView() != null) {
-                getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
-            }
+            recycler.setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
         } else {
-            recycler.setVisibility(RecyclerView.GONE);
-            if (getView() != null) {
-                getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
-            }
+            recycler.setVisibility(View.GONE);
+            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
         }
     }
 
@@ -180,11 +164,7 @@ public class Grades extends Fragment {
             view.edit.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), g)
                     .setPositiveButton(v1 -> {
                         recycler.getAdapter().notifyDataSetChanged();
-                        try {
-                            subject.getOwnerTable().write();
-                        } catch (IOException ex) {
-                            // TODO: something went wrong :(
-                        }
+                        subject.getParent().save();
                         checkList();
                     }).show());
         }

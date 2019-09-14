@@ -68,6 +68,7 @@ public class MainActivity extends AestheticActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         tables_dir = new File(getFilesDir(), "tables");
 
+
         if (savedInstanceState == null) {
 
             // initialize date library

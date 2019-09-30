@@ -57,6 +57,15 @@ public class Table implements Serializable {
         Subjects.remove(subject);
     }
 
+    public boolean isValid() {
+        for (Subject s : Subjects) {
+            if (s.isValid()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public double getAverage(LocalDate before, LocalDate after) {
         if (!Subjects.isEmpty()) {
             double values = 0;
@@ -186,6 +195,15 @@ public class Table implements Serializable {
             Grades.remove(g);
         }
 
+        public boolean isValid() {
+            for (Table.Subject.Grade g : Grades) {
+                if (g.isValid()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public double getAverage(LocalDate before, LocalDate after) {
             if (!Grades.isEmpty()) {
                 double values = 0, weights = 0;
@@ -275,24 +293,28 @@ public class Table implements Serializable {
             public Subject getParent() {
                 return parent;
             }
+
+            public boolean isValid() {
+                if (weight == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
         }
     }
 
 
-    public static Table read(String file) throws java.io.IOException, IllegalArgumentException {
+    public static Table read(String file) throws java.io.IOException {
         Table table;
         FileReader fileReader = new FileReader(file);
-        try {
-            table = new Gson().fromJson(fileReader, Table.class);
-            table.saveFile = file;
-            for (Subject s : table.Subjects) {
-                s.parent = table;
-                for (Subject.Grade g : s.Grades) {
-                    g.parent = s;
-                }
+        table = new Gson().fromJson(fileReader, Table.class);
+        table.saveFile = file;
+        for (Subject s : table.Subjects) {
+            s.parent = table;
+            for (Subject.Grade g : s.Grades) {
+                g.parent = s;
             }
-        } catch (Exception ex) {
-            throw new IllegalArgumentException();
         }
         return table;
     }
@@ -331,7 +353,7 @@ public class Table implements Serializable {
     public boolean delete() throws IllegalStateException {
         if (!this.saveFile.equals("")) {
             try {
-                if (new File(saveFile).delete()) {
+                if (!new File(saveFile).delete()) {
                     return false;
                 }
                 Subjects = new ArrayList<>();

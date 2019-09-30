@@ -1,6 +1,7 @@
 package com.gradestat;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -114,6 +115,7 @@ public class Grades extends Fragment {
             ImageButton edit;
             ImageView icon1;
             ImageView icon2;
+            ImageView circle;
 
 
             ViewHolder(View itemView) {
@@ -127,6 +129,7 @@ public class Grades extends Fragment {
                 icon1 = itemView.findViewById(R.id.value_icon1);
                 icon2 = itemView.findViewById(R.id.value_icon2);
                 edit = itemView.findViewById(R.id.value_edit);
+                circle = itemView.findViewById(R.id.value_circle);
 
                 itemView.setOnClickListener(v -> edit.performClick());
             }
@@ -148,9 +151,9 @@ public class Grades extends Fragment {
 
             view.value.setText(doubleFormat.format(g.value));
             view.name.setText(g.name);
-            if (preferences.getBoolean("useWeight", true)) {
-                view.text1.setText(String.format("%s: %s", getResources().getString(R.string.weight), doubleFormat.format(g.weight)));
-                view.icon1.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_weight));
+            view.text1.setText(String.format("%s: %s", getResources().getString(R.string.weight), doubleFormat.format(g.weight)));
+            view.icon1.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_weight));
+            if (g.getParent().getParent().useWeight) {
                 view.text1.setVisibility(View.VISIBLE);
                 view.icon1.setVisibility(View.VISIBLE);
             } else {
@@ -160,6 +163,9 @@ public class Grades extends Fragment {
 
             view.text2.setText(dateFormat.format(g.creation));
             view.icon2.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_calendar));
+            if (preferences.getBoolean("colorRings", true)) {
+                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(g.getParent().getParent(), g.value)));
+            }
 
             view.edit.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), g)
                     .setPositiveButton(v1 -> {

@@ -1,8 +1,12 @@
 package com.gradestat;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +16,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -37,7 +44,7 @@ public class GradeEditor extends DialogFragment {
 
     private Table table;
     private EditText valueTitle;
-    private EditText valueValue;
+    private EditText valueEdit;
     private EditText valueWeight;
     private TextView valueDate;
     private Button valueOK;
@@ -62,7 +69,8 @@ public class GradeEditor extends DialogFragment {
         }
 
         valueTitle = view.findViewById(R.id.value_title);
-        valueValue = view.findViewById(R.id.value_value);
+        TextView valueValue = view.findViewById(R.id.value_value);
+        valueEdit = view.findViewById(R.id.value_edit);
         valueWeight = view.findViewById(R.id.value_text1);
         valueDate = view.findViewById(R.id.value_text2);
         valueOK = view.findViewById(R.id.valueOK);
@@ -80,6 +88,9 @@ public class GradeEditor extends DialogFragment {
             dialogTheme = R.style.AppTheme_Light_DatePicker;
         }
 
+        valueValue.setVisibility(View.GONE);
+        valueEdit.setVisibility(View.VISIBLE);
+
         valueTitle.setHint(R.string.grade_name);
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
@@ -92,31 +103,36 @@ public class GradeEditor extends DialogFragment {
             }
         });
 
-        /*
         ImageView circle = view.findViewById(R.id.value_circle);
-        valueValue.addTextChangedListener(new TextWatcher() {
+        valueEdit.addTextChangedListener(new TextWatcher() {
+            int ringColor = ((MainActivity) getActivity()).getAttr(android.R.attr.colorPrimary);
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                try {
+                if (preferences.getBoolean("colorRings", true)) {
                     GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
-                    int color = ((MainActivity) getActivity()).getGradeColor(table, Double.parseDouble(s.toString()));
-                    ring.setColor(color);
+                    int pending;
+                    try {
+                        pending = ((MainActivity) getActivity()).getGradeColor(table, Double.parseDouble(s.toString()));
+                    } catch (Exception ex) {
+                        pending = ((MainActivity) getActivity()).getAttr(android.R.attr.colorPrimary);
+                    }
 
-                    float[] hsv = new float[3];
-                    Color.colorToHSV(color, hsv);
-                    valueTitle.setText(String.format("%f %f %f", hsv[0], hsv[1], hsv[2]));
-                } catch (Exception ex) {
-                    // yeet
+                    ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), ringColor, pending);
+                    colorAnimation.setDuration(250);
+                    colorAnimation.addUpdateListener(animator -> ring.setColor((int) animator.getAnimatedValue()));
+                    colorAnimation.start();
+                    ringColor = pending;
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) { }
         });
-        */
+
 
         valueSeekWeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -168,7 +184,7 @@ public class GradeEditor extends DialogFragment {
     private void gradeEdit(final Table.Subject.Grade grade) {
 
         valueTitle.setText(grade.name);
-        valueValue.setText(df.format(grade.value));
+        valueEdit.setText(df.format(grade.value));
         valueWeight.setText(df.format(grade.weight));
         valueDate.setText(dateFormat.format(grade.creation));
 
@@ -198,7 +214,7 @@ public class GradeEditor extends DialogFragment {
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 grade.name = valueTitle.getText().toString();
-                grade.value = Double.parseDouble(valueValue.getText().toString());
+                grade.value = Double.parseDouble(valueEdit.getText().toString());
                 grade.weight = Double.parseDouble(valueWeight.getText().toString());
                 grade.creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
                 builder.onYes.onClick(v);
@@ -225,6 +241,7 @@ public class GradeEditor extends DialogFragment {
 
         valueTitle.setText(String.format("%s %x", subject.name, subject.getGrades().size() + 1));
         valueTitle.setSelectAllOnFocus(true);
+        valueEdit.requestFocus();
         valueWeight.setText(df.format(1.0));
         valueDate.setText(dateFormat.format(LocalDate.now()));
 
@@ -240,7 +257,7 @@ public class GradeEditor extends DialogFragment {
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 String Name = valueTitle.getText().toString();
-                double Value = Double.parseDouble(valueValue.getText().toString());
+                double Value = Double.parseDouble(valueEdit.getText().toString());
                 double Weight = Double.parseDouble(valueWeight.getText().toString());
                 LocalDate creation = LocalDate.parse(valueDate.getText().toString(), dateFormat);
                 subject.addGrade(Value, Weight, Name, creation);
@@ -261,20 +278,23 @@ public class GradeEditor extends DialogFragment {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         try {
             if (preferences.getBoolean("useLimits", true)) {
-                double value = Double.parseDouble(valueValue.getText().toString());
+                double value = Double.parseDouble(valueEdit.getText().toString());
                 if (!(value >= table.minGrade)) {
                     valid = false;
+                    circleError();
                 } else {
-                    valueValue.setError(null);
+                    valueEdit.setError(null);
                 }
                 if (!(value <= table.maxGrade)) {
                     valid = false;
+                    circleError();
                 } else {
-                    valueValue.setError(null);
+                    valueEdit.setError(null);
                 }
             }
         } catch (Exception ex) {
             valid = false;
+            circleError();
         }
         try {
             double weight = Double.parseDouble(valueWeight.getText().toString());
@@ -295,6 +315,18 @@ public class GradeEditor extends DialogFragment {
             valid = false;
         }
         return valid;
+    }
+
+    private void circleError() {
+        int flash = Color.rgb(237, 30, 26);
+        ImageView circle = getView().findViewById(R.id.value_circle);
+        GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
+        ring.setColor(flash);
+
+        ValueAnimator flashToPrimary = ValueAnimator.ofObject(new ArgbEvaluator(), flash, ((MainActivity) getActivity()).getAttr(android.R.attr.colorPrimary));
+        flashToPrimary.setDuration(550);
+        flashToPrimary.addUpdateListener(animator -> ring.setColor((int) animator.getAnimatedValue()));
+        flashToPrimary.start();
     }
 
     public static class Builder {

@@ -5,16 +5,17 @@
     android:id="@+id/value_holder"
     android:layout_width="88dp"
     android:layout_height="88dp"
-    android:layout_gravity="center_horizontal|center_vertical">
+    android:layout_gravity="center_horizontal|center_vertical"
+    android:clipChildren="false">
 
-    <View
+    <ImageView
         android:id="@+id/value_circle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal|center_vertical"
         android:layout_margin="14dp"
-        android:background="@drawable/circle"
-        android:elevation="60dp" />
+        android:elevation="60dp"
+        app:srcCompat="@drawable/circle" />
 
     <TextView
         android:id="@+id/value_value"

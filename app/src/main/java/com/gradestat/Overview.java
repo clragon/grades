@@ -69,15 +69,12 @@ public class Overview extends Fragment {
         // reverse list so the order fits the real order
         // chart order is reversed.
         for (Table.Subject s : reverseList(table.getSubjects())) {
-            double subjectWeight = 0;
-            for (Table.Subject.Grade g : s.getGrades()) {
-                subjectWeight += g.weight;
-            }
-            if (subjectWeight != 0) {
+            if (s.isValid()) {
                 entries.add(new BarEntry(pos, (float) s.getAverage(), s));
                 pos++;
             }
         }
+
 
         class SubjectFormatter extends ValueFormatter {
             @Override
@@ -201,24 +198,14 @@ public class Overview extends Fragment {
     private boolean checkList() {
         View view = getView();
         View overscroll = view.findViewById(R.id.overscroll);
-
-        double tableWeight = 0;
-        for (Table.Subject s : table.getSubjects()) {
-            double subjectWeight = 0;
-            for (Table.Subject.Grade g : s.getGrades()) {
-                subjectWeight += g.weight;
-            }
-            tableWeight += subjectWeight;
-        }
-
-        if (table.getSubjects().isEmpty() || tableWeight == 0) {
-            overscroll.setVisibility(View.GONE);
-            view.findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
-            return false;
-        } else {
+        if (table.isValid()) {
             overscroll.setVisibility(View.VISIBLE);
             view.findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
             return true;
+        } else {
+            overscroll.setVisibility(View.GONE);
+            view.findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            return false;
         }
     }
 

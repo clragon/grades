@@ -2,11 +2,8 @@ package com.gradestat;
 
 
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
-
-import com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat;
 
 
 public class Settings extends PreferenceFragmentCompat {
@@ -20,6 +17,11 @@ public class Settings extends PreferenceFragmentCompat {
 
         this.findPreference("dark").setOnPreferenceChangeListener((preference, newValue) -> {
             ((MainActivity) getActivity()).changeTheme((Boolean) newValue);
+            return true;
+        });
+
+        this.findPreference("colorRings").setOnPreferenceChangeListener((preference, newValue) -> {
+            getActivity().recreate();
             return true;
         });
 

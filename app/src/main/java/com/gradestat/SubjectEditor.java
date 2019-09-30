@@ -1,6 +1,8 @@
 package com.gradestat;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +18,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 
 
@@ -26,9 +30,11 @@ public class SubjectEditor extends DialogFragment {
     private Builder builder;
 
     private EditText valueTitle;
-    private EditText valueValue;
+    private TextView valueValue;
     private Button valueOK;
     private Button valueDelete;
+    private ImageView valueCircle;
+    private SharedPreferences preferences;
     private DecimalFormat df = new DecimalFormat("#.##");
 
     @Override
@@ -45,16 +51,17 @@ public class SubjectEditor extends DialogFragment {
 
         valueTitle = view.findViewById(R.id.value_title);
         valueValue = view.findViewById(R.id.value_value);
+        valueCircle = view.findViewById(R.id.value_circle);
         LinearLayout valueExtra = view.findViewById(R.id.value_extra);
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
 
         valueExtra.setVisibility(View.GONE);
-        valueValue.setClickable(false);
-        valueValue.setFocusable(false);
 
         valueTitle.setHint(R.string.subject_name);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
@@ -81,6 +88,10 @@ public class SubjectEditor extends DialogFragment {
         valueTitle.setText(subject.name);
         valueValue.setText(df.format(subject.getAverage()));
 
+        if (preferences.getBoolean("colorRings", true)) {
+            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(subject.getParent(), subject.getAverage())));
+        }
+
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
                 subject.name = valueTitle.getText().toString();
@@ -106,6 +117,11 @@ public class SubjectEditor extends DialogFragment {
 
     private void createSubject(final Table table) {
         valueValue.setText(df.format(0));
+        valueTitle.requestFocus();
+
+        if (preferences.getBoolean("colorRings", true)) {
+            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(table, Double.parseDouble(valueValue.getText().toString()))));
+        }
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {

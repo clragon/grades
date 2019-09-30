@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,7 +32,7 @@ public class TableEditor extends DialogFragment {
     private Builder builder;
 
     private EditText valueTitle;
-    private EditText valueValue;
+    private TextView valueValue;
     private Button valueOK;
     private Button valueDelete;
     private EditText tableEdit1;
@@ -73,9 +74,6 @@ public class TableEditor extends DialogFragment {
             tableExtra.setVisibility(View.VISIBLE);
         }
 
-        valueValue.setClickable(false);
-        valueValue.setFocusable(false);
-
         valueTitle.setHint(R.string.table_name);
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
@@ -113,7 +111,7 @@ public class TableEditor extends DialogFragment {
                 table.maxGrade = Double.parseDouble(tableEdit2.getText().toString());
                 table.useWeight = switch3.isChecked();
                 if (!table.save()) {
-                    Toasty.error(getActivity(), getString(R.string.table_write_failed), Toast.LENGTH_SHORT, true).show();
+                    Toasty.error(getActivity(), getString(R.string.table_no_write), Toast.LENGTH_SHORT, true).show();
                 }
                 builder.onYes.onClick(v);
                 hideKeyboard(v);
@@ -126,7 +124,7 @@ public class TableEditor extends DialogFragment {
                 .setMessage(String.format(getResources().getString(R.string.delete_object), table.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     if (!table.delete()) {
-                        Toasty.error(getActivity(), getString(R.string.table_write_failed), Toast.LENGTH_SHORT, true).show();
+                        Toasty.error(getActivity(), getString(R.string.table_no_write), Toast.LENGTH_SHORT, true).show();
                     }
                     builder.onDel.onClick(v);
                     hideKeyboard(v);
@@ -141,6 +139,7 @@ public class TableEditor extends DialogFragment {
 
     private void createTable(final File file) {
         valueValue.setText(df.format(0));
+        valueTitle.requestFocus();
         tableEdit1.setText(df.format(Double.valueOf(preferences.getInt("minGrade", 1))));
         tableEdit2.setText(df.format(Double.valueOf(preferences.getInt("maxGrade", 6))));
         switch3.setChecked(preferences.getBoolean("useWeight", true));
@@ -158,7 +157,9 @@ public class TableEditor extends DialogFragment {
                     table.useWeight = preferences.getBoolean("useWeight", true);
                 }
                 table.saveFile = file.getPath();
-                table.save();
+                if (!table.save()) {
+                    Toasty.error(getActivity(), getString(R.string.table_no_write), Toast.LENGTH_SHORT, true).show();
+                }
                 builder.onYes.onClick(v);
                 hideKeyboard(v);
                 dismiss();

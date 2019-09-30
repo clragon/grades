@@ -6,15 +6,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.preference.PreferenceManager;
 
 import com.afollestad.aesthetic.Aesthetic;
 import com.afollestad.aesthetic.AestheticActivity;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -32,6 +36,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,7 +87,7 @@ public class MainActivity extends AestheticActivity {
             // ensure table directory exists
             if (!tables_dir.exists()) {
                 if (!tables_dir.mkdir()) {
-                    Toasty.error(this, R.string.table_write_failed, Toast.LENGTH_SHORT, true).show();
+                    Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();
                 }
             }
 
@@ -99,6 +104,7 @@ public class MainActivity extends AestheticActivity {
                 editor.putBoolean("compensateDouble", true);
                 editor.putBoolean("useLimits", true);
                 editor.putBoolean("advanced", false);
+                editor.putBoolean("colorRings", true);
                 editor.apply();
             }
 
@@ -228,26 +234,54 @@ public class MainActivity extends AestheticActivity {
     public Table getTable() {
         File table_data = new File(tables_dir, preferences.getString("boot_table", "grades.json"));
         // get the current table and try to load it
-        if (table_data.exists()) {
-            try {
-                table = Table.read(table_data.getPath());
-            } catch (Exception ex) {
-                Toasty.error(this, R.string.table_write_failed, Toast.LENGTH_SHORT, true).show();
+        try {
+            if (table_data.exists()) {
+                try {
+                    table = Table.read(table_data.getPath());
+                } catch (JsonParseException ex) {
+                    Toasty.error(this, String.format(getString(R.string.table_read_failed), table_data.getPath()), Toast.LENGTH_LONG, true).show();
+                    if (!getTableList().isEmpty()) {
+                        table = Table.read(getTableList().get(0).saveFile);
+                    } else {
+                        table = createTable(findTable());
+                    }
+                }
+            } else {
+                table = createTable(table_data);
+            }
+        } catch (IOException ex) {
+            Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();
+        }
+        preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
+        return table;
+    }
+
+    private Table createTable(File table_data) throws IOException {
+        // if the table doesn't exist, create it
+        table = new Table(getResources().getString(R.string.subjects));
+        table.saveFile = table_data.getPath();
+        table.minGrade = (double) preferences.getInt("minGrade", 1);
+        table.maxGrade = (double) preferences.getInt("maxGrade", 6);
+        table.useWeight = preferences.getBoolean("useWeight", true);
+        table.write();
+        return table;
+    }
+
+    public File findTable() {
+        // find next available file by incrementing until name doesn't exist
+        File file;
+        File def = new File(tables_dir.getPath(), "grades.json");
+        if (def.exists()) {
+            for (int i = 2; true; i++) {
+                file = new File(tables_dir.getPath(), String.format(getResources().getConfiguration().locale, "%s_%d%s", "grades", i, ".json"));
+                if (!file.exists()) {
+                    break;
+                }
             }
         } else {
-            // if the table doesn't exist, create it
-            table = new Table(getResources().getString(R.string.subjects));
-            table.saveFile = table_data.getPath();
-            table.minGrade = (double) preferences.getInt("minGrade", 1);
-            table.maxGrade = (double) preferences.getInt("maxGrade", 6);
-            table.useWeight = preferences.getBoolean("useWeight", true);
-            try {
-                table.write();
-            } catch (IOException ex) {
-                Toasty.error(this, R.string.table_write_failed, Toast.LENGTH_SHORT, true).show();
-            }
+            file = def;
         }
-        return table;
+        return file;
     }
 
     public ArrayList<Table> getTableList() {
@@ -260,7 +294,7 @@ public class MainActivity extends AestheticActivity {
         for (File table_file : table_files) {
             try {
                 tables.add(Table.read(table_file.getPath()));
-            } catch (IOException ex) {
+            } catch (IOException | JsonSyntaxException ex) {
                 // unable to read the tables
             }
         }
@@ -313,6 +347,9 @@ public class MainActivity extends AestheticActivity {
         }
         ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format(getResources().getConfiguration().locale, "%s: %d", getString(R.string.grades), grades));
         ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLast()));
+        if (preferences.getBoolean("colorRings", true)) {
+            ((GradientDrawable) (((ImageView) navHeader.findViewById(R.id.value_circle)).getDrawable()).mutate()).setColor(getGradeColor(table, table.getAverage()));
+        }
     }
 
     public boolean selectDrawerItem(MenuItem item) {
@@ -451,29 +488,13 @@ public class MainActivity extends AestheticActivity {
                 getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
                 drop_text.setBackgroundResource(outValue.resourceId);
                 // create table on click
-                drop_text.setOnClickListener(v -> {
-                    // find next available file by incrementing until name doesn't exist
-                    File file;
-                    File def = new File(tables_dir.getPath(), "grades.json");
-                    if (def.exists()) {
-                        for (int i = 2; true; i++) {
-                            file = new File(tables_dir.getPath(), String.format(getResources().getConfiguration().locale, "%s_%d%s", "grades", i, ".json"));
-                            if (!file.exists()) {
-                                break;
-                            }
-                        }
-                    } else {
-                        file = def;
-                    }
-
-                    new TableEditor.Builder(getSupportFragmentManager(), file)
-                            .setPositiveButton(v1 -> {
-                                // refresh adapter after creation
-                                adapter.clear();
-                                adapter.addAll(getSpinnerList());
-                                adapter.notifyDataSetChanged();
-                            }).show();
-                });
+                drop_text.setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), findTable())
+                        .setPositiveButton(v1 -> {
+                            // refresh adapter after creation
+                            adapter.clear();
+                            adapter.addAll(getSpinnerList());
+                            adapter.notifyDataSetChanged();
+                        }).show());
             } else {
                 if (((TextView) convertView.findViewById(R.id.drop_text)).getText().toString().equals(getString(R.string.add_table))) {
                     // spinner is trying to reuse add item button. insert new one instead
@@ -565,32 +586,25 @@ public class MainActivity extends AestheticActivity {
             }
         }
 
-        return getBlendColor(lower, greater, (1 / table.maxGrade * value));
+        if (lower == null || greater == null) {
+            return getAttr(android.R.attr.colorPrimary);
+        }
+
+        // return getBlendColor2(lower, greater, (1 / table.maxGrade * value));
+        return getBlendColor2(lower, greater, (1 / (greater.anchor - lower.anchor) * (value - lower.anchor)));
     }
 
     public Integer getGradeColor(Table table, double value) {
         ArrayList<GradeColor> defaultColors = new ArrayList<>();
 
-        defaultColors.add(new GradeColor(Color.rgb(56, 142, 60), table.maxGrade));
-        defaultColors.add(new GradeColor(Color.rgb(211, 47, 47), table.minGrade));
-        defaultColors.add(new GradeColor(Color.rgb(251, 192, 45), round(table.maxGrade / 100 * 66)));
+        defaultColors.add(new GradeColor(Color.rgb(59, 178, 115), table.maxGrade));
+        defaultColors.add(new GradeColor(Color.rgb(225, 85, 84), table.minGrade));
+        defaultColors.add(new GradeColor(Color.rgb(225, 188, 41), round(table.maxGrade / 100 * 66)));
 
         return getGradeColor(defaultColors, table, value);
     }
 
-    public Integer getBlendColor(GradeColor from, GradeColor to, double percent) {
-
-        float[] fromHSV = new float[3];
-        Color.colorToHSV(from.color, fromHSV);
-        float[] toHSV = new float[3];
-        Color.colorToHSV(to.color, toHSV);
-
-        float[] outHSV = new float[3];
-
-        for (int i = 0; i <= 2; i++) {
-            outHSV[i] = ((Math.abs(fromHSV[i] - toHSV[i]) * ((float) percent)) + (Math.min(fromHSV[i], toHSV[i])));
-        }
-
-        return Color.HSVToColor(outHSV);
+    public Integer getBlendColor2(GradeColor from, GradeColor to, double percent) {
+        return (Integer) new ArgbEvaluator().evaluate((float) percent, from.color, to.color);
     }
 }

@@ -45,5 +45,9 @@
     <string name="compensate_double_on">Grades are compensated twice</string>
     <string name="compensate_double_off">Grades are compensated once</string>
     <string name="average">Average</string>
-    <string name="table_write_failed">No table read access</string>
+    <string name="table_no_write">No write access to table folder</string>
+    <string name="ringColor">Ring color</string>
+    <string name="ringRainbow">Rings are dyed to match grade</string>
+    <string name="ringStatic">Rings have a static color</string>
+    <string name="table_read_failed">Cannot read table %1$s</string>
 </resources>

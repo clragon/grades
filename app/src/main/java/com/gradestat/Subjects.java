@@ -1,5 +1,7 @@
 package com.gradestat;
 
+import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +35,7 @@ public class Subjects extends Fragment {
 
     private Table table;
     private RecyclerView recycler;
+    private SharedPreferences preferences;
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
     private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
@@ -44,6 +48,8 @@ public class Subjects extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         table = (Table) getArguments().getSerializable("table");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         recycler = view.findViewById(R.id.recyclerView);
 
@@ -109,6 +115,7 @@ public class Subjects extends Fragment {
             ImageButton edit;
             ImageView icon1;
             ImageView icon2;
+            ImageView circle;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -121,6 +128,7 @@ public class Subjects extends Fragment {
                 icon1 = itemView.findViewById(R.id.value_icon1);
                 icon2 = itemView.findViewById(R.id.value_icon2);
                 edit = itemView.findViewById(R.id.value_edit);
+                circle = itemView.findViewById(R.id.value_circle);
 
                 itemView.setOnClickListener(v -> {
                     Fragment fragment = new Grades();
@@ -157,6 +165,10 @@ public class Subjects extends Fragment {
             view.icon1.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_grade));
             view.text2.setText(s.getLast().format(dateFormat));
             view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
+
+            if (preferences.getBoolean("colorRings", true)) {
+                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(table, s.getAverage())));
+            }
 
             view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), s)
                     .setPositiveButton(v1 -> {

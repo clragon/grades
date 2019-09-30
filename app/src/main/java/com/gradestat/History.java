@@ -81,9 +81,11 @@ public class History extends Fragment {
             List<Table.Subject.Grade> grades = new ArrayList<>();
 
             for (Table.Subject s : table.getSubjects()) {
-                for (Table.Subject.Grade g : s.getGrades()) {
-                    if (g.weight != 0) {
-                        grades.add(g);
+                if (s.isValid()) {
+                    for (Table.Subject.Grade g : s.getGrades()) {
+                        if (g.isValid()) {
+                            grades.add(g);
+                        }
                     }
                 }
             }
@@ -224,24 +226,14 @@ public class History extends Fragment {
     private boolean checkList() {
         View view = getView();
         View linechart = view.findViewById(R.id.linechart);
-
-        double tableWeight = 0;
-        for (Table.Subject s : table.getSubjects()) {
-            double subjectWeight = 0;
-            for (Table.Subject.Grade g : s.getGrades()) {
-                subjectWeight += g.weight;
-            }
-            tableWeight += subjectWeight;
-        }
-
-        if (table.getSubjects().isEmpty() || tableWeight == 0) {
-            linechart.setVisibility(View.GONE);
-            view.findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
-            return false;
-        } else {
+        if (table.isValid()) {
             linechart.setVisibility(View.VISIBLE);
             view.findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
             return true;
+        } else {
+            linechart.setVisibility(View.GONE);
+            view.findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            return false;
         }
     }
 

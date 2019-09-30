@@ -57,17 +57,33 @@ public class Table implements Serializable {
         Subjects.remove(subject);
     }
 
-    public double getAverage() {
+    public double getAverage(LocalDate before, LocalDate after) {
         if (!Subjects.isEmpty()) {
             double values = 0;
+            ArrayList<Subject> excluded = new ArrayList<>();
             for (Subject s : Subjects) {
-                values += s.getAverage();
+                double weighted = 0;
+                for (Subject.Grade g : s.Grades) {
+                    weighted += g.weight;
+                }
+                if (s.Grades.isEmpty() || weighted == 0 || s.getAverage(before, after) == 0) {
+                    excluded.add(s);
+                } else {
+                    values += s.getAverage(before, after);
+                }
             }
-
-            return Math.round((values / Subjects.size()) * 2) / 2.0;
+            return Math.round((values / (Subjects.size() - excluded.size())) * 2) / 2.0;
         } else {
             return 0;
         }
+    }
+
+    public double getAverage(LocalDate before) {
+        return getAverage(before, getFirst());
+    }
+
+    public double getAverage() {
+        return getAverage(getLast());
     }
 
     private LocalDate getEdgeDate(boolean last) {
@@ -80,12 +96,16 @@ public class Table implements Serializable {
                         edge = s;
                     }
                 } else {
-                    if (s.getFirst().isBefore(edge.getLast())) {
+                    if (s.getFirst().isBefore(edge.getFirst())) {
                         edge = s;
                     }
                 }
             }
-            return edge.getLast();
+            if (last) {
+                return edge.getLast();
+            } else {
+                return edge.getFirst();
+            }
         } else {
             return LocalDate.now();
         }
@@ -99,16 +119,20 @@ public class Table implements Serializable {
         return getEdgeDate(false);
     }
 
-    public double getCompensation() {
+    public double getCompensation(boolean twice) {
         double points = 0;
         if (!this.Subjects.isEmpty()) {
             for (Subject s : this.Subjects) {
-                points += s.getCompensation();
+                points += s.getCompensation(twice);
             }
         } else {
             points = 0;
         }
         return points;
+    }
+
+    public double getCompensation() {
+        return getCompensation(true);
     }
 
     public class Subject implements Serializable {
@@ -162,24 +186,32 @@ public class Table implements Serializable {
             Grades.remove(g);
         }
 
-        public double getAverage() {
+        public double getAverage(LocalDate before, LocalDate after) {
             if (!Grades.isEmpty()) {
                 double values = 0, weights = 0;
-                if (getParent().useWeight) {
-                    for (Grade g : Grades) {
-                        values += (g.value * g.weight);
-                        weights += g.weight;
-                    }
-                } else {
-                    for (Grade g : Grades) {
-                        values += g.value;
-                        weights += fullWeight;
+                for (Grade g : Grades) {
+                    if (!(g.creation.isAfter(before) || g.creation.isBefore(after))) {
+                        if (getParent().useWeight) {
+                            values += (g.value * g.weight);
+                            weights += g.weight;
+                        } else {
+                            values += (g.value * fullWeight);
+                            weights += fullWeight;
+                        }
                     }
                 }
                 return Math.round((values / weights) * 2) / 2.0;
             } else {
                 return 0;
             }
+        }
+
+        public double getAverage(LocalDate before) {
+            return getAverage(before, getFirst());
+        }
+
+        public double getAverage() {
+            return getAverage(getLast());
         }
 
         private LocalDate getEdgeDate(boolean last) {
@@ -210,12 +242,14 @@ public class Table implements Serializable {
             return getEdgeDate(false);
         }
 
-        public double getCompensation() {
+        public double getCompensation(boolean twice) {
             double points;
             if (getAverage() != 0) {
                 points = getAverage() - 4;
-                if (points < 0) {
-                    points = points * 2;
+                if (twice) {
+                    if (points < 0) {
+                        points = points * 2;
+                    }
                 }
             } else {
                 points = 0;
@@ -245,16 +279,20 @@ public class Table implements Serializable {
     }
 
 
-    public static Table read(String file) throws java.io.IOException {
+    public static Table read(String file) throws java.io.IOException, IllegalArgumentException {
         Table table;
         FileReader fileReader = new FileReader(file);
-        table = new Gson().fromJson(fileReader, Table.class);
-        table.saveFile = file;
-        for (Subject s : table.Subjects) {
-            s.parent = table;
-            for (Subject.Grade g : s.Grades) {
-                g.parent = s;
+        try {
+            table = new Gson().fromJson(fileReader, Table.class);
+            table.saveFile = file;
+            for (Subject s : table.Subjects) {
+                s.parent = table;
+                for (Subject.Grade g : s.Grades) {
+                    g.parent = s;
+                }
             }
+        } catch (Exception ex) {
+            throw new IllegalArgumentException();
         }
         return table;
     }
@@ -290,13 +328,20 @@ public class Table implements Serializable {
         }
     }
 
-    public void delete() throws IllegalStateException {
+    public boolean delete() throws IllegalStateException {
         if (!this.saveFile.equals("")) {
-            new File(saveFile).delete();
-            Subjects = new ArrayList<>();
-            name = "";
+            try {
+                if (new File(saveFile).delete()) {
+                    return false;
+                }
+                Subjects = new ArrayList<>();
+                name = "";
+            } catch (Exception ex) {
+                return false;
+            }
         } else {
             throw new IllegalStateException();
         }
+        return true;
     }
 }

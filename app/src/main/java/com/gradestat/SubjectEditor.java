@@ -39,7 +39,7 @@ public class SubjectEditor extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null || builder == null) {
+        if (builder == null) {
             dismiss();
         }
 

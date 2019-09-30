@@ -8,7 +8,7 @@
     <string name="total">Total</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
-    <string name="add_table">New table...</string>
+    <string name="add_table">New table…</string>
     <string name="open_drawer">Open drawer</string>
     <string name="close_drawer">Close drawer</string>
     <string name="subject_name">Subject name</string>
@@ -41,4 +41,9 @@
     <string name="advanced_desc_on">Display advanced table settings</string>
     <string name="advanced_desc_off">Do not display advanced table settings</string>
     <string name="history">History</string>
+    <string name="compensation_double">Compensate twice</string>
+    <string name="compensate_double_on">Grades are compensated twice</string>
+    <string name="compensate_double_off">Grades are compensated once</string>
+    <string name="average">Average</string>
+    <string name="table_write_failed">No table read access</string>
 </resources>

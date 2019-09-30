@@ -40,6 +40,14 @@
             app:summaryOn="@string/enable_compensation"
             app:summaryOff="@string/disable_compensation" />
 
+        <SwitchPreference
+            app:defaultValue="true"
+            app:key="compensateDouble"
+            app:title="@string/compensation_double"
+            app:summaryOn="@string/compensate_double_on"
+            app:summaryOff="@string/compensate_double_off"
+            android:dependency="compensate" />
+
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

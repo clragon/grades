@@ -13,18 +13,17 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.evernote.android.state.State;
-
 import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
 import java.text.DecimalFormat;
+
+import es.dmoral.toasty.Toasty;
 
 
 public class TableEditor extends DialogFragment {
@@ -49,7 +48,7 @@ public class TableEditor extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null || builder == null) {
+        if (builder == null) {
             dismiss();
         }
 
@@ -113,7 +112,9 @@ public class TableEditor extends DialogFragment {
                 table.minGrade = Double.parseDouble(tableEdit1.getText().toString());
                 table.maxGrade = Double.parseDouble(tableEdit2.getText().toString());
                 table.useWeight = switch3.isChecked();
-                table.save();
+                if (!table.save()) {
+                    Toasty.error(getActivity(), getString(R.string.table_write_failed), Toast.LENGTH_SHORT, true).show();
+                }
                 builder.onYes.onClick(v);
                 hideKeyboard(v);
                 dismiss();
@@ -124,7 +125,9 @@ public class TableEditor extends DialogFragment {
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), table.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    table.delete();
+                    if (!table.delete()) {
+                        Toasty.error(getActivity(), getString(R.string.table_write_failed), Toast.LENGTH_SHORT, true).show();
+                    }
                     builder.onDel.onClick(v);
                     hideKeyboard(v);
                     dismiss();

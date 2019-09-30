@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/value_holder"
     android:layout_width="88dp"
@@ -19,12 +20,15 @@
         android:id="@+id/value_value"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:elevation="3dp"
         android:gravity="center_horizontal|center_vertical"
-        android:paddingBottom="3dp"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="22dp"
         android:textAlignment="center"
         android:textColor="?android:textColorPrimary"
         android:textSize="28sp"
+        app:autoSizeTextType="uniform"
         tools:text="0.0" />
 
 </FrameLayout>

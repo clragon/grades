@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 
 import com.afollestad.aesthetic.Aesthetic;
@@ -43,6 +44,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import es.dmoral.toasty.Toasty;
+
+import static java.lang.Math.round;
+
 
 public class MainActivity extends AestheticActivity {
 
@@ -76,7 +81,9 @@ public class MainActivity extends AestheticActivity {
 
             // ensure table directory exists
             if (!tables_dir.exists()) {
-                tables_dir.mkdir();
+                if (!tables_dir.mkdir()) {
+                    Toasty.error(this, R.string.table_write_failed, Toast.LENGTH_SHORT, true).show();
+                }
             }
 
             // ensure most important setting exists
@@ -89,18 +96,11 @@ public class MainActivity extends AestheticActivity {
                 editor.putInt("maxGrade", 6);
                 editor.putBoolean("useWeight", true);
                 editor.putBoolean("compensate", true);
+                editor.putBoolean("compensateDouble", true);
                 editor.putBoolean("useLimits", true);
                 editor.putBoolean("advanced", false);
                 editor.apply();
-
-                // settings do not exist, so theme files neither
-                // call for creation, then recreate app to refresh
-                changeTheme(preferences.getBoolean("dark", true));
-                recreate();
             }
-
-            // initialize theme from settings
-            changeTheme(preferences.getBoolean("dark", true));
 
             // get current table
             table = getTable();
@@ -211,6 +211,9 @@ public class MainActivity extends AestheticActivity {
         if (savedInstanceState == null) {
             // Activating the default menu item in the drawer
             navigation.getMenu().performIdentifierAction(R.id.grades, 0);
+
+            // initialize theme from settings
+            changeTheme(preferences.getBoolean("dark", true));
         }
     }
 
@@ -229,7 +232,7 @@ public class MainActivity extends AestheticActivity {
             try {
                 table = Table.read(table_data.getPath());
             } catch (Exception ex) {
-                Toast.makeText(this, "can't read table", Toast.LENGTH_LONG).show();
+                Toasty.error(this, R.string.table_write_failed, Toast.LENGTH_SHORT, true).show();
             }
         } else {
             // if the table doesn't exist, create it
@@ -241,7 +244,7 @@ public class MainActivity extends AestheticActivity {
             try {
                 table.write();
             } catch (IOException ex) {
-                Toast.makeText(this, "can't write table", Toast.LENGTH_LONG).show();
+                Toasty.error(this, R.string.table_write_failed, Toast.LENGTH_SHORT, true).show();
             }
         }
         return table;
@@ -308,7 +311,7 @@ public class MainActivity extends AestheticActivity {
         for (Table.Subject s : table.getSubjects()) {
             grades += s.getGrades().size();
         }
-        ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.grades), grades));
+        ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format(getResources().getConfiguration().locale, "%s: %d", getString(R.string.grades), grades));
         ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLast()));
     }
 
@@ -454,7 +457,7 @@ public class MainActivity extends AestheticActivity {
                     File def = new File(tables_dir.getPath(), "grades.json");
                     if (def.exists()) {
                         for (int i = 2; true; i++) {
-                            file = new File(tables_dir.getPath(), String.format("%s_%d%s", "grades", i, ".json"));
+                            file = new File(tables_dir.getPath(), String.format(getResources().getConfiguration().locale, "%s_%d%s", "grades", i, ".json"));
                             if (!file.exists()) {
                                 break;
                             }
@@ -511,7 +514,7 @@ public class MainActivity extends AestheticActivity {
 
         // get new background and text colors
         int background = getAttr(android.R.attr.colorBackground);
-        int alertTextColor = getAttr(android.R.attr.textColorPrimary);
+        int textColor = getAttr(android.R.attr.textColorPrimary);
 
         // update the theme with aesthetic
         Aesthetic.get()
@@ -519,8 +522,75 @@ public class MainActivity extends AestheticActivity {
                 .isDark(dark)
                 .colorStatusBar(background, background)
                 .colorNavigationBar(background, background)
-                .toolbarIconColor(alertTextColor, alertTextColor)
-                .toolbarTitleColor(alertTextColor, alertTextColor)
+                .toolbarIconColor(textColor, textColor)
+                .toolbarTitleColor(textColor, textColor)
                 .apply();
+    }
+
+    private class GradeColor {
+
+        GradeColor(int color, double anchor) {
+            this.color = color;
+            this.anchor = anchor;
+            this.weight = 1;
+        }
+
+        int color;
+        double anchor;
+        float weight;
+    }
+
+    public Integer getGradeColor(ArrayList<GradeColor> colors, Table table, double value) {
+        GradeColor lower = null;
+        GradeColor greater = null;
+        for (GradeColor color : colors) {
+            if (color.anchor == value) {
+                return color.color;
+            } else if (color.anchor < value) {
+                if (lower != null) {
+                    if (color.anchor > lower.anchor) {
+                        lower = color;
+                    }
+                } else {
+                    lower = color;
+                }
+            } else if (color.anchor > value) {
+                if (greater != null) {
+                    if (color.anchor < greater.anchor) {
+                        greater = color;
+                    }
+                } else {
+                    greater = color;
+                }
+            }
+        }
+
+        return getBlendColor(lower, greater, (1 / table.maxGrade * value));
+    }
+
+    public Integer getGradeColor(Table table, double value) {
+        ArrayList<GradeColor> defaultColors = new ArrayList<>();
+
+        defaultColors.add(new GradeColor(Color.rgb(56, 142, 60), table.maxGrade));
+        defaultColors.add(new GradeColor(Color.rgb(211, 47, 47), table.minGrade));
+        defaultColors.add(new GradeColor(Color.rgb(251, 192, 45), round(table.maxGrade / 100 * 66)));
+
+        return getGradeColor(defaultColors, table, value);
+    }
+
+    public Integer getBlendColor(GradeColor from, GradeColor to, double percent) {
+
+        float[] fromHSV = new float[3];
+        Color.colorToHSV(from.color, fromHSV);
+        float[] toHSV = new float[3];
+        Color.colorToHSV(to.color, toHSV);
+
+        float[] outHSV = new float[3];
+
+        for (int i = 0; i <= 2; i++) {
+            outHSV[i] = ((Math.abs(fromHSV[i] - toHSV[i]) * ((float) percent)) + (Math.min(fromHSV[i], toHSV[i])));
+        }
+
+        return Color.HSVToColor(outHSV);
     }
 }

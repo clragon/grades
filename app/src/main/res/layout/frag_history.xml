@@ -5,17 +5,19 @@
     android:id="@+id/history"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".History">
 
     <include
         layout="@layout/card_empty"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/linechart"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_margin="8dp">
+        android:layout_height="420dp"
+        android:layout_margin="16dp">
 
     </com.github.mikephil.charting.charts.LineChart>
 

@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -58,7 +57,7 @@ public class GradeEditor extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null || builder == null) {
+        if (builder == null) {
             dismiss();
         }
 
@@ -92,6 +91,32 @@ public class GradeEditor extends DialogFragment {
                 checkFields();
             }
         });
+
+        /*
+        ImageView circle = view.findViewById(R.id.value_circle);
+        valueValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
+                    int color = ((MainActivity) getActivity()).getGradeColor(table, Double.parseDouble(s.toString()));
+                    ring.setColor(color);
+
+                    float[] hsv = new float[3];
+                    Color.colorToHSV(color, hsv);
+                    valueTitle.setText(String.format("%f %f %f", hsv[0], hsv[1], hsv[2]));
+                } catch (Exception ex) {
+                    // yeet
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+        */
 
         valueSeekWeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -233,9 +258,9 @@ public class GradeEditor extends DialogFragment {
         } else {
             valueTitle.setError(null);
         }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         try {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            if (preferences.getBoolean("useLimits", false)) {
+            if (preferences.getBoolean("useLimits", true)) {
                 double value = Double.parseDouble(valueValue.getText().toString());
                 if (!(value >= table.minGrade)) {
                     valid = false;
@@ -248,7 +273,7 @@ public class GradeEditor extends DialogFragment {
                     valueValue.setError(null);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             valid = false;
         }
         try {
@@ -259,8 +284,8 @@ public class GradeEditor extends DialogFragment {
             } else {
                 valueWeight.setError(null);
             }
-            if (!(weight <= 1)) {
-                valueValue.setError(getString(R.string.value_too_high));
+            if (!(weight <= 10)) {
+                valueWeight.setError(getString(R.string.value_too_high));
                 valid = false;
             } else {
                 valueWeight.setError(null);
@@ -322,5 +347,4 @@ public class GradeEditor extends DialogFragment {
             editor.show(manager, "editor");
         }
     }
-
 }

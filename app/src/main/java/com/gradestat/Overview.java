@@ -53,9 +53,8 @@ public class Overview extends Fragment {
         ((TextView) view.findViewById(R.id.emptyText)).setText(R.string.no_subjects);
 
         // check if any subjects are available else display appropriate text
-        checkList();
         // prevent chart from loading on empty list of subjects
-        if (table.getSubjects().size() == 0) {
+        if (!checkList()) {
             return;
         }
 
@@ -70,8 +69,14 @@ public class Overview extends Fragment {
         // reverse list so the order fits the real order
         // chart order is reversed.
         for (Table.Subject s : reverseList(table.getSubjects())) {
-            entries.add(new BarEntry(pos, (float) s.getAverage()));
-            pos++;
+            double subjectWeight = 0;
+            for (Table.Subject.Grade g : s.getGrades()) {
+                subjectWeight += g.weight;
+            }
+            if (subjectWeight != 0) {
+                entries.add(new BarEntry(pos, (float) s.getAverage(), s));
+                pos++;
+            }
         }
 
         class SubjectFormatter extends ValueFormatter {
@@ -86,10 +91,10 @@ public class Overview extends Fragment {
                         return "";
                     default:
                         // return name of the subject
-                        String name = reverseList(table.getSubjects()).get((int) value - 2).name;
+                        String name = ((Table.Subject) entries.get((int) value - 1).getData()).name;
                         if (name.length() >= maxLength) {
                             // cut string at nearest space or maxLength if it exceeds maxLength
-                            name = name.substring(0, name.lastIndexOf(' ', maxLength - 3) == -1 ? maxLength - 3 : name.lastIndexOf(' ', maxLength - 3)) + "...";
+                            name = name.substring(0, name.lastIndexOf(' ', maxLength - 3) == -1 ? maxLength - 3 : name.lastIndexOf(' ', maxLength - 3)) + "…";
                         }
                         return name;
                 }
@@ -181,7 +186,7 @@ public class Overview extends Fragment {
             if (table.getCompensation() > 0) {
                 plus = "+";
             }
-            comp.setText(String.format("%s: %s%s", getResources().getString(R.string.compensation), plus, df.format(table.getCompensation())));
+            comp.setText(String.format("%s: %s%s", getResources().getString(R.string.compensation), plus, df.format(table.getCompensation(preferences.getBoolean("compensateDouble", true)))));
         } else {
             comp.setVisibility(View.GONE);
         }
@@ -193,15 +198,27 @@ public class Overview extends Fragment {
         return r;
     }
 
-    private void checkList() {
+    private boolean checkList() {
         View view = getView();
         View overscroll = view.findViewById(R.id.overscroll);
-        if (!table.getSubjects().isEmpty()) {
-            overscroll.setVisibility(View.VISIBLE);
-            view.findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
-        } else {
+
+        double tableWeight = 0;
+        for (Table.Subject s : table.getSubjects()) {
+            double subjectWeight = 0;
+            for (Table.Subject.Grade g : s.getGrades()) {
+                subjectWeight += g.weight;
+            }
+            tableWeight += subjectWeight;
+        }
+
+        if (table.getSubjects().isEmpty() || tableWeight == 0) {
             overscroll.setVisibility(View.GONE);
             view.findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            return false;
+        } else {
+            overscroll.setVisibility(View.VISIBLE);
+            view.findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            return true;
         }
     }
 

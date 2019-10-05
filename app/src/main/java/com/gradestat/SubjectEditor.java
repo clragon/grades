@@ -35,7 +35,7 @@ public class SubjectEditor extends DialogFragment {
     private Button valueDelete;
     private ImageView valueCircle;
     private SharedPreferences preferences;
-    private DecimalFormat df = new DecimalFormat("#.##");
+    private final DecimalFormat df = new DecimalFormat("#.##");
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,7 +89,7 @@ public class SubjectEditor extends DialogFragment {
         valueValue.setText(df.format(subject.getAverage()));
 
         if (preferences.getBoolean("colorRings", true)) {
-            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(subject.getParent(), subject.getAverage())));
+            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor(MainActivity.getGradeColor(getActivity(), subject.getTable(), subject.getAverage()));
         }
 
         valueOK.setOnClickListener(v -> {
@@ -104,7 +104,7 @@ public class SubjectEditor extends DialogFragment {
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), subject.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    subject.getParent().remSubject(subject);
+                    subject.getTable().remSubject(subject);
                     builder.onDel.onClick(v);
                     dismiss();
                 })
@@ -120,7 +120,7 @@ public class SubjectEditor extends DialogFragment {
         valueTitle.requestFocus();
 
         if (preferences.getBoolean("colorRings", true)) {
-            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(table, Double.parseDouble(valueValue.getText().toString()))));
+            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor((MainActivity.getGradeColor(getActivity(), table, Double.parseDouble(valueValue.getText().toString()))));
         }
 
         valueOK.setOnClickListener(v -> {
@@ -147,14 +147,14 @@ public class SubjectEditor extends DialogFragment {
 
         private Table.Subject subject = null;
         private Table table = null;
-        private boolean edit;
+        private final boolean edit;
         private View.OnClickListener onYes = v -> {
         };
         private View.OnClickListener onNo = v -> {
         };
         private View.OnClickListener onDel;
 
-        private FragmentManager manager;
+        private final FragmentManager manager;
 
         public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject subject) {
             this.manager = manager;

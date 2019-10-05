@@ -53,8 +53,8 @@ public class GradeEditor extends DialogFragment {
     private SeekBar valueSeekWeight;
     private ConstraintLayout weight_editor;
     private Integer dialogTheme;
-    private DecimalFormat df = new DecimalFormat("#.##");
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+    private final DecimalFormat df = new DecimalFormat("#.##");
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,7 +105,7 @@ public class GradeEditor extends DialogFragment {
 
         ImageView circle = view.findViewById(R.id.value_circle);
         valueEdit.addTextChangedListener(new TextWatcher() {
-            int ringColor = ((MainActivity) getActivity()).getAttr(android.R.attr.colorPrimary);
+            int ringColor = MainActivity.getAttr(getActivity(), android.R.attr.colorPrimary);
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -116,9 +116,9 @@ public class GradeEditor extends DialogFragment {
                     GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
                     int pending;
                     try {
-                        pending = ((MainActivity) getActivity()).getGradeColor(table, Double.parseDouble(s.toString()));
+                        pending = MainActivity.getGradeColor(getActivity(), table, Double.parseDouble(s.toString()));
                     } catch (Exception ex) {
-                        pending = ((MainActivity) getActivity()).getAttr(android.R.attr.colorPrimary);
+                        pending = MainActivity.getAttr(getActivity(), android.R.attr.colorPrimary);
                     }
 
                     ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), ringColor, pending);
@@ -147,6 +147,7 @@ public class GradeEditor extends DialogFragment {
                         weight = table.getFullWeight() / 2;
                         break;
                     case 2:
+                        //noinspection DuplicateBranchesInSwitch
                         weight = table.getFullWeight();
                         break;
                     default:
@@ -173,10 +174,10 @@ public class GradeEditor extends DialogFragment {
         });
 
         if (builder.edit) {
-            table = builder.grade.getParent().getParent();
+            table = builder.grade.getTable();
             gradeEdit(builder.grade);
         } else {
-            table = builder.subject.getParent();
+            table = builder.subject.getTable();
             gradeCreate(builder.subject);
         }
     }
@@ -188,7 +189,7 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(grade.weight));
         valueDate.setText(dateFormat.format(grade.creation));
 
-        if (!grade.getParent().getParent().useWeight) {
+        if (!grade.getTable().useWeight) {
             weight_editor.setVisibility(View.GONE);
         }
 
@@ -226,7 +227,7 @@ public class GradeEditor extends DialogFragment {
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), grade.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    grade.getParent().remGrade(grade);
+                    grade.getSubject().remGrade(grade);
                     builder.onDel.onClick(v);
                     dismiss();
                 })
@@ -245,7 +246,7 @@ public class GradeEditor extends DialogFragment {
         valueWeight.setText(df.format(1.0));
         valueDate.setText(dateFormat.format(LocalDate.now()));
 
-        if (!subject.getParent().useWeight) {
+        if (!subject.getTable().useWeight) {
             weight_editor.setVisibility(View.GONE);
         }
 
@@ -323,7 +324,7 @@ public class GradeEditor extends DialogFragment {
         GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
         ring.setColor(flash);
 
-        ValueAnimator flashToPrimary = ValueAnimator.ofObject(new ArgbEvaluator(), flash, ((MainActivity) getActivity()).getAttr(android.R.attr.colorPrimary));
+        ValueAnimator flashToPrimary = ValueAnimator.ofObject(new ArgbEvaluator(), flash, MainActivity.getAttr(getActivity(), android.R.attr.colorPrimary));
         flashToPrimary.setDuration(550);
         flashToPrimary.addUpdateListener(animator -> ring.setColor((int) animator.getAnimatedValue()));
         flashToPrimary.start();
@@ -333,14 +334,14 @@ public class GradeEditor extends DialogFragment {
 
         private Table.Subject.Grade grade = null;
         private Table.Subject subject = null;
-        private boolean edit;
+        private final boolean edit;
         private View.OnClickListener onYes = v -> {
         };
         private View.OnClickListener onNo = v -> {
         };
         private View.OnClickListener onDel;
 
-        private FragmentManager manager;
+        private final FragmentManager manager;
 
         public Builder(@NonNull FragmentManager manager, @NonNull Table.Subject.Grade grade) {
             this.manager = manager;

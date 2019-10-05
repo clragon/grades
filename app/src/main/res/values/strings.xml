@@ -21,15 +21,12 @@
     <string name="value_too_low">Value too low</string>
     <string name="value_too_high">Value too high</string>
     <string name="value_cannot_be_empty">Value cannot be empty</string>
-    <string name="not_implemented">Not implemented</string>
     <string name="no_grades">No grades available</string>
     <string name="no_subjects">No subjects available</string>
     <string name="confirmation">Confirmation</string>
     <string name="delete_object">Do you really want to delete %1$s</string>
     <string name="theme">App theme</string>
     <string name="use_dark_theme">Use dark theme</string>
-    <string name="color">App color</string>
-    <string name="pick_color">Pick app color</string>
     <string name="use_light_theme">Use light theme</string>
     <string name="grade_limits">Grade limits</string>
     <string name="ignore_limits">Ignore grade limits</string>

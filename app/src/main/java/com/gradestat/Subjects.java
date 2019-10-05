@@ -36,8 +36,8 @@ public class Subjects extends Fragment {
     private Table table;
     private RecyclerView recycler;
     private SharedPreferences preferences;
-    private DecimalFormat doubleFormat = new DecimalFormat("#.##");
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+    private final DecimalFormat doubleFormat = new DecimalFormat("#.##");
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -107,20 +107,17 @@ public class Subjects extends Fragment {
 
         private class ViewHolder extends RecyclerView.ViewHolder {
 
-            CardView card;
-            TextView name;
-            TextView value;
-            TextView text1;
-            TextView text2;
-            ImageButton edit;
-            ImageView icon1;
-            ImageView icon2;
-            ImageView circle;
+            final TextView name;
+            final TextView value;
+            final TextView text1;
+            final TextView text2;
+            final ImageButton edit;
+            final ImageView icon1;
+            final ImageView icon2;
+            final ImageView circle;
 
             ViewHolder(View itemView) {
                 super(itemView);
-
-                card = itemView.findViewById(R.id.valueCard);
                 value = itemView.findViewById(R.id.value_value);
                 name = itemView.findViewById(R.id.value_title);
                 text1 = itemView.findViewById(R.id.value_text1);
@@ -167,7 +164,7 @@ public class Subjects extends Fragment {
             view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
 
             if (preferences.getBoolean("colorRings", true)) {
-                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(table, s.getAverage())));
+                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((MainActivity.getGradeColor(getActivity(), table, s.getAverage())));
             }
 
             view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), s)

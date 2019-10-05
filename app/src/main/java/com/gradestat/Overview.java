@@ -35,10 +35,10 @@ import java.util.List;
 public class Overview extends Fragment {
 
     private Table table;
-    private DecimalFormat df = new DecimalFormat("#.##");
+    private final DecimalFormat df = new DecimalFormat("#.##");
 
     // max length for any label of the chart
-    private int maxLength = 12;
+    private final int maxLength = 12;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -99,7 +99,7 @@ public class Overview extends Fragment {
         }
 
         // get default text color
-        int textColor = ((MainActivity) getActivity()).getAttr(android.R.attr.textColorPrimary);
+        int textColor = MainActivity.getAttr(getActivity(), android.R.attr.textColorPrimary);
 
         BarDataSet dataSet = new BarDataSet(entries, "subjects");
         dataSet.setHighLightAlpha(255);

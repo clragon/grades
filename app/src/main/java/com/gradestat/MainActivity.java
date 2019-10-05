@@ -8,8 +8,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.preference.PreferenceManager;
@@ -46,6 +48,7 @@ import org.threeten.bp.format.FormatStyle;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -59,12 +62,12 @@ public class MainActivity extends AestheticActivity {
     private Toolbar toolbar;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
-    private FragmentManager fragmentManager = getSupportFragmentManager();
+    private final FragmentManager fragmentManager = getSupportFragmentManager();
 
     private tableSpinner adapter;
     private SharedPreferences preferences;
-    private DecimalFormat doubleFormat = new DecimalFormat("#.##");
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+    private final DecimalFormat doubleFormat = new DecimalFormat("#.##");
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     public Table table;
     public File tables_dir;
@@ -88,8 +91,13 @@ public class MainActivity extends AestheticActivity {
             if (!tables_dir.exists()) {
                 if (!tables_dir.mkdir()) {
                     Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();
+                    finish();
                 }
+            } else if (!tables_dir.canWrite()) {
+                Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();
+                finish();
             }
+
 
             // ensure most important setting exists
             // checked by boot_table keyword
@@ -157,6 +165,8 @@ public class MainActivity extends AestheticActivity {
         adapter = new tableSpinner(this, getSpinnerList());
         spinner.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+        // set selected item to the loaded table
+        spinner.setSelection(getTableIndex(getSpinnerList(), table), false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -175,8 +185,7 @@ public class MainActivity extends AestheticActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        // set selected item to the loaded table
-        spinner.setSelection(getTableIndex(table), false);
+
 
         // call edit table dialog when edit button is clicked
         navHeader.findViewById(R.id.table_edit).setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), (Table) spinner.getSelectedItem())
@@ -192,17 +201,18 @@ public class MainActivity extends AestheticActivity {
                             // no tables left, recreate the default one
                             table = getTable();
                             preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
+
+                            // update adapter to reflect changes
+                            adapter.clear();
+                            adapter.addAll(getSpinnerList());
+
+                            adapter.notifyDataSetChanged();
                         }
                         spinner.setSelection(spinner.getSelectedItemPosition() - 1);
                     } else {
                         // update the app table with the edited one
                         table = (Table) spinner.getSelectedItem();
                     }
-
-                    // update adapter to reflect changes
-                    adapter.clear();
-                    adapter.addAll(getSpinnerList());
-                    adapter.notifyDataSetChanged();
 
                     try {
                         // update subject fragment
@@ -225,7 +235,7 @@ public class MainActivity extends AestheticActivity {
 
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         // save table on state change
         outState.putSerializable("table", table);
         super.onSaveInstanceState(outState);
@@ -251,12 +261,13 @@ public class MainActivity extends AestheticActivity {
             }
         } catch (IOException ex) {
             Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();
+            finish();
         }
         preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
         return table;
     }
 
-    private Table createTable(File table_data) throws IOException {
+    private Table createTable(@NonNull File table_data) throws IOException {
         // if the table doesn't exist, create it
         table = new Table(getResources().getString(R.string.subjects));
         table.saveFile = table_data.getPath();
@@ -295,7 +306,7 @@ public class MainActivity extends AestheticActivity {
             try {
                 tables.add(Table.read(table_file.getPath()));
             } catch (IOException | JsonSyntaxException ex) {
-                // unable to read the tables
+                // unable to read the table, exclude it
             }
         }
         return tables;
@@ -308,15 +319,14 @@ public class MainActivity extends AestheticActivity {
         return t;
     }
 
-    public int getTableIndex(Table t) {
+    public int getTableIndex(@NonNull ArrayList<Table> target, @NonNull Table t) {
         // find index of a table by reading the list of tables
         // then finding the table we search by its safe-file in it.
         int index = 0;
-        ArrayList<Table> temp = getTableList();
-        for (Table current : temp) {
+        for (Table current : target) {
             if (current != null) {
                 if (new File(current.saveFile).getName().equals(new File(t.saveFile).getName())) {
-                    index = temp.indexOf(current);
+                    index = target.indexOf(current);
                 }
             }
         }
@@ -348,11 +358,11 @@ public class MainActivity extends AestheticActivity {
         ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format(getResources().getConfiguration().locale, "%s: %d", getString(R.string.grades), grades));
         ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLast()));
         if (preferences.getBoolean("colorRings", true)) {
-            ((GradientDrawable) (((ImageView) navHeader.findViewById(R.id.value_circle)).getDrawable()).mutate()).setColor(getGradeColor(table, table.getAverage()));
+            ((GradientDrawable) (((ImageView) navHeader.findViewById(R.id.value_circle)).getDrawable()).mutate()).setColor(getGradeColor(this, table, table.getAverage()));
         }
     }
 
-    public boolean selectDrawerItem(MenuItem item) {
+    public boolean selectDrawerItem(@NonNull MenuItem item) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         boolean wrap = false;
         Fragment fragment = null;
@@ -401,36 +411,27 @@ public class MainActivity extends AestheticActivity {
             // this really shouldn't happen
         }
 
-        if (wrap) {
+        if (fragment != null) {
+            // basic transaction
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+            transaction.replace(R.id.fragment, fragment);
 
-            // fragment should be treated like new activity
-            // insert old fragment so it shows up on going back
-            navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
-
-            // insert the new fragment without trashing all others
-            if (fragment != null) {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                transaction.replace(R.id.fragment, fragment);
+            if (wrap) {
+                // treated like a new activity,
+                // add previous to backstack and lock drawer.
                 transaction.addToBackStack(null);
-                transaction.commit();
                 drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-            }
-        } else {
-            // Insert the fragment by replacing any existing fragment
-            if (fragment != null) {
+            } else {
                 // throw away all fragments in the back stack
                 for (int i = 0; i < fragmentManager.getBackStackEntryCount(); ++i) {
                     fragmentManager.popBackStack();
                 }
-                // insert new fragment
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                transaction.replace(R.id.fragment, fragment).commit();
+                // Highlight the selected item
+                navigation.setCheckedItem(item);
             }
-            // Highlight the selected item
-            navigation.setCheckedItem(item);
+            transaction.commit();
         }
 
         drawer.closeDrawers();
@@ -512,11 +513,14 @@ public class MainActivity extends AestheticActivity {
         }
     }
 
-    public int getAttr(int id) {
+    public static int getAttr(Activity activity, int id) {
         // shortcut so I don't have to type the horrible garbage below everywhere
         TypedValue value = new TypedValue();
-        getTheme().resolveAttribute(id, value, true);
-        return obtainStyledAttributes(value.data, new int[]{id}).getColor(0, 1);
+        activity.getTheme().resolveAttribute(id, value, true);
+        TypedArray array = activity.obtainStyledAttributes(value.data, new int[]{id});
+        int color = array.getColor(0, 1);
+        array.recycle();
+        return color;
     }
 
     public void changeTheme(boolean dark) {
@@ -534,8 +538,8 @@ public class MainActivity extends AestheticActivity {
         setTheme(themeID);
 
         // get new background and text colors
-        int background = getAttr(android.R.attr.colorBackground);
-        int textColor = getAttr(android.R.attr.textColorPrimary);
+        int background = getAttr(this, android.R.attr.colorBackground);
+        int textColor = getAttr(this, android.R.attr.textColorPrimary);
 
         // update the theme with aesthetic
         Aesthetic.get()
@@ -548,7 +552,7 @@ public class MainActivity extends AestheticActivity {
                 .apply();
     }
 
-    private class GradeColor {
+    private static class GradeColor {
 
         GradeColor(int color, double anchor) {
             this.color = color;
@@ -556,12 +560,12 @@ public class MainActivity extends AestheticActivity {
             this.weight = 1;
         }
 
-        int color;
-        double anchor;
-        float weight;
+        final int color;
+        final double anchor;
+        final float weight;
     }
 
-    public Integer getGradeColor(ArrayList<GradeColor> colors, Table table, double value) {
+    public static Integer getGradeColor(Activity activity, ArrayList<GradeColor> colors, double value) {
         GradeColor lower = null;
         GradeColor greater = null;
         for (GradeColor color : colors) {
@@ -587,24 +591,23 @@ public class MainActivity extends AestheticActivity {
         }
 
         if (lower == null || greater == null) {
-            return getAttr(android.R.attr.colorPrimary);
+            return getAttr(activity, android.R.attr.colorPrimary);
         }
 
-        // return getBlendColor2(lower, greater, (1 / table.maxGrade * value));
-        return getBlendColor2(lower, greater, (1 / (greater.anchor - lower.anchor) * (value - lower.anchor)));
+        return getBlendColor(lower, greater, (1 / (greater.anchor - lower.anchor) * (value - lower.anchor)));
     }
 
-    public Integer getGradeColor(Table table, double value) {
+    public static Integer getGradeColor(Activity activity, Table table, double value) {
         ArrayList<GradeColor> defaultColors = new ArrayList<>();
 
         defaultColors.add(new GradeColor(Color.rgb(59, 178, 115), table.maxGrade));
         defaultColors.add(new GradeColor(Color.rgb(225, 85, 84), table.minGrade));
         defaultColors.add(new GradeColor(Color.rgb(225, 188, 41), round(table.maxGrade / 100 * 66)));
 
-        return getGradeColor(defaultColors, table, value);
+        return getGradeColor(activity, defaultColors, value);
     }
 
-    public Integer getBlendColor2(GradeColor from, GradeColor to, double percent) {
+    public static Integer getBlendColor(GradeColor from, GradeColor to, double percent) {
         return (Integer) new ArgbEvaluator().evaluate((float) percent, from.color, to.color);
     }
 }

@@ -23,6 +23,7 @@ public class About extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
+        //noinspection ConstantConditions
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.about);
         TextView appName = view.findViewById(R.id.appname);
         TextView appVers = view.findViewById(R.id.appversion);

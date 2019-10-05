@@ -2,6 +2,7 @@ package com.gradestat;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -38,8 +40,9 @@ public class TableEditor extends DialogFragment {
     private EditText tableEdit1;
     private EditText tableEdit2;
     private Switch switch3;
+    private ImageView valueCircle;
     private SharedPreferences preferences;
-    private DecimalFormat df = new DecimalFormat("#.##");
+    private final DecimalFormat df = new DecimalFormat("#.##");
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,6 +66,7 @@ public class TableEditor extends DialogFragment {
         tableEdit1 = view.findViewById(R.id.table_edit1);
         tableEdit2 = view.findViewById(R.id.table_edit2);
         switch3 = view.findViewById(R.id.switch3);
+        valueCircle = view.findViewById(R.id.value_circle);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
@@ -103,6 +107,10 @@ public class TableEditor extends DialogFragment {
         tableEdit1.setText(df.format(table.minGrade));
         tableEdit2.setText(df.format(table.maxGrade));
         switch3.setChecked(table.useWeight);
+
+        if (preferences.getBoolean("colorRings", true)) {
+            ((GradientDrawable) valueCircle.getDrawable().mutate()).setColor(MainActivity.getGradeColor(getActivity(), table, table.getAverage()));
+        }
 
         valueOK.setOnClickListener(v -> {
             if (checkFields()) {
@@ -204,14 +212,14 @@ public class TableEditor extends DialogFragment {
 
         private Table table = null;
         private File file = null;
-        private boolean edit;
+        private final boolean edit;
         private View.OnClickListener onYes = v -> {
         };
         private View.OnClickListener onNo = v -> {
         };
         private View.OnClickListener onDel;
 
-        private FragmentManager manager;
+        private final FragmentManager manager;
 
         public Builder(@NonNull FragmentManager manager, @NonNull Table table) {
             this.manager = manager;

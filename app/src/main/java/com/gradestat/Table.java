@@ -14,6 +14,7 @@ import com.google.gson.*;
 import org.threeten.bp.LocalDate;
 
 
+@SuppressWarnings("UnusedReturnValue")
 public class Table implements Serializable {
 
     public Table(String name) {
@@ -71,11 +72,7 @@ public class Table implements Serializable {
             double values = 0;
             ArrayList<Subject> excluded = new ArrayList<>();
             for (Subject s : Subjects) {
-                double weighted = 0;
-                for (Subject.Grade g : s.Grades) {
-                    weighted += g.weight;
-                }
-                if (s.Grades.isEmpty() || weighted == 0 || s.getAverage(before, after) == 0) {
+                if (!s.isValid() || s.getAverage(before, after) == 0) {
                     excluded.add(s);
                 } else {
                     values += s.getAverage(before, after);
@@ -154,11 +151,11 @@ public class Table implements Serializable {
 
         private transient Table parent;
 
-        public Table getParent() {
+        public Table getTable() {
             return parent;
         }
 
-        private List<Grade> Grades = new ArrayList<>();
+        private final List<Grade> Grades = new ArrayList<>();
 
         public List<Grade> getGrades() {
             return Grades;
@@ -208,13 +205,15 @@ public class Table implements Serializable {
             if (!Grades.isEmpty()) {
                 double values = 0, weights = 0;
                 for (Grade g : Grades) {
-                    if (!(g.creation.isAfter(before) || g.creation.isBefore(after))) {
-                        if (getParent().useWeight) {
-                            values += (g.value * g.weight);
-                            weights += g.weight;
-                        } else {
-                            values += (g.value * fullWeight);
-                            weights += fullWeight;
+                    if (g.isValid()) {
+                        if (!(g.creation.isAfter(before) || g.creation.isBefore(after))) {
+                            if (getTable().useWeight) {
+                                values += (g.value * g.weight);
+                                weights += g.weight;
+                            } else {
+                                values += (g.value * fullWeight);
+                                weights += fullWeight;
+                            }
                         }
                     }
                 }
@@ -290,16 +289,16 @@ public class Table implements Serializable {
 
             private transient Subject parent;
 
-            public Subject getParent() {
+            public Subject getSubject() {
                 return parent;
             }
 
+            public Table getTable() {
+                return parent.getTable();
+            }
+
             public boolean isValid() {
-                if (weight == 0) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return weight != 0;
             }
         }
     }
@@ -357,7 +356,7 @@ public class Table implements Serializable {
                     return false;
                 }
                 Subjects = new ArrayList<>();
-                name = "";
+                name = "<deleted>";
             } catch (Exception ex) {
                 return false;
             }

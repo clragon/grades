@@ -36,8 +36,8 @@ public class Grades extends Fragment {
     private Table.Subject subject;
     private RecyclerView recycler;
     private SharedPreferences preferences;
-    private DecimalFormat doubleFormat = new DecimalFormat("#.##");
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+    private final DecimalFormat doubleFormat = new DecimalFormat("#.##");
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class Grades extends Fragment {
         FloatingActionButton fab = view.findViewById(R.id.addItem);
         fab.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), subject)
                 .setPositiveButton(v1 -> {
-                    subject.getParent().save();
+                    subject.getTable().save();
                     ((RecyclerView) view.findViewById(R.id.recyclerView)).getAdapter().notifyDataSetChanged();
                     checkList();
                 }).show());
@@ -76,7 +76,7 @@ public class Grades extends Fragment {
                 Table.Subject.Grade g = subject.getGrades().get(viewHolder.getAdapterPosition());
                 // move grade to new position
                 subject.movGrade(g, target.getAdapterPosition());
-                subject.getParent().save();
+                subject.getTable().save();
                 return true;
             }
 
@@ -107,21 +107,19 @@ public class Grades extends Fragment {
 
         private class ViewHolder extends RecyclerView.ViewHolder {
 
-            CardView card;
-            TextView name;
-            TextView value;
-            TextView text1;
-            TextView text2;
-            ImageButton edit;
-            ImageView icon1;
-            ImageView icon2;
-            ImageView circle;
+            final TextView name;
+            final TextView value;
+            final TextView text1;
+            final TextView text2;
+            final ImageButton edit;
+            final ImageView icon1;
+            final ImageView icon2;
+            final ImageView circle;
 
 
             ViewHolder(View itemView) {
                 super(itemView);
 
-                card = itemView.findViewById(R.id.valueCard);
                 value = itemView.findViewById(R.id.value_value);
                 name = itemView.findViewById(R.id.value_title);
                 text1 = itemView.findViewById(R.id.value_text1);
@@ -140,6 +138,7 @@ public class Grades extends Fragment {
             return subject.getGrades().size();
         }
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             return new ViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_value, viewGroup, false));
@@ -153,7 +152,7 @@ public class Grades extends Fragment {
             view.name.setText(g.name);
             view.text1.setText(String.format("%s: %s", getResources().getString(R.string.weight), doubleFormat.format(g.weight)));
             view.icon1.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_weight));
-            if (g.getParent().getParent().useWeight) {
+            if (g.getTable().useWeight) {
                 view.text1.setVisibility(View.VISIBLE);
                 view.icon1.setVisibility(View.VISIBLE);
             } else {
@@ -164,13 +163,13 @@ public class Grades extends Fragment {
             view.text2.setText(dateFormat.format(g.creation));
             view.icon2.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_calendar));
             if (preferences.getBoolean("colorRings", true)) {
-                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((((MainActivity) getActivity()).getGradeColor(g.getParent().getParent(), g.value)));
+                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((MainActivity.getGradeColor(getActivity(), g.getTable(), g.value)));
             }
 
             view.edit.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), g)
                     .setPositiveButton(v1 -> {
                         recycler.getAdapter().notifyDataSetChanged();
-                        subject.getParent().save();
+                        subject.getTable().save();
                         checkList();
                     }).show());
         }

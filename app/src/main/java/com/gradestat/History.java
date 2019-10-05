@@ -41,8 +41,8 @@ import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 public class History extends Fragment {
 
     Table table;
-    private DecimalFormat df = new DecimalFormat("#.##");
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+    private final DecimalFormat df = new DecimalFormat("#.##");
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,7 +62,7 @@ public class History extends Fragment {
             return;
         }
 
-        int textColor = ((MainActivity) getActivity()).getAttr(android.R.attr.textColorPrimary);
+        int textColor = MainActivity.getAttr(getActivity(), android.R.attr.textColorPrimary);
 
         LineChart chart = view.findViewById(R.id.linechart);
 

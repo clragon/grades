@@ -86,8 +86,7 @@ public class MainActivity extends AestheticActivity {
 
             // initialize date library
             AndroidThreeTen.init(this);
-
-            // ensure table directory exists
+// ensure table directory exists
             if (!tables_dir.exists()) {
                 if (!tables_dir.mkdir()) {
                     Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();
@@ -166,18 +165,26 @@ public class MainActivity extends AestheticActivity {
         spinner.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         // set selected item to the loaded table
-        spinner.setSelection(getTableIndex(getSpinnerList(), table), false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // check if the current entry isn't the add new item button
                 if (parent.getItemAtPosition(position) != null) {
-                    // replace the current table with the selected one
-                    table = (Table) parent.getItemAtPosition(position);
-                    // update the boot table to the current one
-                    preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
-                    // refresh subjects by reapplying the fragment
-                    navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                    // prevent endless loop
+                    if (position != 0) {
+                        // replace the current table with the selected one
+                        table = (Table) parent.getItemAtPosition(position);
+                        // update the boot table to the current one
+                        preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
+                        // refresh subjects by reapplying the fragment
+                        navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                        // update spinner so that the selected table is always on position 0
+                        adapter.clear();
+                        adapter.addAll(getSpinnerList());
+                        adapter.notifyDataSetChanged();
+                        // call set selection again
+                        spinner.setSelection(0);
+                    }
                 }
             }
 
@@ -185,6 +192,7 @@ public class MainActivity extends AestheticActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        spinner.setSelection(getTableIndex(getSpinnerList(), table), false);
 
 
         // call edit table dialog when edit button is clicked
@@ -314,6 +322,9 @@ public class MainActivity extends AestheticActivity {
 
     public ArrayList<Table> getSpinnerList() {
         ArrayList<Table> t = getTableList();
+        // place current table on top
+        t.remove(getTableIndex(t, table));
+        t.add(0, table);
         // add null entry for the add new item button
         t.add(null);
         return t;

@@ -322,9 +322,14 @@ public class MainActivity extends AestheticActivity {
 
     public ArrayList<Table> getSpinnerList() {
         ArrayList<Table> t = getTableList();
-        // place current table on top
-        t.remove(getTableIndex(t, table));
-        t.add(0, table);
+        if (!t.isEmpty()) {
+            // place current table on top
+            int pos = getTableIndex(t, table);
+            if (pos != -1) {
+                t.remove(pos);
+                t.add(0, table);
+            }
+        }
         // add null entry for the add new item button
         t.add(null);
         return t;
@@ -333,7 +338,7 @@ public class MainActivity extends AestheticActivity {
     public int getTableIndex(@NonNull ArrayList<Table> target, @NonNull Table t) {
         // find index of a table by reading the list of tables
         // then finding the table we search by its safe-file in it.
-        int index = 0;
+        int index = -1;
         for (Table current : target) {
             if (current != null) {
                 if (new File(current.saveFile).getName().equals(new File(t.saveFile).getName())) {

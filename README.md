@@ -26,25 +26,15 @@ The app was made as my graduation project but will likely be supported beyond th
 
 
 ## Screenshots
-<div class="row">
+<p align="center" float="left">
   <kbd>
-    <div class="column">
       <img src="/graphic/screenshots/Screenshot_20191016-191409_GradeStat.jpg" width="19%">
-    </div>
-    <div class="column">
       <img src="/graphic/screenshots/Screenshot_20191016-191502_GradeStat.jpg" width="19%">
-    </div>
-    <div class="column">
       <img src="/graphic/screenshots/Screenshot_20191114-182552_GradeStat.jpg" width="19%">
-    </div>
-    <div class="column">
       <img src="/graphic/screenshots/Screenshot_20191114-182536_GradeStat.jpg" width="19%">
-    </div>
-    <div class="column">
       <img src="/graphic/screenshots/Screenshot_20191016-191553_GradeStat.jpg" width="19%">
-    </div>
   </kbd>
-</div>
+</p>
 
 
 ## Download

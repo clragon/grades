@@ -27,7 +27,7 @@ The app was made as my graduation project but will likely be supported beyond th
 
 ## Screenshots
 <div class="row">
-  <kbd align="center">
+  <kbd>
     <div class="column">
       <img src="/graphic/screenshots/Screenshot_20191016-191409_GradeStat.jpg" width="19%">
     </div>

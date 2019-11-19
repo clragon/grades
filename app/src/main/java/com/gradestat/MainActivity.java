@@ -86,7 +86,7 @@ public class MainActivity extends AestheticActivity {
 
             // initialize date library
             AndroidThreeTen.init(this);
-// ensure table directory exists
+            // ensure table directory exists
             if (!tables_dir.exists()) {
                 if (!tables_dir.mkdir()) {
                     Toasty.error(this, R.string.table_no_write, Toast.LENGTH_LONG, true).show();

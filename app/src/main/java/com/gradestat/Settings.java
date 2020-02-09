@@ -20,10 +20,5 @@ public class Settings extends PreferenceFragmentCompat {
             return true;
         });
 
-        this.findPreference("colorRings").setOnPreferenceChangeListener((preference, newValue) -> {
-            getActivity().recreate();
-            return true;
-        });
-
     }
 }

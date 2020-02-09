@@ -102,7 +102,6 @@ public class Subjects extends Fragment {
         }
     }
 
-
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
         private class ViewHolder extends RecyclerView.ViewHolder {
@@ -133,7 +132,8 @@ public class Subjects extends Fragment {
                     args.putSerializable("subject", table.getSubjects().get(getAdapterPosition()));
                     fragment.setArguments(args);
                     FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                    transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                    // slide in and out from the bottom animation set
+                    transaction.setCustomAnimations(R.anim.slide_in_up, android.R.anim.fade_out, android.R.anim.fade_in, R.anim.slide_out_down);
                     transaction.replace(R.id.fragment, fragment);
                     transaction.addToBackStack(null);
                     transaction.commit();

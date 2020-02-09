@@ -11,14 +11,6 @@
             app:summaryOff="@string/use_light_theme"
             android:icon="@drawable/ic_brightness" />
 
-        <SwitchPreference
-            app:defaultValue="true"
-            app:key="colorRings"
-            app:title="@string/ringColor"
-            app:summaryOn="@string/ringRainbow"
-            app:summaryOff="@string/ringStatic"
-            android:icon="@drawable/ic_ring" />
-
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/table">

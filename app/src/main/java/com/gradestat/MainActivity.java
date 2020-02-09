@@ -97,9 +97,8 @@ public class MainActivity extends AestheticActivity {
                 finish();
             }
 
-
-            // ensure most important setting exists
-            // checked by boot_table keyword
+            // create default settings on first run
+            // not really needed since shared preference calls need a default value.
             if (!preferences.contains("boot_table")) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("boot_table", "grades.json");
@@ -111,7 +110,6 @@ public class MainActivity extends AestheticActivity {
                 editor.putBoolean("compensateDouble", true);
                 editor.putBoolean("useLimits", true);
                 editor.putBoolean("advanced", false);
-                editor.putBoolean("colorRings", true);
                 editor.apply();
             }
 
@@ -220,6 +218,7 @@ public class MainActivity extends AestheticActivity {
                     } else {
                         // update the app table with the edited one
                         table = (Table) spinner.getSelectedItem();
+                        preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
                     }
 
                     try {
@@ -430,8 +429,6 @@ public class MainActivity extends AestheticActivity {
         if (fragment != null) {
             // basic transaction
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-            transaction.replace(R.id.fragment, fragment);
 
             if (wrap) {
                 // treated like a new activity,
@@ -439,6 +436,8 @@ public class MainActivity extends AestheticActivity {
                 transaction.addToBackStack(null);
                 drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+                // up slide in and down slide out animations
+                transaction.setCustomAnimations(R.anim.slide_in_up, android.R.anim.fade_out, android.R.anim.fade_in, R.anim.slide_out_down);
             } else {
                 // throw away all fragments in the back stack
                 for (int i = 0; i < fragmentManager.getBackStackEntryCount(); ++i) {
@@ -446,7 +445,10 @@ public class MainActivity extends AestheticActivity {
                 }
                 // Highlight the selected item
                 navigation.setCheckedItem(item);
+                // fade animations
+                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
             }
+            transaction.replace(R.id.fragment, fragment);
             transaction.commit();
         }
 
@@ -617,8 +619,8 @@ public class MainActivity extends AestheticActivity {
         ArrayList<GradeColor> defaultColors = new ArrayList<>();
 
         defaultColors.add(new GradeColor(Color.rgb(59, 178, 115), table.maxGrade));
+        defaultColors.add(new GradeColor(Color.rgb(225, 188, 41), round(table.maxGrade * 0.66)));
         defaultColors.add(new GradeColor(Color.rgb(225, 85, 84), table.minGrade));
-        defaultColors.add(new GradeColor(Color.rgb(225, 188, 41), round(table.maxGrade / 100 * 66)));
 
         return getGradeColor(activity, defaultColors, value);
     }

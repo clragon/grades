@@ -24,7 +24,7 @@
     <string name="no_grades">No grades available</string>
     <string name="no_subjects">No subjects available</string>
     <string name="confirmation">Confirmation</string>
-    <string name="delete_object">Do you really want to delete %1$s</string>
+    <string name="delete_object">Do you really want to delete %1$s?</string>
     <string name="theme">App theme</string>
     <string name="use_dark_theme">Use dark theme</string>
     <string name="use_light_theme">Use light theme</string>

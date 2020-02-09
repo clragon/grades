@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:layout_margin="14dp"
+        android:layout_margin="8dp"
         android:elevation="60dp"
         app:srcCompat="@drawable/circle" />
 
@@ -22,10 +22,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_horizontal|center_vertical"
-        android:paddingStart="24dp"
-        android:paddingTop="20dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="22dp"
+        android:paddingStart="18dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="18dp"
         android:textAlignment="center"
         android:textColor="?android:textColorPrimary"
         android:textSize="28sp"

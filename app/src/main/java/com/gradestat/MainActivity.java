@@ -48,9 +48,10 @@ import org.threeten.bp.format.FormatStyle;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 
@@ -81,7 +82,6 @@ public class MainActivity extends AestheticActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         tables_dir = new File(getFilesDir(), "tables");
 
-
         if (savedInstanceState == null) {
 
             // initialize date library
@@ -99,19 +99,39 @@ public class MainActivity extends AestheticActivity {
 
             // create default settings on first run
             // not really needed since shared preference calls need a default value.
-            if (!preferences.contains("boot_table")) {
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("boot_table", "grades.json");
-                editor.putBoolean("dark", true);
-                editor.putInt("minGrade", 1);
-                editor.putInt("maxGrade", 6);
-                editor.putBoolean("useWeight", true);
-                editor.putBoolean("compensate", true);
-                editor.putBoolean("compensateDouble", true);
-                editor.putBoolean("useLimits", true);
-                editor.putBoolean("advanced", false);
-                editor.apply();
+
+            Map<String, Object> defaultPreferences = new HashMap<>();
+            {
+                defaultPreferences.put("boot_table", "grades.json");
+                defaultPreferences.put("dark", true);
+                defaultPreferences.put("minGrade", 1);
+                defaultPreferences.put("maxGrade", 6);
+                defaultPreferences.put("useWeight", true);
+                defaultPreferences.put("compensate", true);
+                defaultPreferences.put("compensateDouble", true);
+                defaultPreferences.put("useLimits", true);
+                defaultPreferences.put("advanced", false);
+                defaultPreferences.put("sorting", getString(R.string.sort_by_custom));
+                defaultPreferences.put("sorting_invert", false);
             }
+
+            SharedPreferences.Editor editor = preferences.edit();
+
+            for (Map.Entry<String, Object> entry : defaultPreferences.entrySet()) {
+                if (!preferences.contains(entry.getKey())) {
+                    if (entry.getValue() instanceof String) {
+                        editor.putString(entry.getKey(), (String) entry.getValue());
+                    }
+                    if (entry.getValue() instanceof Integer) {
+                        editor.putInt(entry.getKey(), (Integer) entry.getValue());
+                    }
+                    if (entry.getValue() instanceof Boolean) {
+                        editor.putBoolean(entry.getKey(), (Boolean) entry.getValue());
+                    }
+                }
+            }
+
+            editor.apply();
 
             // get current table
             table = getTable();
@@ -432,7 +452,7 @@ public class MainActivity extends AestheticActivity {
 
             if (wrap) {
                 // treated like a new activity,
-                // add previous to backstack and lock drawer.
+                // add previous to back stack and lock drawer.
                 transaction.addToBackStack(null);
                 drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
@@ -446,7 +466,7 @@ public class MainActivity extends AestheticActivity {
                 // Highlight the selected item
                 navigation.setCheckedItem(item);
                 // fade animations
-                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
             }
             transaction.replace(R.id.fragment, fragment);
             transaction.commit();

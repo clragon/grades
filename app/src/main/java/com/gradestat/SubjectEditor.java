@@ -61,6 +61,10 @@ public class SubjectEditor extends DialogFragment {
 
         valueTitle.setHint(R.string.subject_name);
 
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            valueDelete.setText("x");
+        }
+
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);

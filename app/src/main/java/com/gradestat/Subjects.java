@@ -29,6 +29,10 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+import es.dmoral.toasty.Toasty;
 
 
 public class Subjects extends Fragment {
@@ -57,49 +61,119 @@ public class Subjects extends Fragment {
         fab.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), table)
                 .setPositiveButton(v1 -> {
                     table.save();
-                    recycler.getAdapter().notifyDataSetChanged();
-                    checkList();
+                    updateList();
                 }).show());
 
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setAdapter(new Adapter());
 
-        ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                if (viewHolder.getItemViewType() != target.getItemViewType()) {
-                    return false;
-                }
-
-                // Notify the adapter of the move
-                recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-                Table.Subject s = table.getSubjects().get(viewHolder.getAdapterPosition());
-                // move subject to new position
-                table.movSubject(s, target.getAdapterPosition());
-                table.save();
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            }
-        };
-
-        new ItemTouchHelper(callback).attachToRecyclerView(recycler);
-
         ((TextView) view.findViewById(R.id.emptyText)).setText(R.string.no_subjects);
 
-        checkList();
+        updateList();
     }
 
-    private void checkList() {
+    private void updateList() {
+        if (checkList()) {
+            sortList();
+        }
+    }
+
+    private boolean checkList() {
         if (!table.getSubjects().isEmpty()) {
             recycler.setVisibility(View.VISIBLE);
             getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            return true;
         } else {
             recycler.setVisibility(View.GONE);
             getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            return false;
         }
+    }
+
+    interface SubjectSorter {
+        boolean sort(int i, int n);
+    }
+
+    private void sortList() {
+
+        String sorting = preferences.getString("sorting", getString(R.string.sort_by_custom));
+
+        if (sorting.equals(getString(R.string.sort_by_custom))) {
+
+            ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    if (viewHolder.getItemViewType() != target.getItemViewType()) {
+                        return false;
+                    }
+
+                    // Notify the adapter of the move
+                    recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                    Table.Subject s = table.getSubjects().get(viewHolder.getAdapterPosition());
+                    // move subject to new position
+                    table.movSubject(s, target.getAdapterPosition());
+                    table.save();
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                }
+            };
+
+            new ItemTouchHelper(callback).attachToRecyclerView(recycler);
+        } else {
+
+            class AlphabetSort implements SubjectSorter {
+                public boolean sort(int i, int n) {
+                    return (table.getSubjects().get(i).name.compareTo(table.getSubjects().get(n).name) > 0);
+                }
+            }
+
+            class LatestSort implements SubjectSorter {
+                public boolean sort(int i, int n) {
+                    if (table.getSubjects().get(n).isValid()) {
+                        if (table.getSubjects().get(i).isValid()) {
+                            return table.getSubjects().get(i).getLast().isBefore(table.getSubjects().get(n).getLast());
+                        } else {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+
+            class GreatestSort implements SubjectSorter {
+                public boolean sort(int i, int n) {
+                    return (table.getSubjects().get(i).getAverage() < table.getSubjects().get(n).getAverage());
+                }
+            }
+
+            Map<String, SubjectSorter> sorters = new HashMap<>();
+            {
+                sorters.put(getString(R.string.sort_by_alphabet), new AlphabetSort());
+                sorters.put(getString(R.string.sort_by_latest), new LatestSort());
+                sorters.put(getString(R.string.sort_by_greatest), new GreatestSort());
+            }
+
+
+            System.out.println("sorters = " + sorters);
+            for (int i = 0; i < table.getSubjects().size(); i++) {
+                for (int n = i + 1; n < table.getSubjects().size(); n++) {
+                    if (sorters.get(preferences.getString("sorting", getString(R.string.sort_by_alphabet))).sort(i, n)) {
+                        table.movSubject(table.getSubjects().get(n), table.getSubjects().indexOf(table.getSubjects().get(i)));
+                    }
+                }
+            }
+
+            if (preferences.getBoolean("sorting_invert", false)) {
+                for (int i = 0; i < table.getSubjects().size(); i++) {
+                    table.movSubject(table.getSubjects().get(table.getSubjects().size() - 1), i);
+                }
+            }
+        }
+
+        recycler.getAdapter().notifyDataSetChanged();
     }
 
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
@@ -169,9 +243,8 @@ public class Subjects extends Fragment {
 
             view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), s)
                     .setPositiveButton(v1 -> {
-                        recycler.getAdapter().notifyDataSetChanged();
                         table.save();
-                        checkList();
+                        updateList();
                     }).show());
         }
     }

@@ -47,4 +47,12 @@
     <string name="ringRainbow">Ringfarbe an Note anpassen</string>
     <string name="ringStatic">Ringfarbe ist statisch</string>
     <string name="table_read_failed">Tabelle %1$s kann nicht geöffnet werden</string>
+    <string name="sort_by_alphabet">Alphabetisch</string>
+    <string name="sort_by_custom">Benutzerdefiniert</string>
+    <string name="sort_by_greatest">Grösste</string>
+    <string name="sort_by_latest">Letzte</string>
+    <string name="sort_by_title">Fächer sortieren</string>
+    <string name="sort_invert">Sortierung umkehren</string>
+    <string name="sort_invert_off">Normale Sortierung</string>
+    <string name="sort_invert_on">Umgekehrte Sortierung</string>
 </resources>

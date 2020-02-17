@@ -1,4 +1,4 @@
-<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="Display">
@@ -12,6 +12,7 @@
             android:icon="@drawable/ic_brightness" />
 
     </PreferenceCategory>
+
 
     <PreferenceCategory app:title="@string/table">
 
@@ -28,6 +29,26 @@
             app:title="@string/advanced"
             app:summaryOn="@string/advanced_desc_on"
             app:summaryOff="@string/advanced_desc_off" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/subjects">
+
+        <ListPreference
+            app:title="@string/sort_by_title"
+            app:summary="%s"
+            app:key="sorting"
+            android:entries="@array/sort_strings"
+            android:entryValues="@array/sort_types"
+            android:icon="@drawable/ic_sort" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="sorting_invert"
+            android:icon="@drawable/ic_swap_vert"
+            app:title="@string/sort_invert"
+            app:summaryOn="@string/sort_invert_on"
+            app:summaryOff="@string/sort_invert_off" />
 
     </PreferenceCategory>
 
@@ -50,4 +71,4 @@
 
     </PreferenceCategory>
 
-</androidx.preference.PreferenceScreen>
+</PreferenceScreen>

@@ -17,9 +17,6 @@ import org.threeten.bp.LocalDate;
 @SuppressWarnings("UnusedReturnValue")
 public class Table implements Serializable {
 
-    // increase version number when implementing compatibility breaking changes.
-    public int version = 2;
-
     public Table(String name) {
         this.name = name;
     }

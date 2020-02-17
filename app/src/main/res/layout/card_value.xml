@@ -14,16 +14,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingRight="4dp">
+        android:paddingEnd="4dp">
 
         <include
             android:id="@+id/include"
             layout="@layout/part_value"
-            android:layout_width="80dp"
-            android:layout_height="88dp"
+            android:layout_width="76dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/value_title"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
@@ -33,14 +35,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.54" />
+            app:layout_constraintGuide_begin="48dp"
+            app:layout_constraintGuide_percent="0.56" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="80dp" />
+            app:layout_constraintGuide_begin="84dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
@@ -56,7 +59,7 @@
             android:layout_marginStart="6dp"
             android:ellipsize="end"
             android:gravity="center_vertical"
-            android:maxLines="1"
+            android:singleLine="true"
             android:paddingEnd="8dp"
             android:textColor="?attr/textColorAlertDialogListItem"
             android:textSize="26sp"
@@ -116,9 +119,9 @@
                 android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:ellipsize="start"
                 android:gravity="center_vertical"
-                android:maxLines="1"
                 android:paddingStart="4dp"
                 android:textColor="?attr/colorControlNormal"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -135,7 +138,7 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
-                android:maxLines="1"
+                android:singleLine="true"
                 android:paddingStart="4dp"
                 android:textColor="?attr/colorControlNormal"
                 app:layout_constraintBottom_toBottomOf="parent"

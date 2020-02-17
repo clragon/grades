@@ -33,6 +33,8 @@ import android.widget.TextView;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.FormatStyle;
@@ -55,6 +57,15 @@ public class GradeEditor extends DialogFragment {
     private Integer dialogTheme;
     private final DecimalFormat df = new DecimalFormat("#.##");
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+
+    private Map<Integer, Double> sliderValues = new HashMap<>();
+
+    {
+        sliderValues.put(0, 0.0);
+        sliderValues.put(1, 0.25);
+        sliderValues.put(2, 0.5);
+        sliderValues.put(3, 1.0);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -138,23 +149,7 @@ public class GradeEditor extends DialogFragment {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                double weight;
-                switch (progress) {
-                    case 0:
-                        weight = table.getFullWeight() / 4;
-                        break;
-                    case 1:
-                        weight = table.getFullWeight() / 2;
-                        break;
-                    case 2:
-                        //noinspection DuplicateBranchesInSwitch
-                        weight = table.getFullWeight();
-                        break;
-                    default:
-                        weight = table.getFullWeight();
-                        break;
-                }
-                valueWeight.setText(df.format(weight));
+                valueWeight.setText(df.format(sliderValues.get(progress) * table.getFullWeight()));
             }
 
             @Override
@@ -193,17 +188,16 @@ public class GradeEditor extends DialogFragment {
             weight_editor.setVisibility(View.GONE);
         }
 
-        int progress;
-        String weight = valueWeight.getText().toString();
-        if (weight.equals(df.format(table.getFullWeight() / 4))) {
-            progress = 0;
-        } else if (weight.equals(df.format(table.getFullWeight() / 2))) {
-            progress = 1;
-        } else if (weight.equals(df.format(table.getFullWeight()))) {
-            progress = 2;
-        } else {
-            progress = 2;
+        int progress = valueSeekWeight.getMax();
+
+        double weight = Double.parseDouble(valueWeight.getText().toString());
+
+        for (Map.Entry<Integer, Double> entry : sliderValues.entrySet()) {
+            if ((entry.getValue()) * table.getFullWeight() == weight) {
+                progress = entry.getKey();
+            }
         }
+
         valueSeekWeight.setProgress(progress);
 
         valueEditDate.setOnClickListener(v -> {

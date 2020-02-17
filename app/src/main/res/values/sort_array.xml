@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sort_strings">
+        <item>@string/sort_by_custom</item>
+        <item>@string/sort_by_alphabet</item>
+        <item>@string/sort_by_latest</item>
+        <item>@string/sort_by_greatest</item>
+    </string-array>
+    <string-array name="sort_types">
+        <item>sorting_custom</item>
+        <item>sorting_alphabet</item>
+        <item>sorting_latest</item>
+        <item>sorting_greatest</item>
+    </string-array>
+</resources>

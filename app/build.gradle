@@ -41,14 +41,14 @@ repositories {
 
 
 dependencies {
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.2'
 
     implementation 'com.github.GrenderG:Toasty:1.4.2'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'com.afollestad:aesthetic:1.0.0-beta05'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation "androidx.appcompat:appcompat:${var}"

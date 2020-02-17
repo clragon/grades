@@ -173,6 +173,8 @@ public class MainActivity extends AestheticActivity {
 
         // Setting up the Navigation view inside the drawer
         final NavigationView navigation = findViewById(R.id.nav_view);
+        int background = getAttr(this, android.R.attr.colorBackground);
+        navigation.setBackgroundColor(background);
         navigation.setNavigationItemSelectedListener(this::selectDrawerItem);
 
         // get nav header view to access views in the header

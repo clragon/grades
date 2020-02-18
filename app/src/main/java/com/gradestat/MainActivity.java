@@ -112,7 +112,7 @@ public class MainActivity extends AestheticActivity {
                 defaultPreferences.put("compensateDouble", true);
                 defaultPreferences.put("useLimits", true);
                 defaultPreferences.put("advanced", false);
-                defaultPreferences.put("sorting", getString(R.string.sort_by_custom));
+                defaultPreferences.put("sorting", "sorting_custom");
                 defaultPreferences.put("sorting_invert", false);
             }
 

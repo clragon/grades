@@ -45,7 +45,7 @@
         <SwitchPreference
             app:defaultValue="false"
             app:key="sorting_invert"
-            android:icon="@drawable/ic_swap_vertical"
+            android:icon="@drawable/ic_swap_vert"
             app:title="@string/sort_invert"
             app:summaryOn="@string/sort_invert_on"
             app:summaryOff="@string/sort_invert_off" />

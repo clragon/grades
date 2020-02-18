@@ -96,9 +96,9 @@ public class Subjects extends Fragment {
 
     private void sortList() {
 
-        String sorting = preferences.getString("sorting", getString(R.string.sort_by_custom));
+        String sorting = preferences.getString("sorting", "sorting_custom");
 
-        if (sorting.equals(getString(R.string.sort_by_custom))) {
+        if (sorting.equals("sorting_custom")) {
 
             ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
                 @Override
@@ -151,16 +151,16 @@ public class Subjects extends Fragment {
 
             Map<String, SubjectSorter> sorters = new HashMap<>();
             {
-                sorters.put(getString(R.string.sort_by_alphabet), new AlphabetSort());
-                sorters.put(getString(R.string.sort_by_latest), new LatestSort());
-                sorters.put(getString(R.string.sort_by_greatest), new GreatestSort());
+                sorters.put("sorting_alphabet", new AlphabetSort());
+                sorters.put("sorting_latest", new LatestSort());
+                sorters.put("sorting_greatest", new GreatestSort());
             }
 
 
             System.out.println("sorters = " + sorters);
-            for (int i = 0; i < table.getSubjects().size(); i++) {
+            for (int i = 0; i <= table.getSubjects().size(); i++) {
                 for (int n = i + 1; n < table.getSubjects().size(); n++) {
-                    if (sorters.get(preferences.getString("sorting", getString(R.string.sort_by_alphabet))).sort(i, n)) {
+                    if (sorters.get(preferences.getString("sorting", "sorting_alphabet")).sort(i, n)) {
                         table.movSubject(table.getSubjects().get(n), table.getSubjects().indexOf(table.getSubjects().get(i)));
                     }
                 }

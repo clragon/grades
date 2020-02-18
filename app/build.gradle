@@ -17,8 +17,8 @@ android {
         applicationId 'com.gradestat'
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 34
-        versionName '2.2.0'
+        versionCode 36
+        versionName '2.2.2'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }

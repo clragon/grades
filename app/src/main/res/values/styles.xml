@@ -3,17 +3,18 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="android:statusBarColor">?android:colorBackground</item>
         <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:alertDialogTheme">?android:colorBackground</item>
     </style>
 
     <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">?android:colorBackground</item>
         <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:alertDialogTheme">?android:colorBackground</item>
     </style>
 
     <style name="AppTheme.Launcher" parent="AppTheme">
         <item name="android:statusBarColor">?android:colorBackground</item>
         <item name="android:navigationBarColor">?android:colorBackground</item>
-        <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
     <style name="AppTheme.DatePicker" parent="Theme.MaterialComponents.Dialog">

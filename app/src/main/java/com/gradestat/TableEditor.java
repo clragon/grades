@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+
+import androidx.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -67,6 +69,10 @@ public class TableEditor extends DialogFragment {
         tableEdit2 = view.findViewById(R.id.table_edit2);
         switch3 = view.findViewById(R.id.switch3);
         valueCircle = view.findViewById(R.id.value_circle);
+        CardView card = view.findViewById(R.id.valueCard);
+
+        int background = MainActivity.getAttr(getActivity(), android.R.attr.colorBackground);
+        card.setCardBackgroundColor(background);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 

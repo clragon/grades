@@ -55,4 +55,5 @@
     <string name="sort_invert">Sortierung umkehren</string>
     <string name="sort_invert_off">Normale Sortierung</string>
     <string name="sort_invert_on">Umgekehrte Sortierung</string>
+    <string name="table_invalid_xml">Tabelle %1$s ist ungültiges xml</string>
 </resources>

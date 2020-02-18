@@ -274,15 +274,19 @@ public class MainActivity extends AestheticActivity {
         // get the current table and try to load it
         try {
             if (table_data.exists()) {
-                try {
-                    table = Table.read(table_data.getPath());
-                } catch (JsonParseException ex) {
-                    Toasty.error(this, String.format(getString(R.string.table_read_failed), table_data.getPath()), Toast.LENGTH_LONG, true).show();
-                    if (!getTableList().isEmpty()) {
-                        table = Table.read(getTableList().get(0).saveFile);
-                    } else {
-                        table = createTable(findTable());
+                if (table_data.canWrite()) {
+                    try {
+                        table = Table.read(table_data.getPath());
+                    } catch (JsonParseException ex) {
+                        Toasty.error(this, String.format(getString(R.string.table_invalid_xml), new File(table_data.getPath()).getName()), Toast.LENGTH_LONG, true).show();
+                        if (!getTableList().isEmpty()) {
+                            table = Table.read(getTableList().get(0).saveFile);
+                        } else {
+                            table = createTable(findTable());
+                        }
                     }
+                } else {
+                    Toasty.error(this, String.format(getString(R.string.table_read_failed), table_data.getPath()), Toast.LENGTH_LONG, true).show();
                 }
             } else {
                 table = createTable(table_data);

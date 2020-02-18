@@ -47,6 +47,7 @@
     <string name="ringRainbow">Rings are dyed to match grade</string>
     <string name="ringStatic">Rings have a static color</string>
     <string name="table_read_failed">Cannot read table %1$s</string>
+    <string name="table_invalid_xml">Table %1$s contains invalid xml</string>
     <string name="sort_by_title">Sort subjects</string>
     <string name="sort_by_custom">Custom</string>
     <string name="sort_by_alphabet">Alphabetically</string>

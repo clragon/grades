@@ -17,11 +17,14 @@ public class Settings extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.settings);
         }
 
         this.findPreference("dark").setOnPreferenceChangeListener((preference, newValue) -> {
-            ((MainActivity) getActivity()).changeTheme((Boolean) newValue);
+            getActivity().recreate();
+            // could close settings after theme change, but it's weird.
+            // getFragmentManager().popBackStackImmediate();
             return true;
         });
 

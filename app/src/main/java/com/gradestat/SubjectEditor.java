@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -56,6 +57,10 @@ public class SubjectEditor extends DialogFragment {
         valueOK = view.findViewById(R.id.valueOK);
         valueDelete = view.findViewById(R.id.valueDelete);
         Button valueCancel = view.findViewById(R.id.valueCancel);
+        CardView card = view.findViewById(R.id.valueCard);
+
+        int background = MainActivity.getAttr(getActivity(), android.R.attr.colorBackground);
+        card.setCardBackgroundColor(background);
 
         valueExtra.setVisibility(View.GONE);
 

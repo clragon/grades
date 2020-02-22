@@ -5,4 +5,5 @@
 -keep class org.threeten.bp.LocalDate** { *; }
 
 -keep class com.gradestat.MainActivity { void onCreate(android.os.Bundle); }
+ -keep class androidx.core.app.CoreComponentFactory { *; }
 

@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -53,7 +54,7 @@ public class GradeEditor extends DialogFragment {
     private Button valueDelete;
     private ImageButton valueEditDate;
     private SeekBar valueSeekWeight;
-    private ConstraintLayout weight_editor;
+    private ConstraintLayout weightEditor;
     private Integer dialogTheme;
     private final DecimalFormat df = new DecimalFormat("#.##");
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
@@ -89,7 +90,11 @@ public class GradeEditor extends DialogFragment {
         Button valueCancel = view.findViewById(R.id.valueCancel);
         valueEditDate = view.findViewById(R.id.valueEditDate);
         valueSeekWeight = view.findViewById(R.id.value_seek_weight);
-        weight_editor = view.findViewById(R.id.weight_editor);
+        weightEditor = view.findViewById(R.id.weight_editor);
+        CardView card = view.findViewById(R.id.valueCard);
+
+        int background = MainActivity.getAttr(getActivity(), android.R.attr.colorBackground);
+        card.setCardBackgroundColor(background);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
@@ -185,7 +190,7 @@ public class GradeEditor extends DialogFragment {
         valueDate.setText(dateFormat.format(grade.creation));
 
         if (!grade.getTable().useWeight) {
-            weight_editor.setVisibility(View.GONE);
+            weightEditor.setVisibility(View.GONE);
         }
 
         int progress = valueSeekWeight.getMax();
@@ -241,7 +246,7 @@ public class GradeEditor extends DialogFragment {
         valueDate.setText(dateFormat.format(LocalDate.now()));
 
         if (!subject.getTable().useWeight) {
-            weight_editor.setVisibility(View.GONE);
+            weightEditor.setVisibility(View.GONE);
         }
 
         valueEditDate.setOnClickListener(v -> {

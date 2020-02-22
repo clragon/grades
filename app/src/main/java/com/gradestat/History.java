@@ -3,6 +3,8 @@ package com.gradestat;
 
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,10 +13,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -36,11 +40,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
+
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 public class History extends Fragment {
 
     Table table;
+    int portraitCount;
+    int landscapeCount;
     private final DecimalFormat df = new DecimalFormat("#.##");
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 
@@ -152,8 +160,28 @@ public class History extends Fragment {
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextColor(textColor);
+
+        String text = dateFormat.format(first);
+        if (first.getYear() == last.getYear()) {
+            text = text.substring(0, text.length() - 3);
+        }
+
+        // this block of dark magic calculates the max amount of labels
+        // for each screen orientation
+        {
+            Rect bounds = new Rect();
+            Paint textPaint = new Paint();
+            textPaint.setTextSize(16f);
+            textPaint.getTextBounds(text, 0, text.length(), bounds);
+            int labelWidth = bounds.width();
+            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+            portraitCount = (int) ((displayMetrics.widthPixels / displayMetrics.density) / 3 * 2) / labelWidth;
+            landscapeCount = (int) ((displayMetrics.heightPixels / displayMetrics.density) / 2) / labelWidth;
+        }
+
+        xAxis.setLabelCount(portraitCount);
         xAxis.setTextSize(16);
-        xAxis.setGranularity(1);
+        xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(false);
         xAxis.setValueFormatter(new ValueFormatter() {
@@ -209,11 +237,16 @@ public class History extends Fragment {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        // when orientation changes,
+        // change the diagram size as well as the max label count.
+        XAxis xAxis = ((LineChart) getView().findViewById(R.id.linechart)).getXAxis();
         ViewGroup.LayoutParams params = getView().findViewById(R.id.linechart).getLayoutParams();
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            xAxis.setLabelCount(landscapeCount);
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             params.height = (int) Utils.convertDpToPixel(420);
+            xAxis.setLabelCount(portraitCount);
         }
     }
 

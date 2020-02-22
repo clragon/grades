@@ -3,7 +3,6 @@ package com.gradestat;
 
 import android.os.Bundle;
 
-import androidx.preference.ListPreference;
 import androidx.preference.PreferenceManager;
 
 import androidx.appcompat.app.AppCompatActivity;

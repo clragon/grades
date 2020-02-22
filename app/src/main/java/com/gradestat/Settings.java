@@ -3,11 +3,10 @@ package com.gradestat;
 
 import android.os.Bundle;
 
-import androidx.preference.PreferenceManager;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 
 public class Settings extends PreferenceFragmentCompat {

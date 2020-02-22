@@ -1,17 +1,18 @@
 package com.gradestat;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.threeten.bp.LocalDate;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.Serializable;
-
-import com.google.gson.*;
-
-import org.threeten.bp.LocalDate;
 
 
 @SuppressWarnings("UnusedReturnValue")

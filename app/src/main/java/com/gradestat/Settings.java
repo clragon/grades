@@ -25,7 +25,7 @@ public class Settings extends PreferenceFragmentCompat {
             return true;
         });
 
-        checkInvertSwitch(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("sorting", getString(R.string.sort_by_custom)));
+        checkInvertSwitch(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("sorting", "sorting_custom"));
 
         this.findPreference("sorting").setOnPreferenceChangeListener((preference, newValue) -> {
             checkInvertSwitch(newValue);
@@ -36,7 +36,7 @@ public class Settings extends PreferenceFragmentCompat {
 
     private void checkInvertSwitch(Object newValue) {
         Preference invertSwitch = this.findPreference("sorting_invert");
-        if (newValue.equals(getString(R.string.sort_by_custom))) {
+        if (newValue.equals("sorting_custom")) {
             invertSwitch.setEnabled(false);
         } else {
             invertSwitch.setEnabled(true);

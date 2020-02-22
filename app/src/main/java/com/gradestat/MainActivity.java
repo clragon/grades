@@ -2,6 +2,7 @@ package com.gradestat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -59,7 +60,7 @@ import es.dmoral.toasty.Toasty;
 import static java.lang.Math.round;
 
 
-public class MainActivity extends AestheticActivity {
+public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -78,7 +79,6 @@ public class MainActivity extends AestheticActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         tables_dir = new File(getFilesDir(), "tables");
@@ -140,6 +140,21 @@ public class MainActivity extends AestheticActivity {
             // get current table from saved instance
             table = (Table) savedInstanceState.getSerializable("table");
         }
+
+        int themeID;
+
+        // decide which theme is active
+        if (preferences.getBoolean("dark", true)) {
+            themeID = R.style.AppTheme;
+        } else {
+            themeID = R.style.AppTheme_Light;
+        }
+
+        // set theme to update colors
+        // this has to happen before onCreate and setContentView.
+        setTheme(themeID);
+
+        super.onCreate(savedInstanceState);
 
         // Activating the view
         setContentView(R.layout.activity_main);
@@ -257,9 +272,6 @@ public class MainActivity extends AestheticActivity {
         if (savedInstanceState == null) {
             // Activating the default menu item in the drawer
             navigation.getMenu().performIdentifierAction(R.id.grades, 0);
-
-            // initialize theme from settings
-            changeTheme(preferences.getBoolean("dark", true));
         }
     }
 
@@ -562,35 +574,6 @@ public class MainActivity extends AestheticActivity {
         int color = array.getColor(0, 1);
         array.recycle();
         return color;
-    }
-
-    public void changeTheme(boolean dark) {
-
-        int themeID;
-
-        // decide which theme is active
-        if (dark) {
-            themeID = R.style.AppTheme;
-        } else {
-            themeID = R.style.AppTheme_Light;
-        }
-
-        // set theme to update colors
-        setTheme(themeID);
-
-        // get new background and text colors
-        int background = getAttr(this, android.R.attr.colorBackground);
-        int textColor = getAttr(this, android.R.attr.textColorPrimary);
-
-        // update the theme with aesthetic
-        Aesthetic.get()
-                .activityTheme(themeID)
-                .isDark(dark)
-                .colorStatusBar(background, background)
-                .colorNavigationBar(background, background)
-                .toolbarIconColor(textColor, textColor)
-                .toolbarTitleColor(textColor, textColor)
-                .apply();
     }
 
     private static class GradeColor {

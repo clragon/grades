@@ -1,20 +1,23 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme.Launcher" parent="AppTheme">
+        <item name="android:statusBarColor">?android:colorBackground</item>
+        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
 
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="android:statusBarColor">?android:colorBackground</item>
         <item name="android:navigationBarColor">?android:colorBackground</item>
-        <item name="android:alertDialogTheme">?android:colorBackground</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
     </style>
 
     <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">?android:colorBackground</item>
         <item name="android:navigationBarColor">?android:colorBackground</item>
-        <item name="android:alertDialogTheme">?android:colorBackground</item>
-    </style>
-
-    <style name="AppTheme.Launcher" parent="AppTheme">
-        <item name="android:statusBarColor">?android:colorBackground</item>
-        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <style name="AppTheme.DatePicker" parent="Theme.MaterialComponents.Dialog">
@@ -22,25 +25,23 @@
         <item name="android:textColorPrimaryInverse">?android:textColorPrimary</item>
         <item name="android:background">?android:colorBackground</item>
         <item name="android:buttonBarNegativeButtonStyle">
-            @style/Widget.AppCompat.Button.Borderless
+            @style/Widget.MaterialComponents.Button.TextButton
         </item>
         <item name="android:buttonBarPositiveButtonStyle">
-            @style/Widget.AppCompat.Button.Borderless
+            @style/Widget.MaterialComponents.Button.TextButton
         </item>
     </style>
-
 
     <style name="AppTheme.Light.DatePicker" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="android:headerBackground">?android:colorBackground</item>
         <item name="android:textColorPrimaryInverse">?android:textColorPrimary</item>
         <item name="android:background">?android:colorBackground</item>
         <item name="android:buttonBarNegativeButtonStyle">
-            @style/Widget.AppCompat.Button.Borderless
+            @style/Widget.MaterialComponents.Button.TextButton
         </item>
         <item name="android:buttonBarPositiveButtonStyle">
-            @style/Widget.AppCompat.Button.Borderless
+            @style/Widget.MaterialComponents.Button.TextButton
         </item>
     </style>
-
 
 </resources>

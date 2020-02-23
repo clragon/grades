@@ -85,6 +85,10 @@ public class TableEditor extends DialogFragment {
 
         valueTitle.setHint(R.string.table_name);
 
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            valueDelete.setText("x");
+        }
+
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {

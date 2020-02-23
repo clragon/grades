@@ -11,6 +11,8 @@
         <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="colorSecondary">?android:colorPrimary</item>
+        <item name="android:colorAccent">?android:colorPrimary</item>
     </style>
 
     <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -18,12 +20,16 @@
         <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="android:colorAccent">?android:colorPrimary</item>
+        <item name="colorSecondary">?android:colorPrimary</item>
     </style>
 
     <style name="AppTheme.DatePicker" parent="Theme.MaterialComponents.Dialog">
         <item name="android:headerBackground">?android:colorBackground</item>
         <item name="android:textColorPrimaryInverse">?android:textColorPrimary</item>
         <item name="android:background">?android:colorBackground</item>
+        <item name="android:colorAccent">?android:colorPrimary</item>
+        <item name="colorSecondary">?android:colorPrimary</item>
         <item name="android:buttonBarNegativeButtonStyle">
             @style/Widget.MaterialComponents.Button.TextButton
         </item>
@@ -36,6 +42,8 @@
         <item name="android:headerBackground">?android:colorBackground</item>
         <item name="android:textColorPrimaryInverse">?android:textColorPrimary</item>
         <item name="android:background">?android:colorBackground</item>
+        <item name="android:colorAccent">?android:colorPrimary</item>
+        <item name="colorSecondary">?android:colorPrimary</item>
         <item name="android:buttonBarNegativeButtonStyle">
             @style/Widget.MaterialComponents.Button.TextButton
         </item>

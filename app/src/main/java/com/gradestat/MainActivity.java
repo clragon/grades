@@ -528,20 +528,20 @@ public class MainActivity extends AppCompatActivity {
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.part_spinner, parent, false);
             }
-            TextView drop_text = convertView.findViewById(R.id.drop_text);
+            TextView dropText = convertView.findViewById(R.id.drop_text);
 
             if (getItem(position) == null) {
                 // create view for add new item button
                 convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
-                drop_text = convertView.findViewById(R.id.drop_text);
-                drop_text.setText(getString(R.string.add_table));
+                dropText = convertView.findViewById(R.id.drop_text);
+                dropText.setText(getString(R.string.add_table));
                 // ripple effect on button
                 // do not call getAttr
                 TypedValue outValue = new TypedValue();
                 getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-                drop_text.setBackgroundResource(outValue.resourceId);
+                dropText.setBackgroundResource(outValue.resourceId);
                 // create table on click
-                drop_text.setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), findTable())
+                dropText.setOnClickListener(v -> new TableEditor.Builder(getSupportFragmentManager(), findTable())
                         .setPositiveButton(v1 -> {
                             // refresh adapter after creation
                             adapter.clear();
@@ -552,12 +552,12 @@ public class MainActivity extends AppCompatActivity {
                 if (((TextView) convertView.findViewById(R.id.drop_text)).getText().toString().equals(getString(R.string.add_table))) {
                     // spinner is trying to reuse add item button. insert new one instead
                     convertView = getLayoutInflater().inflate(R.layout.part_spinner, parent, false);
-                    drop_text = convertView.findViewById(R.id.drop_text);
+                    dropText = convertView.findViewById(R.id.drop_text);
                 }
                 // update view text
                 Table current = getItem(position);
                 if (current != null) {
-                    drop_text.setText(current.name);
+                    dropText.setText(current.name);
                 }
             }
 

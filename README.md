@@ -28,11 +28,11 @@ The app was made as my graduation project but will likely be supported beyond th
 ## Screenshots
 <p align="center" float="left">
   <kbd>
-      <img src="/graphic/screenshots/Screenshot_20191016-191409_GradeStat.jpg" width="19%">
-      <img src="/graphic/screenshots/Screenshot_20191016-191502_GradeStat.jpg" width="19%">
-      <img src="/graphic/screenshots/Screenshot_20191114-182552_GradeStat.jpg" width="19%">
-      <img src="/graphic/screenshots/Screenshot_20191114-182536_GradeStat.jpg" width="19%">
-      <img src="/graphic/screenshots/Screenshot_20191016-191553_GradeStat.jpg" width="19%">
+      <img src="/graphic/screenshots/stat (1).png" width="19%">
+      <img src="/graphic/screenshots/stat (2).png" width="19%">
+      <img src="/graphic/screenshots/stat (3).png" width="19%">
+      <img src="/graphic/screenshots/stat (4).png" width="19%">
+      <img src="/graphic/screenshots/stat (5).png" width="19%">
   </kbd>
 </p>
 

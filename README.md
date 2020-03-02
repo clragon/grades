@@ -12,17 +12,18 @@
 GradeStat is an android app that stores your grades for you.
 
 It is based on [GradeCalc](https://github.com/clragon/GradeCalc), a desktop OS console application, and bears the same features as well as an extension of them.
-Both of these apps only work with the grading system used in Switzerland, however, there are plans for this project to be extended to all kinds of systems.
+Both of these apps target the grade system of Switzerland, however, they should be flexible and work with other systems as well.
+
 The app was made as my graduation project but will likely be supported beyond that.
 
 ## Features
-- Stores grades
-- Grades can have weight
-- Support for multiple tables for each school year or semester
-- Easy overview of your performance with multiple diagrams
+- Exam date for each grades
+- Weight for each grade
+- Tables for each year (Set of grades)
+- History and Bar diagram
 - Light and dark mode
-- Calculates compensation points needed / available
-- Data is backed up over google
+- Compensation point display
+- Backups with Google
 
 
 ## Screenshots

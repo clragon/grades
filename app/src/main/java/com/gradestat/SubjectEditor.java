@@ -58,7 +58,7 @@ public class SubjectEditor extends DialogFragment {
         Button valueCancel = view.findViewById(R.id.valueCancel);
         CardView card = view.findViewById(R.id.valueCard);
 
-        int background = MainActivity.getAttr(getActivity(), android.R.attr.colorBackground);
+        int background = MainActivity.getAttr(requireActivity(), android.R.attr.colorBackground);
         card.setCardBackgroundColor(background);
 
         valueExtra.setVisibility(View.GONE);
@@ -69,13 +69,13 @@ public class SubjectEditor extends DialogFragment {
             valueDelete.setText("x");
         }
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 
         FrameLayout editorHolder = view.findViewById(R.id.editorHolder);
 
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
@@ -108,7 +108,7 @@ public class SubjectEditor extends DialogFragment {
             }
         });
 
-        valueDelete.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+        valueDelete.setOnClickListener(v -> new AlertDialog.Builder(requireActivity())
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), subject.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
@@ -151,6 +151,7 @@ public class SubjectEditor extends DialogFragment {
         return valid;
     }
 
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public static class Builder {
 
         private Table.Subject subject = null;

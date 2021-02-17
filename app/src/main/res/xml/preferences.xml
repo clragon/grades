@@ -21,14 +21,16 @@
             app:key="useLimits"
             app:title="@string/grade_limits"
             app:summaryOn="@string/enforce_limits"
-            app:summaryOff="@string/ignore_limits" />
+            app:summaryOff="@string/ignore_limits"
+            android:icon="@drawable/ic_compress" />
 
         <SwitchPreference
             app:defaultValue="false"
             app:key="advanced"
             app:title="@string/advanced"
             app:summaryOn="@string/advanced_desc_on"
-            app:summaryOff="@string/advanced_desc_off" />
+            app:summaryOff="@string/advanced_desc_off"
+            android:icon="@drawable/ic_build" />
 
     </PreferenceCategory>
 
@@ -59,7 +61,8 @@
             app:key="compensate"
             app:title="@string/compensation"
             app:summaryOn="@string/enable_compensation"
-            app:summaryOff="@string/disable_compensation" />
+            app:summaryOff="@string/disable_compensation"
+            android:icon="@drawable/ic_grading" />
 
         <SwitchPreference
             app:defaultValue="true"
@@ -67,7 +70,8 @@
             app:title="@string/compensation_double"
             app:summaryOn="@string/compensate_double_on"
             app:summaryOff="@string/compensate_double_off"
-            android:dependency="compensate" />
+            android:dependency="compensate"
+            android:icon="@drawable/ic_calculate" />
 
     </PreferenceCategory>
 

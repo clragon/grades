@@ -13,6 +13,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
 public class About extends Fragment {
 
     @Override
@@ -23,8 +25,7 @@ public class About extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        //noinspection ConstantConditions
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.about);
+        Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(R.string.about);
         TextView appName = view.findViewById(R.id.appname);
         TextView appVers = view.findViewById(R.id.appversion);
         ImageView appIcon = view.findViewById(R.id.appicon);

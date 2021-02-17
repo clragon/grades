@@ -57,7 +57,7 @@ public class GradeEditor extends DialogFragment {
     private final DecimalFormat df = new DecimalFormat("#.##");
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
-    private Map<Integer, Double> sliderValues = new HashMap<>();
+    private final Map<Integer, Double> sliderValues = new HashMap<>();
 
     {
         sliderValues.put(0, 0.0);
@@ -91,10 +91,10 @@ public class GradeEditor extends DialogFragment {
         weightEditor = view.findViewById(R.id.weight_editor);
         CardView card = view.findViewById(R.id.valueCard);
 
-        int background = MainActivity.getAttr(getActivity(), android.R.attr.colorBackground);
+        int background = MainActivity.getAttr(requireActivity(), android.R.attr.colorBackground);
         card.setCardBackgroundColor(background);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 
         if (preferences.getBoolean("dark", true)) {
             dialogTheme = R.style.AppTheme_DatePicker;
@@ -115,7 +115,7 @@ public class GradeEditor extends DialogFragment {
         editorHolder.setOnFocusChangeListener((v, hasFocus) -> {
 
             if (hasFocus) {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 checkFields();
             }
@@ -123,10 +123,11 @@ public class GradeEditor extends DialogFragment {
 
         ImageView circle = view.findViewById(R.id.value_circle);
         valueEdit.addTextChangedListener(new TextWatcher() {
-            int ringColor = MainActivity.getAttr(getActivity(), android.R.attr.colorPrimary);
+            int ringColor = MainActivity.getAttr(requireActivity(), android.R.attr.colorPrimary);
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -134,9 +135,9 @@ public class GradeEditor extends DialogFragment {
                     GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
                     int pending;
                     try {
-                        pending = MainActivity.getGradeColor(getActivity(), table, Double.parseDouble(s.toString()));
+                        pending = MainActivity.getGradeColor(requireActivity(), table, Double.parseDouble(s.toString()));
                     } catch (Exception ex) {
-                        pending = MainActivity.getAttr(getActivity(), android.R.attr.colorPrimary);
+                        pending = MainActivity.getAttr(requireActivity(), android.R.attr.colorPrimary);
                     }
 
                     ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), ringColor, pending);
@@ -148,7 +149,8 @@ public class GradeEditor extends DialogFragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
 
@@ -224,7 +226,7 @@ public class GradeEditor extends DialogFragment {
             }
         });
 
-        valueDelete.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+        valueDelete.setOnClickListener(v -> new AlertDialog.Builder(requireActivity())
                 .setTitle(getResources().getString(R.string.confirmation))
                 .setMessage(String.format(getResources().getString(R.string.delete_object), grade.name))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
@@ -277,10 +279,10 @@ public class GradeEditor extends DialogFragment {
         } else {
             valueTitle.setError(null);
         }
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
         try {
+            double value = Double.parseDouble(valueEdit.getText().toString());
             if (preferences.getBoolean("useLimits", true)) {
-                double value = Double.parseDouble(valueEdit.getText().toString());
                 if (!(value >= table.minGrade)) {
                     valid = false;
                     circleError();
@@ -321,16 +323,17 @@ public class GradeEditor extends DialogFragment {
 
     private void circleError() {
         int flash = Color.rgb(237, 30, 26);
-        ImageView circle = getView().findViewById(R.id.value_circle);
+        ImageView circle = requireView().findViewById(R.id.value_circle);
         GradientDrawable ring = (GradientDrawable) circle.getDrawable().mutate();
         ring.setColor(flash);
 
-        ValueAnimator flashToPrimary = ValueAnimator.ofObject(new ArgbEvaluator(), flash, MainActivity.getAttr(getActivity(), android.R.attr.colorPrimary));
+        ValueAnimator flashToPrimary = ValueAnimator.ofObject(new ArgbEvaluator(), flash, MainActivity.getAttr(requireActivity(), android.R.attr.colorPrimary));
         flashToPrimary.setDuration(550);
         flashToPrimary.addUpdateListener(animator -> ring.setColor((int) animator.getAnimatedValue()));
         flashToPrimary.start();
     }
 
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public static class Builder {
 
         private Table.Subject.Grade grade = null;

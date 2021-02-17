@@ -49,6 +49,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
 
@@ -64,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
     private tableSpinner adapter;
     private SharedPreferences preferences;
-    private final DecimalFormat doubleFormat = new DecimalFormat("#.##");
-    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+
+    private static final DecimalFormat doubleFormat = new DecimalFormat("#.##");
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
     public Table table;
     public File tables_dir;
@@ -96,22 +98,31 @@ public class MainActivity extends AppCompatActivity {
             // create default settings on first run
             // not really needed since shared preference calls need a default value.
 
+            SharedPreferences.Editor editor = preferences.edit();
+
+            // remove old integer values.
+            try {
+                preferences.getFloat("minGrade", 1);
+                preferences.getFloat("maxGrade", 6);
+            } catch (java.lang.ClassCastException E) {
+                editor.remove("minGrade");
+                editor.remove("maxGrade");
+            }
+
             Map<String, Object> defaultPreferences = new HashMap<>();
             {
                 defaultPreferences.put("boot_table", "grades.json");
                 defaultPreferences.put("dark", true);
-                defaultPreferences.put("minGrade", 1);
-                defaultPreferences.put("maxGrade", 6);
+                defaultPreferences.put("minGrade", (float) 1);
+                defaultPreferences.put("maxGrade", (float) 6);
                 defaultPreferences.put("useWeight", true);
-                defaultPreferences.put("compensate", true);
-                defaultPreferences.put("compensateDouble", true);
+                defaultPreferences.put("compensate", false);
+                defaultPreferences.put("compensateDouble", false);
                 defaultPreferences.put("useLimits", true);
                 defaultPreferences.put("advanced", false);
                 defaultPreferences.put("sorting", "sorting_custom");
                 defaultPreferences.put("sorting_invert", false);
             }
-
-            SharedPreferences.Editor editor = preferences.edit();
 
             for (Map.Entry<String, Object> entry : defaultPreferences.entrySet()) {
                 if (!preferences.contains(entry.getKey())) {
@@ -120,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (entry.getValue() instanceof Integer) {
                         editor.putInt(entry.getKey(), (Integer) entry.getValue());
+                    }
+                    if (entry.getValue() instanceof Float) {
+                        editor.putFloat(entry.getKey(), (Float) entry.getValue());
                     }
                     if (entry.getValue() instanceof Boolean) {
                         editor.putBoolean(entry.getKey(), (Boolean) entry.getValue());
@@ -208,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                         // update the boot table to the current one
                         preferences.edit().putString("boot_table", new File(table.saveFile).getName()).apply();
                         // refresh subjects by reapplying the fragment
-                        navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                        navigation.getMenu().performIdentifierAction(Objects.requireNonNull(navigation.getCheckedItem()).getItemId(), 0);
                         // update spinner so that the selected table is always on position 0
                         adapter.clear();
                         adapter.addAll(getSpinnerList());
@@ -256,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
                     try {
                         // update subject fragment
-                        navigation.getMenu().performIdentifierAction(navigation.getCheckedItem().getItemId(), 0);
+                        navigation.getMenu().performIdentifierAction(Objects.requireNonNull(navigation.getCheckedItem()).getItemId(), 0);
                     } catch (Exception ex) {
                         // this shouldn't happen.
                     }
@@ -312,8 +326,8 @@ public class MainActivity extends AppCompatActivity {
         // if the table doesn't exist, create it
         table = new Table(getResources().getString(R.string.subjects));
         table.saveFile = table_data.getPath();
-        table.minGrade = (double) preferences.getInt("minGrade", 1);
-        table.maxGrade = (double) preferences.getInt("maxGrade", 6);
+        table.minGrade = preferences.getFloat("minGrade", 1);
+        table.maxGrade = preferences.getFloat("maxGrade", 6);
         table.useWeight = preferences.getBoolean("useWeight", true);
         table.write();
         return table;
@@ -343,11 +357,13 @@ public class MainActivity extends AppCompatActivity {
 
         // put all tables into a list.
         ArrayList<Table> tables = new ArrayList<>();
-        for (File table_file : table_files) {
-            try {
-                tables.add(Table.read(table_file.getPath()));
-            } catch (IOException | JsonSyntaxException ex) {
-                // unable to read the table, exclude it
+        if (table_files != null) {
+            for (File table_file : table_files) {
+                try {
+                    tables.add(Table.read(table_file.getPath()));
+                } catch (IOException | JsonSyntaxException ex) {
+                    // unable to read the table, exclude it
+                }
             }
         }
         return tables;
@@ -399,7 +415,6 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout navHeader = (FrameLayout) ((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0);
 
         ((TextView) navHeader.findViewById(R.id.value_value)).setText(doubleFormat.format(table.getAverage()));
-        // ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format("%s: %d", getString(R.string.subjects), table.getSubjects().size()));
         int grades = 0;
         for (Table.Subject s : table.getSubjects()) {
             grades += s.getGrades().size();
@@ -407,7 +422,7 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) navHeader.findViewById(R.id.table_text1)).setText(String.format(getResources().getConfiguration().locale, "%s: %d", getString(R.string.grades), grades));
         ((TextView) navHeader.findViewById(R.id.table_text2)).setText(dateFormat.format(table.getLast()));
         if (preferences.getBoolean("colorRings", true)) {
-            ((GradientDrawable) (((ImageView) navHeader.findViewById(R.id.value_circle)).getDrawable()).mutate()).setColor(getGradeColor(this, table, table.getAverage()));
+            ((GradientDrawable) (((ImageView) navHeader.findViewById(R.id.value_circle)).getDrawable()).mutate()).setColor(getGradeColor(this, table, table.getAverage(false)));
         }
     }
 
@@ -415,46 +430,41 @@ public class MainActivity extends AppCompatActivity {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         boolean wrap = false;
         Fragment fragment = null;
-        Class fragmentClass;
+        Class<? extends Fragment> fragmentClass;
         Bundle args = new Bundle();
         final NavigationView navigation = findViewById(R.id.nav_view);
         // assigning menu items to fragments
-        switch (item.getItemId()) {
-            case R.id.grades:
-                fragmentClass = Subjects.class;
-                args.putSerializable("table", table);
-                break;
-            case R.id.overview:
-                fragmentClass = Overview.class;
-                args.putSerializable("table", table);
-                break;
-            case R.id.history:
-                fragmentClass = History.class;
-                args.putSerializable("table", table);
-                break;
-            case R.id.settings:
-                fragmentClass = Settings.class;
-                wrap = true;
-                break;
-            case R.id.info:
-                fragmentClass = About.class;
-                wrap = true;
-                break;
-            default:
-                // no fragment is assigned, remove the displayed one
-                // or maybe show empty?
-                fragment = fragmentManager.findFragmentById(R.id.fragment);
-                if (fragment != null) {
-                    fragmentManager.beginTransaction().remove(fragment).commit();
-                }
-                setTitle(item.getTitle());
-                navigation.setCheckedItem(item);
-                drawer.closeDrawers();
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.grades) {
+            fragmentClass = Subjects.class;
+            args.putSerializable("table", table);
+        } else if (itemId == R.id.overview) {
+            fragmentClass = Overview.class;
+            args.putSerializable("table", table);
+        } else if (itemId == R.id.history) {
+            fragmentClass = History.class;
+            args.putSerializable("table", table);
+        } else if (itemId == R.id.settings) {
+            fragmentClass = Settings.class;
+            wrap = true;
+        } else if (itemId == R.id.info) {
+            fragmentClass = About.class;
+            wrap = true;
+        } else {
+            // no fragment is assigned, remove the displayed one
+            // or maybe show empty?
+            fragment = fragmentManager.findFragmentById(R.id.fragment);
+            if (fragment != null) {
+                fragmentManager.beginTransaction().remove(fragment).commit();
+            }
+            setTitle(item.getTitle());
+            navigation.setCheckedItem(item);
+            drawer.closeDrawers();
+            return true;
         }
 
         try {
-            fragment = (Fragment) fragmentClass.newInstance();
+            fragment = fragmentClass.newInstance();
             fragment.setArguments(args);
         } catch (Exception e) {
             // this really shouldn't happen

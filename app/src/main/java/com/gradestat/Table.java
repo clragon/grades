@@ -14,8 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"unused", "RedundantSuppression", "UnusedReturnValue"})
 public class Table implements Serializable {
 
     public Table(String name) {
@@ -68,7 +67,7 @@ public class Table implements Serializable {
         return false;
     }
 
-    public double getAverage(LocalDate before, LocalDate after) {
+    public double getAverage(LocalDate before, LocalDate after, boolean round) {
         if (!Subjects.isEmpty()) {
             double values = 0;
             ArrayList<Subject> excluded = new ArrayList<>();
@@ -79,18 +78,34 @@ public class Table implements Serializable {
                     values += s.getAverage(before, after);
                 }
             }
-            return Math.round((values / (Subjects.size() - excluded.size())) * 2) / 2.0;
+            double average = (values / (Subjects.size() - excluded.size()));
+            if (round) {
+                average = Math.round(average * 2) / 2.0;
+            }
+            return average;
         } else {
             return 0;
         }
+    }
+
+    public double getAverage(LocalDate before, LocalDate after) {
+        return getAverage(before, after, true);
+    }
+
+    public double getAverage(LocalDate before, boolean round) {
+        return getAverage(before, getFirst(), round);
     }
 
     public double getAverage(LocalDate before) {
         return getAverage(before, getFirst());
     }
 
+    public double getAverage(boolean round) {
+        return getAverage(getLast(), round);
+    }
+
     public double getAverage() {
-        return getAverage(getLast());
+        return getAverage(true);
     }
 
     private LocalDate getEdgeDate(boolean last) {
@@ -202,7 +217,7 @@ public class Table implements Serializable {
             return false;
         }
 
-        public double getAverage(LocalDate before, LocalDate after) {
+        public double getAverage(LocalDate before, LocalDate after, boolean round) {
             if (!Grades.isEmpty()) {
                 double values = 0, weights = 0;
                 for (Grade g : Grades) {
@@ -218,18 +233,34 @@ public class Table implements Serializable {
                         }
                     }
                 }
-                return Math.round((values / weights) * 2) / 2.0;
+                double average = (values / weights);
+                if (round) {
+                    average = Math.round(average * 2) / 2.0;
+                }
+                return average;
             } else {
                 return 0;
             }
         }
 
+        public double getAverage(LocalDate before, LocalDate after) {
+            return getAverage(before, after, true);
+        }
+
+        public double getAverage(LocalDate before, boolean round) {
+            return getAverage(before, getFirst(), round);
+        }
+
         public double getAverage(LocalDate before) {
-            return getAverage(before, getFirst());
+            return getAverage(before, true);
+        }
+
+        public double getAverage(boolean round) {
+            return getAverage(getLast(), round);
         }
 
         public double getAverage() {
-            return getAverage(getLast());
+            return getAverage(true);
         }
 
         private LocalDate getEdgeDate(boolean last) {

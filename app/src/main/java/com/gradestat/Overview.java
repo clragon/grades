@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 public class Overview extends Fragment {
@@ -45,8 +46,8 @@ public class Overview extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        table = (Table) getArguments().getSerializable("table");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.overview);
+        table = (Table) requireArguments().getSerializable("table");
+        Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(R.string.overview);
 
         ((TextView) view.findViewById(R.id.emptyText)).setText(R.string.no_subjects);
 
@@ -68,7 +69,7 @@ public class Overview extends Fragment {
         // chart order is reversed.
         for (Table.Subject s : reverseList(table.getSubjects())) {
             if (s.isValid()) {
-                entries.add(new BarEntry(pos, (float) s.getAverage(), s));
+                entries.add(new BarEntry(pos, (float) s.getAverage(false), s));
                 pos++;
             }
         }
@@ -97,11 +98,11 @@ public class Overview extends Fragment {
         }
 
         // get default text color
-        int textColor = MainActivity.getAttr(getActivity(), android.R.attr.textColorPrimary);
+        int textColor = MainActivity.getAttr(requireActivity(), android.R.attr.textColorPrimary);
 
         BarDataSet dataSet = new BarDataSet(entries, "subjects");
         dataSet.setHighLightAlpha(255);
-        dataSet.setColors(ContextCompat.getColor(getActivity(), R.color.design_default_color_primary));
+        dataSet.setColors(ContextCompat.getColor(requireActivity(), R.color.design_default_color_primary));
 
         BarData data = new BarData(dataSet);
         data.setBarWidth(0.6f);
@@ -194,7 +195,7 @@ public class Overview extends Fragment {
     }
 
     private boolean checkList() {
-        View view = getView();
+        View view = requireView();
         View overscroll = view.findViewById(R.id.overscroll);
         if (table.isValid()) {
             overscroll.setVisibility(View.VISIBLE);

@@ -37,6 +37,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
@@ -55,8 +56,8 @@ public class History extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        table = (Table) getArguments().getSerializable("table");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.history);
+        table = (Table) requireArguments().getSerializable("table");
+        Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(R.string.history);
 
         ((TextView) view.findViewById(R.id.emptyText)).setText(R.string.no_subjects);
 
@@ -66,7 +67,7 @@ public class History extends Fragment {
             return;
         }
 
-        int textColor = MainActivity.getAttr(getActivity(), android.R.attr.textColorPrimary);
+        int textColor = MainActivity.getAttr(requireActivity(), android.R.attr.textColorPrimary);
 
         LineChart chart = view.findViewById(R.id.linechart);
 
@@ -77,6 +78,7 @@ public class History extends Fragment {
         // single subject average mix is not ready for production.
         boolean mergeAverage = true;
 
+        //noinspection ConstantConditions
         if (mergeAverage) {
             // display average of table over time
             List<Entry> mergeEntries = new ArrayList<>();
@@ -95,12 +97,14 @@ public class History extends Fragment {
             }
 
             for (Table.Subject.Grade g : sortGrades(grades)) {
-                mergeEntries.add(new Entry(DAYS.between(first, g.creation), (float) table.getAverage(g.creation)));
+                // prevent get average rounding to 0.5 and instead round to 0.1
+                // display is more accurate.
+                mergeEntries.add(new Entry(DAYS.between(first, g.creation), (float) Math.round(table.getAverage(g.creation, false) * 10) / 10));
                 singleEntries.add(new Entry(DAYS.between(first, g.creation), (float) g.value));
             }
 
             LineDataSet mergeSet = new LineDataSet(mergeEntries, getString(R.string.average));
-            int primary = ContextCompat.getColor(getActivity(), R.color.design_default_color_primary);
+            int primary = ContextCompat.getColor(requireActivity(), R.color.design_default_color_primary);
             mergeSet.setColor(primary);
             mergeSet.setCircleHoleColor(primary);
             mergeSet.setCircleColor(primary);
@@ -170,7 +174,7 @@ public class History extends Fragment {
             textPaint.setTextSize(16f);
             textPaint.getTextBounds(text, 0, text.length(), bounds);
             int labelWidth = bounds.width();
-            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+            DisplayMetrics displayMetrics = requireContext().getResources().getDisplayMetrics();
             portraitCount = (int) ((displayMetrics.widthPixels / displayMetrics.density) / 3 * 2) / labelWidth;
             landscapeCount = (int) ((displayMetrics.heightPixels / displayMetrics.density) / 2) / labelWidth;
         }
@@ -221,13 +225,13 @@ public class History extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
     }
 
     @Override
@@ -235,8 +239,9 @@ public class History extends Fragment {
         super.onConfigurationChanged(newConfig);
         // when orientation changes,
         // change the diagram size as well as the max label count.
-        XAxis xAxis = ((LineChart) getView().findViewById(R.id.linechart)).getXAxis();
-        ViewGroup.LayoutParams params = getView().findViewById(R.id.linechart).getLayoutParams();
+        LineChart chart = requireView().findViewById(R.id.linechart);
+        XAxis xAxis = chart.getXAxis();
+        ViewGroup.LayoutParams params = chart.getLayoutParams();
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             params.height = ViewGroup.LayoutParams.MATCH_PARENT;
             xAxis.setLabelCount(landscapeCount);
@@ -253,7 +258,7 @@ public class History extends Fragment {
     }
 
     private boolean checkList() {
-        View view = getView();
+        View view = requireView();
         View linechart = view.findViewById(R.id.linechart);
         if (table.isValid()) {
             linechart.setVisibility(View.VISIBLE);

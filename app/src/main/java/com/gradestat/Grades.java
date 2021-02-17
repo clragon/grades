@@ -25,6 +25,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 import static androidx.core.content.ContextCompat.getDrawable;
 
@@ -44,18 +45,18 @@ public class Grades extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        subject = (Table.Subject) getArguments().getSerializable("subject");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(subject.name);
+        subject = (Table.Subject) requireArguments().getSerializable("subject");
+        Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(subject.name);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         recycler = view.findViewById(R.id.recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.addItem);
-        fab.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), subject)
+        fab.setOnClickListener(v -> new GradeEditor.Builder(getParentFragmentManager(), subject)
                 .setPositiveButton(v1 -> {
                     subject.getTable().save();
-                    ((RecyclerView) view.findViewById(R.id.recyclerView)).getAdapter().notifyDataSetChanged();
+                    Objects.requireNonNull(((RecyclerView) view.findViewById(R.id.recyclerView)).getAdapter()).notifyDataSetChanged();
                     checkList();
                 }).show());
 
@@ -70,7 +71,7 @@ public class Grades extends Fragment {
                 }
 
                 // Notify the adapter of the move
-                recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                 Table.Subject.Grade g = subject.getGrades().get(viewHolder.getAdapterPosition());
                 // move grade to new position
                 subject.movGrade(g, target.getAdapterPosition());
@@ -94,10 +95,10 @@ public class Grades extends Fragment {
     private void checkList() {
         if (!subject.getGrades().isEmpty()) {
             recycler.setVisibility(View.VISIBLE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            requireView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
         } else {
             recycler.setVisibility(View.GONE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            requireView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
         }
     }
 
@@ -149,7 +150,7 @@ public class Grades extends Fragment {
             view.value.setText(doubleFormat.format(g.value));
             view.name.setText(g.name);
             view.text1.setText(String.format("%s: %s", getResources().getString(R.string.weight), doubleFormat.format(g.weight)));
-            view.icon1.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_weight));
+            view.icon1.setImageDrawable(getDrawable(requireActivity(), R.drawable.ic_weight));
             if (g.getTable().useWeight) {
                 view.text1.setVisibility(View.VISIBLE);
                 view.icon1.setVisibility(View.VISIBLE);
@@ -159,14 +160,14 @@ public class Grades extends Fragment {
             }
 
             view.text2.setText(dateFormat.format(g.creation));
-            view.icon2.setImageDrawable(getDrawable(getActivity(), R.drawable.ic_calendar));
+            view.icon2.setImageDrawable(getDrawable(requireActivity(), R.drawable.ic_calendar));
             if (preferences.getBoolean("colorRings", true)) {
                 ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((MainActivity.getGradeColor(getActivity(), g.getTable(), g.value)));
             }
 
-            view.edit.setOnClickListener(v -> new GradeEditor.Builder(getFragmentManager(), g)
+            view.edit.setOnClickListener(v -> new GradeEditor.Builder(getParentFragmentManager(), g)
                     .setPositiveButton(v1 -> {
-                        recycler.getAdapter().notifyDataSetChanged();
+                        Objects.requireNonNull(recycler.getAdapter()).notifyDataSetChanged();
                         subject.getTable().save();
                         checkList();
                     }).show());

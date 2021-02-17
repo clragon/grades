@@ -29,6 +29,7 @@ import org.threeten.bp.format.FormatStyle;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class Subjects extends Fragment {
@@ -46,15 +47,15 @@ public class Subjects extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        table = (Table) getArguments().getSerializable("table");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(table.name);
+        table = (Table) requireArguments().getSerializable("table");
+        Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(table.name);
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 
         recycler = view.findViewById(R.id.recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.addItem);
-        fab.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), table)
+        fab.setOnClickListener(v -> new SubjectEditor.Builder(getParentFragmentManager(), table)
                 .setPositiveButton(v1 -> {
                     table.save();
                     updateList();
@@ -77,11 +78,11 @@ public class Subjects extends Fragment {
     private boolean checkList() {
         if (!table.getSubjects().isEmpty()) {
             recycler.setVisibility(View.VISIBLE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
+            requireView().findViewById(R.id.emptyCard).setVisibility(CardView.GONE);
             return true;
         } else {
             recycler.setVisibility(View.GONE);
-            getView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
+            requireView().findViewById(R.id.emptyCard).setVisibility(CardView.VISIBLE);
             return false;
         }
     }
@@ -104,7 +105,7 @@ public class Subjects extends Fragment {
                     }
 
                     // Notify the adapter of the move
-                    recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                    Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                     Table.Subject s = table.getSubjects().get(viewHolder.getAdapterPosition());
                     // move subject to new position
                     table.movSubject(s, target.getAdapterPosition());
@@ -141,7 +142,7 @@ public class Subjects extends Fragment {
 
             class GreatestSort implements SubjectSorter {
                 public boolean sort(int i, int n) {
-                    return (table.getSubjects().get(i).getAverage() < table.getSubjects().get(n).getAverage());
+                    return (table.getSubjects().get(i).getAverage(false) < table.getSubjects().get(n).getAverage(false));
                 }
             }
 
@@ -153,10 +154,9 @@ public class Subjects extends Fragment {
             }
 
 
-            System.out.println("sorters = " + sorters);
             for (int i = 0; i <= table.getSubjects().size(); i++) {
                 for (int n = i + 1; n < table.getSubjects().size(); n++) {
-                    if (sorters.get(preferences.getString("sorting", "sorting_alphabet")).sort(i, n)) {
+                    if (Objects.requireNonNull(sorters.get(preferences.getString("sorting", "sorting_alphabet"))).sort(i, n)) {
                         table.movSubject(table.getSubjects().get(n), table.getSubjects().indexOf(table.getSubjects().get(i)));
                     }
                 }
@@ -169,7 +169,7 @@ public class Subjects extends Fragment {
             }
         }
 
-        recycler.getAdapter().notifyDataSetChanged();
+        Objects.requireNonNull(recycler.getAdapter()).notifyDataSetChanged();
     }
 
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
@@ -201,7 +201,7 @@ public class Subjects extends Fragment {
                     Bundle args = new Bundle();
                     args.putSerializable("subject", table.getSubjects().get(getAdapterPosition()));
                     fragment.setArguments(args);
-                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
                     // slide in and out from the bottom animation set
                     transaction.setCustomAnimations(R.anim.slide_in_up, android.R.anim.fade_out, android.R.anim.fade_in, R.anim.slide_out_down);
                     transaction.replace(R.id.fragment, fragment);
@@ -229,15 +229,15 @@ public class Subjects extends Fragment {
             view.value.setText(doubleFormat.format(s.getAverage()));
             view.name.setText(s.name);
             view.text1.setText(String.format("%s: %s", getResources().getString(R.string.grades), doubleFormat.format(s.getGrades().size())));
-            view.icon1.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_grade));
+            view.icon1.setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.ic_grade));
             view.text2.setText(s.getLast().format(dateFormat));
-            view.icon2.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_lastest));
+            view.icon2.setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.ic_lastest));
 
             if (preferences.getBoolean("colorRings", true)) {
-                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((MainActivity.getGradeColor(getActivity(), table, s.getAverage())));
+                ((GradientDrawable) view.circle.getDrawable().mutate()).setColor((MainActivity.getGradeColor(getActivity(), table, s.getAverage(false))));
             }
 
-            view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getFragmentManager(), s)
+            view.edit.setOnClickListener(v -> new SubjectEditor.Builder(getParentFragmentManager(), s)
                     .setPositiveButton(v1 -> {
                         table.save();
                         updateList();

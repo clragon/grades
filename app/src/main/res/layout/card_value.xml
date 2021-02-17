@@ -153,22 +153,22 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:tint="?attr/colorControlNormal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline5"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@drawable/ic_edit" />
+                tools:srcCompat="@drawable/ic_edit"
+                app:tint="?attr/colorControlNormal" />
 
             <ImageView
                 android:id="@+id/value_icon1"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="2dp"
-                android:tint="?attr/colorControlNormal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@drawable/ic_edit" />
+                tools:srcCompat="@drawable/ic_edit"
+                app:tint="?attr/colorControlNormal" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
